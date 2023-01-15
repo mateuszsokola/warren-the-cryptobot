@@ -8,6 +8,7 @@ from warren.services.order_book_service import OrderBookService
 from warren.tokens.weth9 import WEth9
 from warren.uniswap.v3.router import uniswap_v3_router_address
 
+
 @pytest.mark.asyncio
 async def test_stop_losses(orderbook: OrderBookService):
     # current price = 1517024094830368309726
@@ -23,9 +24,7 @@ async def test_stop_losses(orderbook: OrderBookService):
     weth9 = WEth9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
     amount_in = int(1 * 10**18)
     await weth9.deposit(amount_in=amount_in)
-    await weth9.approve(
-        uniswap_v3_router_address, max_amount_in=amount_in
-    )
+    await weth9.approve(uniswap_v3_router_address, max_amount_in=amount_in)
 
     uniswap_v3_weth9_dai_pair = UniswapV3WEth9DaiTokenPair(
         async_web3=orderbook.async_web3,
@@ -50,7 +49,6 @@ async def test_stop_losses(orderbook: OrderBookService):
     assert dai_balance == int(1517024094830368309726)
 
 
-
 @pytest.mark.asyncio
 async def test_take_profit(orderbook: OrderBookService):
     # current price = 1517024094830368309726
@@ -66,9 +64,7 @@ async def test_take_profit(orderbook: OrderBookService):
     weth9 = WEth9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
     amount_in = int(1 * 10**18)
     await weth9.deposit(amount_in=amount_in)
-    await weth9.approve(
-        uniswap_v3_router_address, max_amount_in=amount_in
-    )
+    await weth9.approve(uniswap_v3_router_address, max_amount_in=amount_in)
 
     uniswap_v3_weth9_dai_pair = UniswapV3WEth9DaiTokenPair(
         async_web3=orderbook.async_web3,

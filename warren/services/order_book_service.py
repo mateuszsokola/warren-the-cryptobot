@@ -46,15 +46,9 @@ class OrderBookService:
                     token_out_balance,
                 ) = uniswap_v3_weth9_dai_pair.balances()
 
-                if (
-                    order.type.value == OrderType["stop_loss"].value
-                    and current_price <= order.trigger_price
-                ):
+                if order.type.value == OrderType["stop_loss"].value and current_price <= order.trigger_price:
                     amount_in = int(token_in_balance * order.percent)
-                elif (
-                    order.type.value == OrderType["take_profit"].value
-                    and current_price >= order.trigger_price
-                ):
+                elif order.type.value == OrderType["take_profit"].value and current_price >= order.trigger_price:
                     amount_in = int(token_in_balance * order.percent)
                 else:
                     await asyncio.sleep(0)
@@ -62,12 +56,9 @@ class OrderBookService:
 
                 try:
                     await uniswap_v3_weth9_dai_pair.swap(amount_in=amount_in)
-                    self.database.change_order_status(
-                        id=order.id, status=OrderStatus.executed
-                    )
+                    self.database.change_order_status(id=order.id, status=OrderStatus.executed)
                     logger.info(f"Order #{order.id} has been executed")
                 except Exception as e:
                     raise e
-
 
         self.latest_checked_block = latest_block["number"]

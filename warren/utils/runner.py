@@ -15,9 +15,7 @@ class Runner:
 
     def __init__(self):
         if Runner.__shared_instance is not None:
-            raise Exception(
-                "This is a singleton, please use Runner.getInstance() to access it."
-            )
+            raise Exception("This is a singleton, please use Runner.getInstance() to access it.")
         else:
             Runner.__shared_instance = self
             self.shutdown = False
@@ -32,18 +30,12 @@ class Runner:
         for task in asyncio.all_tasks():
             if "cancellable_sleep" not in task.get_name():
                 continue
-            logger.info(
-                f"{task.get_name()}: {task.get_coro().__name__} is shutting down..."
-            )
+            logger.info(f"{task.get_name()}: {task.get_coro().__name__} is shutting down...")
             try:
                 task.cancel()
-                logger.info(
-                    f"{task.get_name()}: {task.get_coro().__name__} cancelled successfully!"
-                )
+                logger.info(f"{task.get_name()}: {task.get_coro().__name__} cancelled successfully!")
             except Exception as ex:
-                logger.info(
-                    f"{task.get_name()}: {task.get_coro().__name__} shutdown failed..."
-                )
+                logger.info(f"{task.get_name()}: {task.get_coro().__name__} shutdown failed...")
                 logger.info(f"{task.get_name()}: {ex}")
 
     async def with_loop(self, fn: Callable, interval: int, stop_on_exception=True):

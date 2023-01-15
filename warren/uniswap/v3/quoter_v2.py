@@ -18,9 +18,7 @@ class UniswapV3QuoterV2:
             abi=load_contract_abi("IQuoterV2.json", "artifacts/uniswap/v3"),
         )
 
-    def quote_exact_input_single(
-        self, params: QuoteExactInputSingleParams
-    ) -> QuoteExactInputSingle:
+    def quote_exact_input_single(self, params: QuoteExactInputSingleParams) -> QuoteExactInputSingle:
         (
             amount_out,
             sqrt_price_limit_x96_after,

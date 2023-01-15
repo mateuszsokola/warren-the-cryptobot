@@ -37,9 +37,7 @@ class SetupWizard:
         return account_file.encrypt(passphrase)
 
     @staticmethod
-    def create_geth_file_in_config_dir(
-        encrypted_wallet: str, config_path: str, file_name: str = "geth_account"
-    ):
+    def create_geth_file_in_config_dir(encrypted_wallet: str, config_path: str, file_name: str = "geth_account"):
         SetupWizard.create_config_dir_if_needed(config_path)
 
         geth_account_path = f"{config_path}/{file_name}"
@@ -47,9 +45,7 @@ class SetupWizard:
             account_file.write(json.dumps(encrypted_wallet))
 
     @staticmethod
-    def create_database_in_config_dir(
-        option_list: List[OptionDto], config_path: str, file_name: str = "database.dat"
-    ):
+    def create_database_in_config_dir(option_list: List[OptionDto], config_path: str, file_name: str = "database.dat"):
         SetupWizard.create_config_dir_if_needed(config_path)
 
         database_file = f"{config_path}/{file_name}"

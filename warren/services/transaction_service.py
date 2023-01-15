@@ -33,9 +33,7 @@ class TransactionService:
 
         except ValueError as value_error:
             error_json = ast.literal_eval(str(value_error))
-            tx_receipt = await self.async_web3.eth.wait_for_transaction_receipt(
-                error_json["data"]["txHash"]
-            )
+            tx_receipt = await self.async_web3.eth.wait_for_transaction_receipt(error_json["data"]["txHash"])
             logger.error(
                 f"Transaction #{tx_receipt.transactionHash.hex()} failed. Increase gas limit. Gas limit: {tx['gas']} gas used: {tx_receipt['gasUsed']} "
             )

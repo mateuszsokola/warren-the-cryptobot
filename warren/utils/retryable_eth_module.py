@@ -83,17 +83,12 @@ def retryable_eth_module(base: Type[Eth] | Type[AsyncEth]):
                                 asyncio.TimeoutError,
                             )
                         ),
-                        retry_if_exception(
-                            lambda e: isinstance(e, HTTPError)
-                            and e.response.status_code in [429, 502]
-                        ),
+                        retry_if_exception(lambda e: isinstance(e, HTTPError) and e.response.status_code in [429, 502]),
                     ),
                     wait=wait_fixed(5),
                     reraise=True,
                     before=before,
-                    before_sleep=before_sleep_log(
-                        logger=logger, log_level=logging.WARNING
-                    ),
+                    before_sleep=before_sleep_log(logger=logger, log_level=logging.WARNING),
                     stop=StopOnShutdown(),
                 )(object.__getattribute__(self, name)(*args, *kargs))
             else:

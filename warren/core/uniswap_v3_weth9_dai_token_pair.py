@@ -16,9 +16,7 @@ from warren.uniswap.v3.router import UniswapV3Router
 
 # TODO(mateu.sh): It doesn't belong to the ./core directory
 class UniswapV3WEth9DaiTokenPair(BaseTokenPair):
-    def __init__(
-        self, web3: Web3, async_web3: Web3, transaction_service: TransactionService
-    ):
+    def __init__(self, web3: Web3, async_web3: Web3, transaction_service: TransactionService):
         super().__init__(
             web3,
             async_web3,
@@ -68,10 +66,8 @@ class UniswapV3WEth9DaiTokenPair(BaseTokenPair):
             fee=self.uniswap_v3_pool.fee(),
             sqrt_price_limit_x96=0,
         )
-        quote_exact_input_single: QuoteExactInputSingle = (
-            self.uniswap_v3_quoter_v2.quote_exact_input_single(
-                quote_exact_input_single_params
-            )
+        quote_exact_input_single: QuoteExactInputSingle = self.uniswap_v3_quoter_v2.quote_exact_input_single(
+            quote_exact_input_single_params
         )
-        
+
         return quote_exact_input_single.amount_out

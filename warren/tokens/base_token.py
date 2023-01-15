@@ -16,9 +16,7 @@ class BaseToken:
         self.transaction_service = transaction_service
         self.name = name
         self.address = address
-        self.contract = web3.eth.contract(
-            address=address, abi=load_contract_abi(abi_name, "artifacts/tokens")
-        )
+        self.contract = web3.eth.contract(address=address, abi=load_contract_abi(abi_name, "artifacts/tokens"))
 
     async def approve(self, address: str, max_amount_in: int, gas: int = 120000):
         max_tx_fees = await self.transaction_service.calculate_tx_fees()

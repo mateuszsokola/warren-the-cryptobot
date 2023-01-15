@@ -91,14 +91,9 @@ class Database:
         select_query = "SELECT id, option_name, option_value FROM warren_options"
         res = self.cur.execute(f"{select_query}").fetchall()
 
-        return [
-            OptionDto(id=id, option_name=option_name, option_value=option_value)
-            for (id, option_name, option_value) in res
-        ]
+        return [OptionDto(id=id, option_name=option_name, option_value=option_value) for (id, option_name, option_value) in res]
 
-    def list_orders(
-        self, status: OrderStatus | None = None, func=order_dao_factory
-    ) -> List[OrderDao]:
+    def list_orders(self, status: OrderStatus | None = None, func=order_dao_factory) -> List[OrderDao]:
         select_query = """
             SELECT 
             id, type, token_pair, trigger_price, percent, status
@@ -107,8 +102,6 @@ class Database:
         if status is None:
             res = self.cur.execute(f"{select_query}").fetchall()
         else:
-            res = self.cur.execute(
-                f"{select_query} WHERE status = ?", [status.name]
-            ).fetchall()
+            res = self.cur.execute(f"{select_query} WHERE status = ?", [status.name]).fetchall()
 
         return [func(order) for order in res]

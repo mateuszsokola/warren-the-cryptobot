@@ -23,7 +23,7 @@ class WEth9(BaseToken):
                 "gas": gas_limit,
                 "maxPriorityFeePerGas": tx_fees.max_priority_fee_per_gas,
                 "maxFeePerGas": tx_fees.max_fee_per_gas,
-                "value": amount_in
+                "value": amount_in,
             }
         )
 

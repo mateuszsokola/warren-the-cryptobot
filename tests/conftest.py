@@ -17,5 +17,3 @@ def event_loop():
 @pytest.fixture(scope="module")
 def bot():
     return accounts[0]
-
-

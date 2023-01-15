@@ -58,4 +58,3 @@ def isolation(fn_isolation, orderbook):
     orderbook.database.con.commit()
     # after tests revert to initial blockchain snapshot
     chain.revert()
-
