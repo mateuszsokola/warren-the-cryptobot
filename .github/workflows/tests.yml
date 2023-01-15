@@ -1,0 +1,33 @@
+name: Run tests
+on:
+  pull_request:
+    types: [opened, synchronize]
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10     
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version-file: .python-version
+      - run: |
+          make install
+      - name: Check style format
+        run: make lint
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16.14.2'
+          cache: 'npm'
+      - name: Install Node.js dependencies
+        run: |
+          npm install -g ganache
+      - name: Run tests
+        env: 
+          ALCHEMY_TOKEN: ${{ secrets.ALCHEMY_TOKEN }}      
+        run: |
+          brownie networks add Development eth-mainnet-fork host=http://127.0.0.1 port=8545 cmd=ganache evm_version=merge fork=https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_TOKEN@16405896 accounts=10
+          make test

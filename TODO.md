@@ -7,7 +7,7 @@
 * [X] - move config to database 
 * [X] - add unit tests
 * [X] - configure project - setup.cfg, requirements.txt, requirements-dev.txt
-* [] - configure CI
+* [X] - configure CI
 * [] - add README.md
 * [] - uniswap pool should accept different smart contracts - now it is eth-dai
 * [] - create docker image
