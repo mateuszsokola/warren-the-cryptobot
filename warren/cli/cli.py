@@ -19,6 +19,7 @@ from warren.utils.format_exception import format_exception
 from warren.utils.logger import logger
 from warren.utils.print_order_table import print_order_table
 from warren.utils.runner import Runner
+from warren.utils.to_wei import to_wei
 
 main_app = typer.Typer()
 
@@ -237,14 +238,14 @@ def create_order(
 
     token_pair_idx = int(Prompt.ask("Choose token pair", choices=choices))
 
-    trigger_price = Decimal(Prompt.ask("Trigger price (DAI)")) * Decimal(10**18)
+    trigger_price = Decimal(Prompt.ask("Trigger price (DAI)"))
 
     percent_of_tokens = Decimal(Prompt.ask("Percent of tokens to flip (excluding gas fees)", default=str(100)))
 
     new_order = OrderDto(
         type=order_types[order_type_idx],
         token_pair=token_pairs[token_pair_idx],
-        trigger_price=int(trigger_price),
+        trigger_price=to_wei(trigger_price, decimals=Dai.decimals()),
         percent=Decimal(percent_of_tokens / Decimal(100)),
         status=OrderStatus.active,
     )

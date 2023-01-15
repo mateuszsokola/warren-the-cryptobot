@@ -5,17 +5,20 @@ from warren.core.uniswap_v3_weth9_dai_token_pair import UniswapV3WEth9DaiTokenPa
 from warren.models.order import OrderDto, OrderStatus, OrderType
 from warren.models.token_pair import TokenPair
 from warren.services.order_book_service import OrderBookService
+from warren.tokens.dai import Dai
 from warren.tokens.weth9 import WEth9
 from warren.uniswap.v3.router import uniswap_v3_router_address
+from warren.utils.to_wei import to_wei
 
 
 @pytest.mark.asyncio
 async def test_stop_losses(orderbook: OrderBookService):
     # current price = 1517024094830368309726
+    trigger_price = to_wei(Decimal(1520.5), decimals=Dai.decimals())
     mock_order = OrderDto(
         type=OrderType.stop_loss,
         token_pair=TokenPair.weth9_dai,
-        trigger_price=int(1600000000000000000000),
+        trigger_price=int(trigger_price),
         percent=Decimal(1),
         status=OrderStatus.active,
     )
@@ -52,10 +55,11 @@ async def test_stop_losses(orderbook: OrderBookService):
 @pytest.mark.asyncio
 async def test_take_profit(orderbook: OrderBookService):
     # current price = 1517024094830368309726
+    trigger_price = to_wei(Decimal(1500.75666), decimals=Dai.decimals())
     mock_order = OrderDto(
         type=OrderType.take_profit,
         token_pair=TokenPair.weth9_dai,
-        trigger_price=int(1500000000000000000000),
+        trigger_price=int(trigger_price),
         percent=Decimal(1),
         status=OrderStatus.active,
     )

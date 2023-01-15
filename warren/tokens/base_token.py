@@ -35,3 +35,7 @@ class BaseToken:
 
     def balance_of(self, address: str):
         return self.contract.functions.balanceOf(address).call()
+
+    @staticmethod
+    def decimals() -> int:
+        return 18
