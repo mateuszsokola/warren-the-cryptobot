@@ -27,8 +27,9 @@ format:
 
 install: clean
 	pip install --editable .
+
+install-dev: install
 	pip install -r requirements-dev.txt
-	npm ci
 
 test:
 	brownie test --network eth-mainnet-fork -s

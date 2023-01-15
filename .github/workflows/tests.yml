@@ -14,17 +14,14 @@ jobs:
         with:
           python-version-file: .python-version
       - run: |
-          make install
+          make install-dev
       - name: Check style format
         run: make lint
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16.14.2'
-          cache: 'npm'
-      - name: Install Node.js dependencies
-        run: |
-          npm install -g ganache
+      - run: npm install -g ganache
       - name: Run tests
         env: 
           ALCHEMY_TOKEN: ${{ secrets.ALCHEMY_TOKEN }}      

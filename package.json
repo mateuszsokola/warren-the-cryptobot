@@ -1,6 +1,0 @@
-{
-  "name": "warren-the-cryptobot",
-  "dependencies": {
-    "ganache": "latest"
-  }
-}
