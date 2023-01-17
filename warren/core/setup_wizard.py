@@ -81,3 +81,10 @@ class SetupWizard:
             return None
 
         return database_file
+
+    @staticmethod
+    def get_wallet_address_from_config(config_path: str):
+        geth_file = SetupWizard.geth_file_path(config_path)
+        with open(geth_file, "r") as f:
+            data = json.load(f)
+            return data["address"]
