@@ -5,5 +5,21 @@ __pycache__
 build/
 reports/
 node_modules/
-geth-keyfile.txt
 NOTES.md
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+.eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+venv*

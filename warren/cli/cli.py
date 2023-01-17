@@ -19,6 +19,7 @@ from warren.utils.format_exception import format_exception
 from warren.utils.logger import logger
 from warren.utils.print_order_table import print_order_table
 from warren.utils.runner import Runner
+from warren.utils.to_human import to_human
 from warren.utils.to_wei import to_wei
 
 main_app = typer.Typer()
@@ -104,7 +105,8 @@ def setup():
     SetupWizard.create_geth_file_in_config_dir(encrypted_wallet=encrypted_wallet, config_path=config_path)
 
     # Success!
-    console.print(f"Your wallet credentials has been saved in {config_path}")
+    console.print(f"Your wallet credentials has been saved in {config_path}\n")
+    console.print(f"Your wallet address is [green]0x{SetupWizard.get_wallet_address_from_config(config_path)}[/green]\n")
 
 
 @main_app.command()
@@ -161,21 +163,21 @@ def wrap_ether_and_approve_uniswap_v3_router(
         weth9 = WEth9(web3=service.web3, transaction_service=service.transaction_service)
 
         current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
-        console.print(f"Before ETH balance: {current_balance} wei")
+        console.print(f"Before ETH balance: {to_human(current_balance, decimals=WEth9.decimals())} ETH")
         weth9_balance = weth9.balance_of(service.web3.eth.default_account)
-        console.print(f"Before WETH9 balance: {weth9_balance} wei")
+        console.print(f"Before WETH9 balance: {to_human(weth9_balance, decimals=WEth9.decimals())} WETH9")
 
-        amount_in = int(Prompt.ask("Enter amount to wrap"))
-        tx_hash = await weth9.deposit(amount_in=amount_in)
-        console.print(f"Wrapped {amount_in} wei into WETH9 wei", tx_hash)
+        amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
+        tx_hash = await weth9.deposit(amount_in=to_wei(amount_in, decimals=WEth9.decimals()))
+        console.print(f"Wrapped {to_human(amount_in, decimals=WEth9.decimals())} ETH into WETH9", tx_hash)
 
         tx_hash = await weth9.approve(uniswap_v3_router_address, max_amount_in=amount_in)
         console.print(f"Allowed Uniswap v3 Router to execute transactions \n", tx_hash)
 
         current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
-        console.print(f"After ETH balance: {current_balance} wei")
+        console.print(f"After ETH balance: {to_human(current_balance, decimals=WEth9.decimals())} ETH")
         weth9_balance = weth9.balance_of(service.web3.eth.default_account)
-        console.print(f"After WETH9 balance: {weth9_balance} wei")
+        console.print(f"After WETH9 balance: {to_human(weth9_balance, decimals=WEth9.decimals())} WETH9")
 
     asyncio.run(main())
 
