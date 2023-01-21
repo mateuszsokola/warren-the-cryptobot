@@ -10,6 +10,7 @@ Trading order book for Uniswap v3.
 ## Supported swaps
 
 * [ETH](https://coinmarketcap.com/currencies/ethereum/) to [DAI](https://coinmarketcap.com/currencies/multi-collateral-dai/) (on Ethereum Mainnet)
+* [DAI](https://coinmarketcap.com/currencies/multi-collateral-dai/) to [ETH](https://coinmarketcap.com/currencies/ethereum/) (on Ethereum Mainnet)
 * More to be added.
 
 ## Commands

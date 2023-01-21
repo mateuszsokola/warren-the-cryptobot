@@ -8,6 +8,7 @@ from rich.prompt import Prompt, Confirm
 
 from warren.core.create_database import create_database
 from warren.core.create_service import create_service
+from warren.core.create_token_pair import create_token_pair
 from warren.core.setup_wizard import SetupWizard
 from warren.models.option import OptionDto
 from warren.models.order import OrderDto, OrderStatus, OrderType
@@ -147,9 +148,7 @@ def start(
 
 
 @main_app.command()
-def wrap_ether_and_approve_uniswap_v3_router(
-    config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory.")
-):
+def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory.")):
     async def main():
         console: Console = Console()
 
@@ -158,7 +157,8 @@ def wrap_ether_and_approve_uniswap_v3_router(
             console.print("It seems like the config path does not exist. Did you run the setup script?")
             sys.exit(1)
 
-        service = create_service(config_dir)
+        passphrase = Prompt.ask("Enter passphrase")
+        service = create_service(config_path=config_dir, passphrase=passphrase)
 
         weth9 = WEth9(web3=service.web3, transaction_service=service.transaction_service)
 
@@ -170,9 +170,6 @@ def wrap_ether_and_approve_uniswap_v3_router(
         amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
         tx_hash = await weth9.deposit(amount_in=to_wei(amount_in, decimals=WEth9.decimals()))
         console.print(f"Wrapped {to_human(amount_in, decimals=WEth9.decimals())} ETH into WETH9", tx_hash)
-
-        tx_hash = await weth9.approve(uniswap_v3_router_address, max_amount_in=amount_in)
-        console.print(f"Allowed Uniswap v3 Router to execute transactions \n", tx_hash)
 
         current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
         console.print(f"After ETH balance: {to_human(current_balance, decimals=WEth9.decimals())} ETH")
@@ -213,47 +210,66 @@ def wallet_balance(
 def create_order(
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
 ):
-    console: Console = Console()
+    async def main():
+        console: Console = Console()
 
-    incorrect_config_dir = SetupWizard.verify_config_path(config_path=config_dir) == False
-    if incorrect_config_dir:
-        console.print("It seems like the config path does not exist. Did you run the setup script?")
-        sys.exit(1)
+        incorrect_config_dir = SetupWizard.verify_config_path(config_path=config_dir) == False
+        if incorrect_config_dir:
+            console.print("It seems like the config path does not exist. Did you run the setup script?")
+            sys.exit(1)
 
-    service = create_database(config_dir)
+        passphrase = Prompt.ask("Enter passphrase")
+        order_book_v2 = create_service(config_path=config_dir, passphrase=passphrase)
 
-    order_types = []
-    choices = []
-    for idx, order_type_idx in enumerate(OrderType):
-        console.print(f"{idx}) {order_type_idx.value}")
-        order_types.append(order_type_idx)
-        choices.append(str(idx))
+        order_types = []
+        choices = []
+        for idx, order_type_idx in enumerate(OrderType):
+            console.print(f"{idx}) {order_type_idx.value}")
+            order_types.append(order_type_idx)
+            choices.append(str(idx))
 
-    order_type_idx = int(Prompt.ask("Choose order type", choices=choices))
+        order_type_idx = int(Prompt.ask("Choose order type", choices=choices))
 
-    token_pairs = []
-    choices = []
-    for idx, token_pair_idx in enumerate(TokenPair):
-        console.print(f"{idx}) {token_pair_idx.value}")
-        token_pairs.append(token_pair_idx)
-        choices.append(str(idx))
+        token_pairs = []
+        choices = []
+        for idx, token_pair_idx in enumerate(TokenPair):
+            console.print(f"{idx}) {token_pair_idx.value}")
+            token_pairs.append(token_pair_idx)
+            choices.append(str(idx))
 
-    token_pair_idx = int(Prompt.ask("Choose token pair", choices=choices))
+        token_pair_idx = int(Prompt.ask("Choose token pair", choices=choices))
 
-    trigger_price = Decimal(Prompt.ask("Trigger price (DAI)"))
+        token_pair = create_token_pair(
+            async_web3=order_book_v2.async_web3,
+            web3=order_book_v2.web3,
+            transaction_service=order_book_v2.transaction_service,
+            token_pair=token_pairs[token_pair_idx],
+        )
 
-    percent_of_tokens = Decimal(Prompt.ask("Percent of tokens to flip (excluding gas fees)", default=str(100)))
+        token_in_balance = token_pair.token_in.balance_of(order_book_v2.web3.eth.default_account)
+        console.print(f"Balance: [green]{to_human(token_in_balance)}[green]")
 
-    new_order = OrderDto(
-        type=order_types[order_type_idx],
-        token_pair=token_pairs[token_pair_idx],
-        trigger_price=to_wei(trigger_price, decimals=Dai.decimals()),
-        percent=Decimal(percent_of_tokens / Decimal(100)),
-        status=OrderStatus.active,
-    )
-    service.create_order(order=new_order)
+        if token_in_balance < 1000000000000000:
+            console.print(f"You don't have enough tokens")
+            sys.exit(1)
 
-    console.print(f"The new order has been created.")
+        trigger_price = Decimal(Prompt.ask("Trigger price"))
+
+        percent_of_tokens = Decimal(Prompt.ask("Percent of tokens to flip (excluding gas fees)", default=str(100)))
+        await token_pair.token_in.approve(uniswap_v3_router_address, max_amount_in=token_in_balance)
+
+        new_order = OrderDto(
+            type=order_types[order_type_idx],
+            token_pair=token_pairs[token_pair_idx],
+            trigger_price=to_wei(trigger_price, decimals=Dai.decimals()),
+            percent=Decimal(percent_of_tokens / Decimal(100)),
+            status=OrderStatus.active,
+        )
+        order_book_v2.database.create_order(order=new_order)
+
+        console.print(f"The new order has been created.")
+
+    asyncio.run(main())
 
 
 @main_app.command()

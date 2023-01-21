@@ -1,7 +1,7 @@
 import asyncio
 from web3 import Web3
+from warren.core.create_token_pair import create_token_pair
 from warren.core.database import Database
-from warren.core.uniswap_v3_weth9_dai_token_pair import UniswapV3WEth9DaiTokenPair
 from warren.models.order import OrderStatus, OrderType
 from warren.services.transaction_service import TransactionService
 from warren.utils.logger import logger
@@ -31,34 +31,33 @@ class OrderBookService:
         if latest_block["number"] == self.latest_checked_block:
             return
 
-        # TODO(mateu.sh): refactor to handle multiple pairs
         for order in order_list:
-            if order.token_pair.value == "WETH9/DAI":
-                uniswap_v3_weth9_dai_pair = UniswapV3WEth9DaiTokenPair(
-                    async_web3=self.async_web3,
-                    web3=self.web3,
-                    transaction_service=self.transaction_service,
-                )
+            token_pair = create_token_pair(
+                async_web3=self.async_web3,
+                web3=self.web3,
+                transaction_service=self.transaction_service,
+                token_pair=order.token_pair,
+            )
 
-                current_price = uniswap_v3_weth9_dai_pair.quote()
-                (
-                    token_in_balance,
-                    token_out_balance,
-                ) = uniswap_v3_weth9_dai_pair.balances()
+            current_price = token_pair.quote()
+            (
+                token_in_balance,
+                token_out_balance,
+            ) = token_pair.balances()
 
-                if order.type.value == OrderType["stop_loss"].value and current_price <= order.trigger_price:
-                    amount_in = int(token_in_balance * order.percent)
-                elif order.type.value == OrderType["take_profit"].value and current_price >= order.trigger_price:
-                    amount_in = int(token_in_balance * order.percent)
-                else:
-                    await asyncio.sleep(0)
-                    continue
+            if order.type.value == OrderType["stop_loss"].value and current_price <= order.trigger_price:
+                amount_in = int(token_in_balance * order.percent)
+            elif order.type.value == OrderType["take_profit"].value and current_price >= order.trigger_price:
+                amount_in = int(token_in_balance * order.percent)
+            else:
+                await asyncio.sleep(0)
+                continue
 
-                try:
-                    await uniswap_v3_weth9_dai_pair.swap(amount_in=amount_in)
-                    self.database.change_order_status(id=order.id, status=OrderStatus.executed)
-                    logger.info(f"Order #{order.id} has been executed")
-                except Exception as e:
-                    raise e
+            try:
+                await token_pair.swap(amount_in=amount_in)
+                self.database.change_order_status(id=order.id, status=OrderStatus.executed)
+                logger.info(f"Order #{order.id} has been executed")
+            except Exception as e:
+                raise e
 
         self.latest_checked_block = latest_block["number"]

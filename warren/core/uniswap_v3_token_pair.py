@@ -1,9 +1,8 @@
 from web3 import Web3
+from warren.tokens.base_token import BaseToken
 from warren.services.base_token_pair import BaseTokenPair
 from warren.services.transaction_service import TransactionService
 
-from warren.tokens.dai import Dai
-from warren.tokens.weth9 import WEth9
 from warren.uniswap.v3.models.exact_input_single_params import ExactInputSingleParams
 from warren.uniswap.v3.models.quote_exact_input_single_params import (
     QuoteExactInputSingle,
@@ -14,15 +13,16 @@ from warren.uniswap.v3.quoter_v2 import UniswapV3QuoterV2
 from warren.uniswap.v3.router import UniswapV3Router
 
 
-# TODO(mateu.sh): It doesn't belong to the ./core directory
-class UniswapV3WEth9DaiTokenPair(BaseTokenPair):
-    def __init__(self, web3: Web3, async_web3: Web3, transaction_service: TransactionService):
+class UniswapV3TokenPair(BaseTokenPair):
+    def __init__(
+        self, web3: Web3, async_web3: Web3, transaction_service: TransactionService, token_in: BaseToken, token_out: BaseToken
+    ):
         super().__init__(
             web3,
             async_web3,
             transaction_service,
-            token_in=WEth9(web3=web3, transaction_service=transaction_service),
-            token_out=Dai(web3=web3, transaction_service=transaction_service),
+            token_in=token_in,
+            token_out=token_out,
         )
 
         self.uniswap_v3_pool = UniswapV3Pool(web3)

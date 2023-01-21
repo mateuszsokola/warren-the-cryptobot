@@ -1,7 +1,7 @@
 import pytest
 
 from decimal import Decimal
-from warren.core.uniswap_v3_weth9_dai_token_pair import UniswapV3WEth9DaiTokenPair
+from warren.core.create_token_pair import create_token_pair
 from warren.models.order import OrderDto, OrderStatus, OrderType
 from warren.models.token_pair import TokenPair
 from warren.services.order_book_service import OrderBookService
@@ -29,10 +29,11 @@ async def test_stop_losses(orderbook: OrderBookService):
     await weth9.deposit(amount_in=amount_in)
     await weth9.approve(uniswap_v3_router_address, max_amount_in=amount_in)
 
-    uniswap_v3_weth9_dai_pair = UniswapV3WEth9DaiTokenPair(
+    uniswap_v3_weth9_dai_pair = create_token_pair(
         async_web3=orderbook.async_web3,
         web3=orderbook.web3,
         transaction_service=orderbook.transaction_service,
+        token_pair=TokenPair.weth9_dai,
     )
 
     (weth9_balance, dai_balance) = uniswap_v3_weth9_dai_pair.balances()
@@ -70,10 +71,11 @@ async def test_take_profit(orderbook: OrderBookService):
     await weth9.deposit(amount_in=amount_in)
     await weth9.approve(uniswap_v3_router_address, max_amount_in=amount_in)
 
-    uniswap_v3_weth9_dai_pair = UniswapV3WEth9DaiTokenPair(
+    uniswap_v3_weth9_dai_pair = create_token_pair(
         async_web3=orderbook.async_web3,
         web3=orderbook.web3,
         transaction_service=orderbook.transaction_service,
+        token_pair=TokenPair.weth9_dai,
     )
 
     (weth9_balance, dai_balance) = uniswap_v3_weth9_dai_pair.balances()
