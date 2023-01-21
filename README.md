@@ -11,6 +11,8 @@ Trading order book for Uniswap v3.
 
 * [ETH](https://coinmarketcap.com/currencies/ethereum/) to [DAI](https://coinmarketcap.com/currencies/multi-collateral-dai/) (on Ethereum Mainnet)
 * [DAI](https://coinmarketcap.com/currencies/multi-collateral-dai/) to [ETH](https://coinmarketcap.com/currencies/ethereum/) (on Ethereum Mainnet)
+* [ETH](https://coinmarketcap.com/currencies/ethereum/) to [WBTC](https://coinmarketcap.com/currencies/wrapped-bitcoin/) (on Ethereum Mainnet)
+* [WBTC](https://coinmarketcap.com/currencies/wrapped-bitcoin/) to [ETH](https://coinmarketcap.com/currencies/ethereum/) (on Ethereum Mainnet)
 * More to be added.
 
 ## Commands
@@ -56,7 +58,7 @@ You should backup wallet credentials created by Warren. If you lose it you will 
 Once the application is setup, and you transfered Ether into your wallet you will need to wrap Ether into Wrapped Ether. Otherwise Warren will not be able to perform transactions.
 
 ```bash
-python -m warren wrap-ether-and-approve-uniswap-v3-router
+python -m warren wrap-ether
 ````
 
 > Remember to leave some Ether "unwrapped". Otherwise Warren won’t be able to pay transaction fees and your swaps will fail. 
