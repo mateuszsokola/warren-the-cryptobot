@@ -15,7 +15,13 @@ from warren.uniswap.v3.router import UniswapV3Router
 
 class UniswapV3TokenPair(BaseTokenPair):
     def __init__(
-        self, web3: Web3, async_web3: Web3, transaction_service: TransactionService, token_in: BaseToken, token_out: BaseToken
+        self,
+        web3: Web3,
+        async_web3: Web3,
+        transaction_service: TransactionService,
+        token_in: BaseToken,
+        token_out: BaseToken,
+        min_balance_to_transact: int = 0,
     ):
         super().__init__(
             web3,
@@ -23,6 +29,7 @@ class UniswapV3TokenPair(BaseTokenPair):
             transaction_service,
             token_in=token_in,
             token_out=token_out,
+            min_balance_to_transact=min_balance_to_transact,
         )
 
         self.uniswap_v3_pool = UniswapV3Pool(web3)

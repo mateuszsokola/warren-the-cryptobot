@@ -14,6 +14,7 @@ from warren.models.option import OptionDto
 from warren.models.order import OrderDto, OrderStatus, OrderType
 from warren.models.token_pair import TokenPair
 from warren.tokens.dai import Dai
+from warren.tokens.wbtc import WBtc
 from warren.tokens.weth9 import WEth9
 from warren.uniswap.v3.router import uniswap_v3_router_address
 from warren.utils.format_exception import format_exception
@@ -169,6 +170,8 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
 
         amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
         tx_hash = await weth9.deposit(amount_in=to_wei(amount_in, decimals=WEth9.decimals()))
+
+        # TODO(mateu.sh): Fix output of this function. It returns "Wrapped 5E-18 ETH into WETH9 None" when 5 ETH given
         console.print(f"Wrapped {to_human(amount_in, decimals=WEth9.decimals())} ETH into WETH9", tx_hash)
 
         current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
@@ -179,8 +182,10 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
     asyncio.run(main())
 
 
+# TODO(mateu.sh): use loop
+# TODO(mateu.sh): use table to print results - it will look better
 @main_app.command()
-def wallet_balance(
+def balances(
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
 ):
     console: Console = Console()
@@ -194,18 +199,18 @@ def wallet_balance(
 
     console.print("")
     console.print("Token balances:\n")
-    console.print(f"  ETH: {service.web3.eth.get_balance(service.web3.eth.default_account)} wei")
+    console.print(f"  ETH: {to_human(service.web3.eth.get_balance(service.web3.eth.default_account), decimals=WEth9.decimals())}")
     weth9 = WEth9(web3=service.web3, transaction_service=service.transaction_service)
-    console.print(f"WETH9: {weth9.balance_of(service.web3.eth.default_account)} wei")
+    console.print(f"WETH9: {to_human(weth9.balance_of(service.web3.eth.default_account), decimals=WEth9.decimals())}")
     dai = Dai(web3=service.web3, transaction_service=service.transaction_service)
-    console.print(f"  DAI: {dai.balance_of(service.web3.eth.default_account)}")
+    console.print(f"  DAI: {to_human(dai.balance_of(service.web3.eth.default_account), decimals=WEth9.decimals())}")
+    wbtc = WBtc(web3=service.web3, transaction_service=service.transaction_service)
+    console.print(f" WBTC: {to_human(wbtc.balance_of(service.web3.eth.default_account), decimals=WEth9.decimals())}")
 
 
+# TODO(mateu.sh): fix to_human helper. It returns scientific formatting.
 # TODO(mateu.sh): support ETH wrapping
 # TODO(mateu.sh): get rid of repeated code
-# TODO(mateu.sh): fetch price real time
-# TODO(mateu.sh): get token decimals from classes
-# TODO(mateu.sh): generalize tokens
 @main_app.command()
 def create_order(
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
@@ -247,9 +252,10 @@ def create_order(
         )
 
         token_in_balance = token_pair.token_in.balance_of(order_book_v2.web3.eth.default_account)
-        console.print(f"Balance: [green]{to_human(token_in_balance)}[green]")
+        console.print(f"Current price: {to_human(token_pair.quote(), decimals=token_pair.token_in.decimals())}")
+        console.print(f"Balance: [green]{to_human(token_in_balance, decimals=token_pair.token_in.decimals())}[green]")
 
-        if token_in_balance < 1000000000000000:
+        if token_in_balance < token_pair.min_balance_to_transact:
             console.print(f"You don't have enough tokens")
             sys.exit(1)
 
@@ -261,7 +267,7 @@ def create_order(
         new_order = OrderDto(
             type=order_types[order_type_idx],
             token_pair=token_pairs[token_pair_idx],
-            trigger_price=to_wei(trigger_price, decimals=Dai.decimals()),
+            trigger_price=to_wei(trigger_price, decimals=token_pair.token_in.decimals()),
             percent=Decimal(percent_of_tokens / Decimal(100)),
             status=OrderStatus.active,
         )
