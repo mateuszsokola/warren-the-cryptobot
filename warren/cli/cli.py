@@ -14,6 +14,7 @@ from warren.models.option import OptionDto
 from warren.models.order import OrderDto, OrderStatus, OrderType
 from warren.models.token_pair import TokenPair
 from warren.tokens.dai import Dai
+from warren.tokens.usdc import UsdC
 from warren.tokens.wbtc import WBtc
 from warren.tokens.weth9 import WEth9
 from warren.uniswap.v3.router import uniswap_v3_router_address
@@ -203,6 +204,8 @@ def balances(
     console.print(f"WETH9: {to_human(weth9.balance_of(service.web3.eth.default_account), decimals=WEth9.decimals())}")
     dai = Dai(web3=service.web3, transaction_service=service.transaction_service)
     console.print(f"  DAI: {to_human(dai.balance_of(service.web3.eth.default_account), decimals=Dai.decimals())}")
+    usdc = UsdC(web3=service.web3, transaction_service=service.transaction_service)
+    console.print(f" USDC: {to_human(usdc.balance_of(service.web3.eth.default_account), decimals=UsdC.decimals())}")
     wbtc = WBtc(web3=service.web3, transaction_service=service.transaction_service)
     console.print(f" WBTC: {to_human(wbtc.balance_of(service.web3.eth.default_account), decimals=WBtc.decimals())}")
 
@@ -250,8 +253,8 @@ def create_order(
         )
 
         token_in_balance = token_pair.token_in.balance_of(order_book_v2.web3.eth.default_account)
-        console.print(f"Current price: {to_human(token_pair.quote(), decimals=token_pair.token_in.decimals())}")
-        console.print(f"Balance: [green]{to_human(token_in_balance, decimals=token_pair.token_in.decimals())}[green]")
+        console.print(f"Current price: {to_human(token_pair.quote(), decimals=token_pair.token_out.decimals())} {token_pair.token_out.name}")
+        console.print(f"Balance: [green]{to_human(token_in_balance, decimals=token_pair.token_in.decimals())} {token_pair.token_in.name}[green]")
 
         if token_in_balance < token_pair.min_balance_to_transact:
             console.print(f"You don't have enough tokens")
@@ -265,7 +268,7 @@ def create_order(
         new_order = OrderDto(
             type=order_types[order_type_idx],
             token_pair=token_pairs[token_pair_idx],
-            trigger_price=to_wei(trigger_price, decimals=token_pair.token_in.decimals()),
+            trigger_price=to_wei(trigger_price, decimals=token_pair.token_out.decimals()),
             percent=Decimal(percent_of_tokens / Decimal(100)),
             status=OrderStatus.active,
         )

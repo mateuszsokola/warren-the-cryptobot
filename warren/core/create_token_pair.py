@@ -5,6 +5,7 @@ from warren.services.base_token_pair import BaseTokenPair
 from warren.services.transaction_service import TransactionService
 
 from warren.tokens.dai import Dai
+from warren.tokens.usdc import UsdC
 from warren.tokens.wbtc import WBtc
 from warren.tokens.weth9 import WEth9
 
@@ -62,6 +63,30 @@ def create_token_pair(
             token_in=token_in,
             token_out=token_out,
             min_balance_to_transact=1000,
+        )
+    if token_pair.value == "WETH9/USDC":
+        token_in = WEth9(web3=web3, transaction_service=transaction_service)
+        token_out = UsdC(web3=web3, transaction_service=transaction_service)
+
+        return UniswapV3TokenPair(
+            async_web3=async_web3,
+            web3=web3,
+            transaction_service=transaction_service,
+            token_in=token_in,
+            token_out=token_out,
+            min_balance_to_transact=100000000000000,
+        )
+    if token_pair.value == "USDC/WETH9":
+        token_in = UsdC(web3=web3, transaction_service=transaction_service)
+        token_out = WEth9(web3=web3, transaction_service=transaction_service)
+
+        return UniswapV3TokenPair(
+            async_web3=async_web3,
+            web3=web3,
+            transaction_service=transaction_service,
+            token_in=token_in,
+            token_out=token_out,
+            min_balance_to_transact=10000,
         )
     else:
         return None

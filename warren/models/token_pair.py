@@ -6,3 +6,5 @@ class TokenPair(str, Enum):
     dai_weth9 = "DAI/WETH9"
     weth9_wbtc = "WETH9/WBTC"
     wbtc_weth9 = "WBTC/WETH9"
+    weth9_usdc = "WETH9/USDC"
+    usdc_weth9 = "USDC/WETH9"
