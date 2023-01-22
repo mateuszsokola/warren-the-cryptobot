@@ -253,8 +253,12 @@ def create_order(
         )
 
         token_in_balance = token_pair.token_in.balance_of(order_book_v2.web3.eth.default_account)
-        console.print(f"Current price: {to_human(token_pair.quote(), decimals=token_pair.token_out.decimals())} {token_pair.token_out.name}")
-        console.print(f"Balance: [green]{to_human(token_in_balance, decimals=token_pair.token_in.decimals())} {token_pair.token_in.name}[green]")
+        console.print(
+            f"Current price: {to_human(token_pair.quote(), decimals=token_pair.token_out.decimals())} {token_pair.token_out.name}"
+        )
+        console.print(
+            f"Balance: [green]{to_human(token_in_balance, decimals=token_pair.token_in.decimals())} {token_pair.token_in.name}[green]"
+        )
 
         if token_in_balance < token_pair.min_balance_to_transact:
             console.print(f"You don't have enough tokens")
