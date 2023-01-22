@@ -205,7 +205,7 @@ def balances(
     dai = Dai(web3=service.web3, transaction_service=service.transaction_service)
     console.print(f"  DAI: {to_human(dai.balance_of(service.web3.eth.default_account), decimals=WEth9.decimals())}")
     wbtc = WBtc(web3=service.web3, transaction_service=service.transaction_service)
-    console.print(f" WBTC: {to_human(wbtc.balance_of(service.web3.eth.default_account), decimals=WEth9.decimals())}")
+    console.print(f" WBTC: {to_human(wbtc.balance_of(service.web3.eth.default_account), decimals=WBtc.decimals())}")
 
 
 # TODO(mateu.sh): fix to_human helper. It returns scientific formatting.
