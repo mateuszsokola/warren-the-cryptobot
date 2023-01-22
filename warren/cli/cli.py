@@ -169,10 +169,9 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
         console.print(f"Before WETH9 balance: {to_human(weth9_balance, decimals=WEth9.decimals())} WETH9")
 
         amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
-        tx_hash = await weth9.deposit(amount_in=to_wei(amount_in, decimals=WEth9.decimals()))
-
-        # TODO(mateu.sh): Fix output of this function. It returns "Wrapped 5E-18 ETH into WETH9 None" when 5 ETH given
-        console.print(f"Wrapped {to_human(amount_in, decimals=WEth9.decimals())} ETH into WETH9", tx_hash)
+        wei_amount_in = to_wei(amount_in, decimals=WEth9.decimals())
+        await weth9.deposit(amount_in=wei_amount_in)
+        console.print(f"Wrapped {to_human(wei_amount_in, decimals=WEth9.decimals())} ETH into WETH9")
 
         current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
         console.print(f"After ETH balance: {to_human(current_balance, decimals=WEth9.decimals())} ETH")
@@ -203,12 +202,11 @@ def balances(
     weth9 = WEth9(web3=service.web3, transaction_service=service.transaction_service)
     console.print(f"WETH9: {to_human(weth9.balance_of(service.web3.eth.default_account), decimals=WEth9.decimals())}")
     dai = Dai(web3=service.web3, transaction_service=service.transaction_service)
-    console.print(f"  DAI: {to_human(dai.balance_of(service.web3.eth.default_account), decimals=WEth9.decimals())}")
+    console.print(f"  DAI: {to_human(dai.balance_of(service.web3.eth.default_account), decimals=Dai.decimals())}")
     wbtc = WBtc(web3=service.web3, transaction_service=service.transaction_service)
     console.print(f" WBTC: {to_human(wbtc.balance_of(service.web3.eth.default_account), decimals=WBtc.decimals())}")
 
 
-# TODO(mateu.sh): fix to_human helper. It returns scientific formatting.
 # TODO(mateu.sh): support ETH wrapping
 # TODO(mateu.sh): get rid of repeated code
 @main_app.command()
