@@ -5,9 +5,8 @@ from warren.utils.load_contract_abi import load_contract_abi
 
 
 class UniswapV2Pair:
-    def __init__(self, web3: Web3, transaction_service: TransactionService, address: str, fee: Fraction = Fraction(3, 1000)):
+    def __init__(self, web3: Web3, address: str, fee: Fraction = Fraction(3, 1000)):
         self.web3 = web3
-        self.transaction_service = transaction_service
 
         self.address = address
         self.contract = web3.eth.contract(

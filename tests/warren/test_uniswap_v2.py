@@ -5,10 +5,10 @@ from warren.services.order_book_service import OrderBookService
 from warren.tokens.dai import Dai, dai_contract_address
 from warren.tokens.usdc import UsdC, usdc_contract_address
 from warren.tokens.weth9 import WEth9, weth9_contract_address
-from warren.uniswap.v2.factory import UniswapV2Factory
-from warren.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
-from warren.uniswap.v2.models.get_pair_params import GetPairParams
-from warren.uniswap.v2.router import UniswapV2Router
+from exchanges.uniswap.v2.factory import UniswapV2Factory
+from exchanges.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
+from exchanges.uniswap.v2.models.get_pair_params import GetPairParams
+from exchanges.uniswap.v2.router import UniswapV2Router
 
 
 @pytest.mark.asyncio

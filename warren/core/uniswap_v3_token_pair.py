@@ -1,16 +1,16 @@
 from web3 import Web3
-from warren.tokens.base_token import BaseToken
+from tokens.base_token import BaseToken
 from warren.services.base_token_pair import BaseTokenPair
 from warren.services.transaction_service import TransactionService
 
-from warren.uniswap.v3.models.exact_input_single_params import ExactInputSingleParams
-from warren.uniswap.v3.models.quote_exact_input_single_params import (
+from exchanges.uniswap.v3.models.exact_input_single_params import ExactInputSingleParams
+from exchanges.uniswap.v3.models.quote_exact_input_single_params import (
     QuoteExactInputSingle,
     QuoteExactInputSingleParams,
 )
-from warren.uniswap.v3.pool import UniswapV3Pool
-from warren.uniswap.v3.quoter_v2 import UniswapV3QuoterV2
-from warren.uniswap.v3.router import UniswapV3Router
+from exchanges.uniswap.v3.pool import UniswapV3Pool
+from exchanges.uniswap.v3.quoter_v2 import UniswapV3QuoterV2
+from exchanges.uniswap.v3.router import UniswapV3Router
 
 
 class UniswapV3TokenPair(BaseTokenPair):

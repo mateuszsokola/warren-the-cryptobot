@@ -1,20 +1,18 @@
 from web3 import Web3
-from warren.services.transaction_service import TransactionService
 
-from warren.uniswap.v3.models.exact_input_single_params import ExactInputSingleParams
+from exchanges.uniswap.v3.models.exact_input_single_params import ExactInputSingleParams
 from warren.utils.load_contract_abi import load_contract_abi
 
 uniswap_v3_router_address = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
 
 
 class UniswapV3Router:
-    def __init__(self, web3: Web3, transaction_service: TransactionService):
+    def __init__(self, web3: Web3, address: str):
         self.web3 = web3
-        self.transaction_service = transaction_service
 
-        self.address = uniswap_v3_router_address
+        self.address = address
         self.contract = web3.eth.contract(
-            address=uniswap_v3_router_address,
+            address=address,
             abi=load_contract_abi("ISwapRouter.json", "artifacts/uniswap/v3"),
         )
 
@@ -25,8 +23,6 @@ class UniswapV3Router:
         max_priority_fee_per_gas: int,
         max_fee_per_gas: int,
     ):
-        # max_tx_fees = await self.transaction_service.calculate_max_tx_fees()
-
         tx = self.contract.functions.exactInputSingle(
             [
                 params.token_in,
@@ -47,4 +43,4 @@ class UniswapV3Router:
             }
         )
 
-        return tx  # await self.transaction_service.send_transaction(tx)
+        return tx

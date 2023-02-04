@@ -1,13 +1,11 @@
 from web3 import Web3
-from warren.services.transaction_service import TransactionService
-from warren.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
+from exchanges.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
 from warren.utils.load_contract_abi import load_contract_abi
 
 
 class UniswapV2Router:
-    def __init__(self, web3: Web3, transaction_service: TransactionService, address: str):
+    def __init__(self, web3: Web3, address: str):
         self.web3 = web3
-        self.transaction_service = transaction_service
 
         self.address = address
         self.contract = web3.eth.contract(

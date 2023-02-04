@@ -1,6 +1,6 @@
 from web3 import Web3
 from warren.services.transaction_service import TransactionService
-from warren.tokens.base_token import BaseToken
+from tokens.base_token import BaseToken
 
 weth9_contract_address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
 

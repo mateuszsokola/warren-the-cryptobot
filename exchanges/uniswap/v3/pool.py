@@ -6,11 +6,11 @@ uniswap_v3_pool_address = "0xC2e9F25Be6257c210d7Adf0D4Cd6E3E881ba25f8"
 
 
 class UniswapV3Pool:
-    def __init__(self, web3: Web3):
+    def __init__(self, web3: Web3, address: str):
         self.web3 = web3
-        self.address = uniswap_v3_pool_address
+        self.address = address
         self.contract = web3.eth.contract(
-            address=uniswap_v3_pool_address,
+            address=address,
             abi=load_contract_abi("IUniswapV3Pool.json", "artifacts/uniswap/v3"),
         )
 

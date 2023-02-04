@@ -1,7 +1,7 @@
 from web3 import Web3
 from warren.services.transaction_service import TransactionService
 
-from warren.tokens.base_token import BaseToken
+from tokens.base_token import BaseToken
 
 
 class BaseTokenPair:
