@@ -5,7 +5,7 @@ from warren.utils.load_contract_abi import load_contract_abi
 
 
 class UniswapV2Pair:
-    def __init__(self, web3: Web3, transaction_service: TransactionService, address: str):
+    def __init__(self, web3: Web3, transaction_service: TransactionService, address: str, fee: Fraction = Fraction(3, 1000)):
         self.web3 = web3
         self.transaction_service = transaction_service
 
@@ -15,9 +15,7 @@ class UniswapV2Pair:
             abi=load_contract_abi("Pair.json", "artifacts/uniswap/v2"),
         )
 
-        # TODO(mateu.sh): Pancake swap has lower fee! `Fraction(25, 10000)``
-        # TODO(mateu.sh): parametrize
-        self.fee = Fraction(3, 1000)
+        self.fee = fee
 
     def get_price(self, amount_in: int) -> int:
         (reserve0, reserve1, timestamp) = self.contract.functions.getReserves().call()

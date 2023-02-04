@@ -1,4 +1,5 @@
 import pytest
+from fractions import Fraction
 
 from warren.services.order_book_service import OrderBookService
 from warren.tokens.dai import Dai, dai_contract_address
@@ -138,11 +139,11 @@ async def test_pancakeswap(orderbook: OrderBookService):
     )
 
     pair_params = GetPairParams(token_in=weth9_contract_address, token_out=usdc_contract_address)
-    uniswap_v2_pair = pancakeswap_factory.get_pair(pair_params)
+    uniswap_v2_pair = pancakeswap_factory.get_pair(pair_params, fee=Fraction(25, 10000))
 
     amount_in = int(1 * 10**18)
     amount_out = uniswap_v2_pair.get_price(amount_in=amount_in)
-    assert amount_out == 1515884823
+    assert amount_out == 1516644656
 
     pancakeswap_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
     uniswap_v2_router = UniswapV2Router(
@@ -167,5 +168,4 @@ async def test_pancakeswap(orderbook: OrderBookService):
     await orderbook.transaction_service.send_transaction(tx_params)
 
     assert weth9.balance_of(orderbook.web3.eth.default_account) == int(0)
-    # TODO(mateu.sh): Pancake swap has lower fee!
     assert usdc.balance_of(orderbook.web3.eth.default_account) == int(1516644656)

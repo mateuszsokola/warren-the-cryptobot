@@ -1,3 +1,4 @@
+from fractions import Fraction
 from web3 import Web3
 from warren.services.transaction_service import TransactionService
 from warren.uniswap.v2.models.get_pair_params import GetPairParams
@@ -16,10 +17,10 @@ class UniswapV2Factory:
             abi=load_contract_abi("Factory.json", "artifacts/uniswap/v2"),
         )
 
-    def get_pair(self, params: GetPairParams) -> UniswapV2Pair:
+    def get_pair(self, params: GetPairParams, fee: Fraction = Fraction(3, 1000)) -> UniswapV2Pair:
         address = self.contract.functions.getPair(
             params.token_in,
             params.token_out,
         ).call()
 
-        return UniswapV2Pair(web3=self.web3, transaction_service=self.transaction_service, address=address)
+        return UniswapV2Pair(web3=self.web3, transaction_service=self.transaction_service, address=address, fee=fee)
