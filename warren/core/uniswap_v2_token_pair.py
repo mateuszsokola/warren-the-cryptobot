@@ -55,3 +55,30 @@ class UniswapV2TokenPair(BaseTokenPair):
         amount_out = self.uniswap_v2_pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)
 
         return amount_out
+
+    async def swap_token0_to_token1(self, amount_in: int, gas_limit: int = 120000):
+        return await self._swap(
+            token_in=self.uniswap_v2_pair.token0, token_out=self.uniswap_v2_pair.token1, amount_in=amount_in, gas_limit=gas_limit
+        )
+
+    async def swap_token1_to_token0(self, amount_in: int, gas_limit: int = 120000):
+        return await self._swap(
+            token_in=self.uniswap_v2_pair.token1, token_out=self.uniswap_v2_pair.token0, amount_in=amount_in, gas_limit=gas_limit
+        )
+
+    async def _swap(self, token_in: str, token_out: str, amount_in: int, gas_limit: int = 120000):
+        tx_fees = await self.transaction_service.calculate_tx_fees(gas_limit=gas_limit)
+
+        params = ExactTokensForTokensParams(
+            token_in=token_in,
+            token_out=token_out,
+            amount_in=amount_in,
+            amount_out_minimum=0,
+            deadline=9999999999999999,
+        )
+
+        tx_params = self.uniswap_v2_router.swap_exact_tokens_for_tokens(
+            params, tx_fees.gas_limit, tx_fees.max_fee_per_gas, tx_fees.max_fee_per_gas
+        )
+
+        return await self.transaction_service.send_transaction(tx_params)

@@ -42,7 +42,11 @@ class OrderBookService:
             lowest_price = 0
 
             for exchange in exchanges:
-                current_price = exchange.quote() if order.token0_to_token1 else exchange.quote()
+                current_price = (
+                    exchange.calculate_token1_to_token0_amount_out()
+                    if order.token0_to_token1
+                    else exchange.calculate_token1_to_token0_amount_out()
+                )
 
             token_in_amount = token0_balance if order.token0_to_token1 else token1_balance
 
@@ -55,7 +59,11 @@ class OrderBookService:
                 continue
 
             try:
-                await exchange.swap(amount_in=amount_in)
+                if order.token0_to_token1:
+                    await exchange.swap_token0_to_token1(amount_in=amount_in)
+                else:
+                    await exchange.swap_token1_to_token0(amount_in=amount_in)
+
                 self.database.change_order_status(id=order.id, status=OrderStatus.executed)
                 logger.info(f"Order #{order.id} has been executed")
             except Exception as e:

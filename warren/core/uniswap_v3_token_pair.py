@@ -42,12 +42,38 @@ class UniswapV3TokenPair(BaseTokenPair):
         self.token0 = token0
         self.token1 = token1
 
-    async def swap(self, amount_in: int, gas_limit: int = 120000):
+    def calculate_token0_to_token1_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
+        return self._calculate_amount_out(token_in=self.token0, token_out=self.token1, amount_in=amount_in)
+
+    def calculate_token1_to_token0_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
+        return self._calculate_amount_out(token_in=self.token1, token_out=self.token0, amount_in=amount_in)
+
+    async def swap_token0_to_token1(self, amount_in: int, gas_limit: int = 120000):
+        return await self._swap(token_in=self.token0, token_out=self.token1, amount_in=amount_in, gas_limit=gas_limit)
+
+    async def swap_token1_to_token0(self, amount_in: int, gas_limit: int = 120000):
+        return await self._swap(token_in=self.token1, token_out=self.token0, amount_in=amount_in, gas_limit=gas_limit)
+
+    def _calculate_amount_out(self, token_in: str, token_out: str, amount_in: int = int(1 * 10**18)) -> int:
+        quote_exact_input_single_params = QuoteExactInputSingleParams(
+            token_in=token_in,
+            token_out=token_out,
+            amount_in=amount_in,
+            fee=self.uniswap_v3_pool.fee(),
+            sqrt_price_limit_x96=0,
+        )
+        quote_exact_input_single: QuoteExactInputSingle = self.uniswap_v3_quoter_v2.quote_exact_input_single(
+            quote_exact_input_single_params
+        )
+
+        return quote_exact_input_single.amount_out
+
+    async def _swap(self, token_in: str, token_out: str, amount_in: int, gas_limit: int = 120000):
         tx_fees = await self.transaction_service.calculate_tx_fees(gas_limit=gas_limit)
 
         exact_input_single_params = ExactInputSingleParams(
-            token_in=self.token0,
-            token_out=self.token1,
+            token_in=token_in,
+            token_out=token_out,
             fee=self.uniswap_v3_pool.fee(),
             recipient=self.web3.eth.default_account,
             deadline=9999999999999999,
@@ -64,23 +90,3 @@ class UniswapV3TokenPair(BaseTokenPair):
         )
 
         return await self.transaction_service.send_transaction(tx)
-
-    def calculate_token0_to_token1_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
-        return self._calculate_token_in_to_token_out_amount_out(token_in=self.token0, token_out=self.token1, amount_in=amount_in)
-
-    def calculate_token1_to_token0_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
-        return self._calculate_token_in_to_token_out_amount_out(token_in=self.token1, token_out=self.token0, amount_in=amount_in)
-
-    def _calculate_token_in_to_token_out_amount_out(self, token_in: str, token_out: str, amount_in: int = int(1 * 10**18)) -> int:
-        quote_exact_input_single_params = QuoteExactInputSingleParams(
-            token_in=token_in,
-            token_out=token_out,
-            amount_in=amount_in,
-            fee=self.uniswap_v3_pool.fee(),
-            sqrt_price_limit_x96=0,
-        )
-        quote_exact_input_single: QuoteExactInputSingle = self.uniswap_v3_quoter_v2.quote_exact_input_single(
-            quote_exact_input_single_params
-        )
-
-        return quote_exact_input_single.amount_out
