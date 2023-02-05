@@ -22,7 +22,7 @@ async def test_uniswap_v2_router01(orderbook: OrderBookService):
     uniswap_v2_pair = uniswap_v2_factory.get_pair(pair_params)
 
     amount_in = int(1 * 10**18)
-    amount_out = uniswap_v2_pair.get_price(amount_in=amount_in)
+    amount_out = uniswap_v2_pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)
     assert amount_out == 1514276931280896357898
 
     uniswap_v2_router_address = "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a"
@@ -62,7 +62,7 @@ async def test_uniswap_v2_router02(orderbook: OrderBookService):
     uniswap_v2_pair = uniswap_v2_factory.get_pair(pair_params)
 
     amount_in = int(1 * 10**18)
-    amount_out = uniswap_v2_pair.get_price(amount_in=amount_in)
+    amount_out = uniswap_v2_pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)
     assert amount_out == 1514276931280896357898
 
     uniswap_v2_router_address = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
@@ -102,7 +102,7 @@ async def test_sushiswap(orderbook: OrderBookService):
     uniswap_v2_pair = sushiswap_factory.get_pair(pair_params)
 
     amount_in = int(1 * 10**18)
-    amount_out = uniswap_v2_pair.get_price(amount_in=amount_in)
+    amount_out = uniswap_v2_pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)
     assert amount_out == 1513624364509613607658
 
     sushiswap_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
@@ -142,7 +142,7 @@ async def test_pancakeswap(orderbook: OrderBookService):
     uniswap_v2_pair = pancakeswap_factory.get_pair(pair_params, fee=Fraction(25, 10000))
 
     amount_in = int(1 * 10**18)
-    amount_out = uniswap_v2_pair.get_price(amount_in=amount_in)
+    amount_out = uniswap_v2_pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)
     assert amount_out == 1516644656
 
     pancakeswap_router_address = "0xEfF92A263d31888d860bD50809A8D171709b7b1c"

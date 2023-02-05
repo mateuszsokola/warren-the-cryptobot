@@ -1,92 +1,36 @@
+from typing import Tuple
 from web3 import Web3
-from warren.core.uniswap_v3_token_pair import UniswapV3TokenPair
-from warren.models.token_pair import TokenPair
-from warren.core.base_token_pair import BaseTokenPair
-from warren.services.transaction_service import TransactionService
 
-from warren.tokens.dai import Dai
-from warren.tokens.usdc import UsdC
-from warren.tokens.wbtc import WBtc
-from warren.tokens.weth9 import WEth9
+from tokens.base_token import BaseToken
+from tokens.dai import DAI
+from tokens.usdc import USDC
+from tokens.wbtc import WBTC
+from tokens.weth9 import WETH9
+
+from warren.models.token_pair import TokenPair
 
 
 def create_token_pair(
-    async_web3: Web3,
     web3: Web3,
-    transaction_service: TransactionService,
     token_pair: TokenPair,
-) -> BaseTokenPair:
+) -> Tuple[BaseToken, BaseToken]:
     if token_pair.value == "WETH9/DAI":
-        token_in = WEth9(web3=web3, transaction_service=transaction_service)
-        token_out = Dai(web3=web3, transaction_service=transaction_service)
-
-        return UniswapV3TokenPair(
-            async_web3=async_web3,
-            web3=web3,
-            transaction_service=transaction_service,
-            token_in=token_in,
-            token_out=token_out,
-            min_balance_to_transact=100000000000000,
+        return (
+            WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+            DAI(web3=web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F"),
         )
-    elif token_pair.value == "DAI/WETH9":
-        token_in = Dai(web3=web3, transaction_service=transaction_service)
-        token_out = WEth9(web3=web3, transaction_service=transaction_service)
 
-        return UniswapV3TokenPair(
-            async_web3=async_web3,
-            web3=web3,
-            transaction_service=transaction_service,
-            token_in=token_in,
-            token_out=token_out,
-            min_balance_to_transact=100000000000000,
+    elif token_pair.value == "WETH9/WBTC":
+        return (
+            WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+            WBTC(web3=web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"),
         )
-    if token_pair.value == "WETH9/WBTC":
-        token_in = WEth9(web3=web3, transaction_service=transaction_service)
-        token_out = WBtc(web3=web3, transaction_service=transaction_service)
 
-        return UniswapV3TokenPair(
-            async_web3=async_web3,
-            web3=web3,
-            transaction_service=transaction_service,
-            token_in=token_in,
-            token_out=token_out,
-            min_balance_to_transact=100000000000000,
+    elif token_pair.value == "WETH9/USDC":
+        return (
+            WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+            USDC(web3=web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
         )
-    if token_pair.value == "WBTC/WETH9":
-        token_in = WBtc(web3=web3, transaction_service=transaction_service)
-        token_out = WEth9(web3=web3, transaction_service=transaction_service)
 
-        return UniswapV3TokenPair(
-            async_web3=async_web3,
-            web3=web3,
-            transaction_service=transaction_service,
-            token_in=token_in,
-            token_out=token_out,
-            min_balance_to_transact=1000,
-        )
-    if token_pair.value == "WETH9/USDC":
-        token_in = WEth9(web3=web3, transaction_service=transaction_service)
-        token_out = UsdC(web3=web3, transaction_service=transaction_service)
-
-        return UniswapV3TokenPair(
-            async_web3=async_web3,
-            web3=web3,
-            transaction_service=transaction_service,
-            token_in=token_in,
-            token_out=token_out,
-            min_balance_to_transact=100000000000000,
-        )
-    if token_pair.value == "USDC/WETH9":
-        token_in = UsdC(web3=web3, transaction_service=transaction_service)
-        token_out = WEth9(web3=web3, transaction_service=transaction_service)
-
-        return UniswapV3TokenPair(
-            async_web3=async_web3,
-            web3=web3,
-            transaction_service=transaction_service,
-            token_in=token_in,
-            token_out=token_out,
-            min_balance_to_transact=10000,
-        )
     else:
         return None

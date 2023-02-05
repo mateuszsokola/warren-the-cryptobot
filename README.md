@@ -15,6 +15,15 @@ Trading order book for Uniswap v3.
 * [WBTC](https://coinmarketcap.com/currencies/wrapped-bitcoin/) to [ETH](https://coinmarketcap.com/currencies/ethereum/) (on Ethereum Mainnet)
 * More to be added.
 
+
+## Supported DEX’s
+
+* [Uniswap v2](https://uniswap.org/) (Ethereum Mainnet)
+* [Uniswap v3](https://uniswap.org/) (Ethereum Mainnet)
+* [Sushi](https://www.sushi.com/) (Ethereum Mainnet)
+* [PancakeSwap](https://pancakeswap.finance/?chain=eth) (Ethereum Mainnet)
+
+
 ## Commands
 
 To display all available commands run:

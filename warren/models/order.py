@@ -19,6 +19,7 @@ class OrderDao(BaseModel):
     id: int
     type: OrderType
     token_pair: TokenPair
+    token0_to_token1: bool
     trigger_price: int
     percent: Decimal
     status: OrderStatus
@@ -27,6 +28,7 @@ class OrderDao(BaseModel):
 class OrderDto(BaseModel):
     type: OrderType
     token_pair: TokenPair
+    token0_to_token1: bool
     trigger_price: int
     percent: Decimal
     status: OrderStatus

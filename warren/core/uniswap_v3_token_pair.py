@@ -65,10 +65,16 @@ class UniswapV3TokenPair(BaseTokenPair):
 
         return await self.transaction_service.send_transaction(tx)
 
-    def quote(self, amount_in: int = int(1 * 10**18)) -> int:
+    def calculate_token0_to_token1_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
+        return self._calculate_token_in_to_token_out_amount_out(token_in=self.token0, token_out=self.token1, amount_in=amount_in)
+
+    def calculate_token1_to_token0_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
+        return self._calculate_token_in_to_token_out_amount_out(token_in=self.token1, token_out=self.token0, amount_in=amount_in)
+
+    def _calculate_token_in_to_token_out_amount_out(self, token_in: str, token_out: str, amount_in: int = int(1 * 10**18)) -> int:
         quote_exact_input_single_params = QuoteExactInputSingleParams(
-            token_in=self.token0,
-            token_out=self.token1,
+            token_in=token_in,
+            token_out=token_out,
             amount_in=amount_in,
             fee=self.uniswap_v3_pool.fee(),
             sqrt_price_limit_x96=0,

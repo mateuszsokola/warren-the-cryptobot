@@ -20,7 +20,7 @@ async def test_uniswap_v2_router01(orderbook: OrderBookService):
     uniswap_v2_pair = uniswap_v2_factory.get_pair(pair_params)
 
     amount_in = int(1 * 10**18)
-    amount_out = uniswap_v2_pair.get_price(amount_in=amount_in)
+    amount_out = uniswap_v2_pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)
     assert amount_out == 1514276931280896357898
 
     uniswap_v2_router_address = "0xf164fC0Ec4E93095b804a4795bBe1e041497b92a"

@@ -17,15 +17,21 @@ class UniswapV2Pair:
 
         self.fee = fee
 
-    def get_price(self, amount_in: int) -> int:
+    def calculate_token0_to_token1_amount_out(self, amount_in: int) -> int:
         (reserve0, reserve1, timestamp) = self.contract.functions.getReserves().call()
 
         amount_in_with_fee = amount_in * (self.fee.denominator - self.fee.numerator)
 
-        # this should be correct!!!
-        # numerator = amount_in_with_fee * reserve1
-        # denominator = reserve0 * self.fee.denominator + amount_in_with_fee
         numerator = amount_in_with_fee * reserve0
         denominator = reserve1 * self.fee.denominator + amount_in_with_fee
+
+        return numerator // denominator
+
+    def calculate_token1_to_token0_amount_out(self, amount_in: int) -> int:
+        (reserve0, reserve1, timestamp) = self.contract.functions.getReserves().call()
+
+        amount_in_after_fee = amount_in * (self.fee.denominator - self.fee.numerator)
+        numerator = amount_in_after_fee * reserve1
+        denominator = reserve0 * self.fee.denominator + amount_in_after_fee
 
         return numerator // denominator

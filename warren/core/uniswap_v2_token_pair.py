@@ -46,7 +46,12 @@ class UniswapV2TokenPair(BaseTokenPair):
 
         return await self.transaction_service.send_transaction(tx_params)
 
-    def quote(self, amount_in: int = int(1 * 10**18)) -> int:
-        amount_out = self.uniswap_v2_pair.get_price(amount_in=amount_in)
+    def calculate_token0_to_token1_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
+        amount_out = self.uniswap_v2_pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)
+
+        return amount_out
+
+    def calculate_token1_to_token0_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
+        amount_out = self.uniswap_v2_pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)
 
         return amount_out

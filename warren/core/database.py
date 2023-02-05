@@ -45,6 +45,7 @@ class Database:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     type VARCHAR NOT NULL,
                     token_pair VARCHAR NOT NULL,
+                    token0_to_token1 INT NOT NULL DEFAULT 1,
                     trigger_price VARCHAR NOT NULL,
                     percent VARCHAR NOT NULL,
                     status VARCHAR NOT NULL
@@ -66,12 +67,13 @@ class Database:
         self.cur.execute(
             """
                 INSERT INTO order_book
-                (type, token_pair, trigger_price, percent, status)
+                (type, token_pair, token0_to_token1, trigger_price, percent, status)
                 VALUES(?, ?, ?, ?, ?);
             """,
             (
                 order.type.name,
                 order.token_pair.name,
+                order.token0_to_token1,
                 str(order.trigger_price),
                 order.percent,
                 order.status.name,
