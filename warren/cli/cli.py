@@ -5,7 +5,10 @@ import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-
+from tokens.dai import DAI
+from tokens.usdc import USDC
+from tokens.wbtc import WBTC
+from tokens.weth9 import WETH9
 from warren.core.create_database import create_database
 from warren.core.create_service import create_service
 from warren.core.create_token_pair import create_token_pair
@@ -13,11 +16,6 @@ from warren.core.setup_wizard import SetupWizard
 from warren.models.option import OptionDto
 from warren.models.order import OrderDto, OrderStatus, OrderType
 from warren.models.token_pair import TokenPair
-from warren.tokens.dai import Dai
-from warren.tokens.usdc import UsdC
-from warren.tokens.wbtc import WBtc
-from warren.tokens.weth9 import WEth9
-from warren.uniswap.v3.router import uniswap_v3_router_address
 from warren.utils.format_exception import format_exception
 from warren.utils.logger import logger
 from warren.utils.print_order_table import print_order_table
@@ -199,15 +197,15 @@ def balances(
 
     console.print("")
     console.print("Token balances:\n")
-    console.print(f"  ETH: {to_human(service.web3.eth.get_balance(service.web3.eth.default_account), decimals=WEth9.decimals())}")
-    weth9 = WEth9(web3=service.web3, transaction_service=service.transaction_service)
-    console.print(f"WETH9: {to_human(weth9.balance_of(service.web3.eth.default_account), decimals=WEth9.decimals())}")
-    dai = Dai(web3=service.web3, transaction_service=service.transaction_service)
-    console.print(f"  DAI: {to_human(dai.balance_of(service.web3.eth.default_account), decimals=Dai.decimals())}")
-    usdc = UsdC(web3=service.web3, transaction_service=service.transaction_service)
-    console.print(f" USDC: {to_human(usdc.balance_of(service.web3.eth.default_account), decimals=UsdC.decimals())}")
-    wbtc = WBtc(web3=service.web3, transaction_service=service.transaction_service)
-    console.print(f" WBTC: {to_human(wbtc.balance_of(service.web3.eth.default_account), decimals=WBtc.decimals())}")
+    console.print(f"  ETH: {to_human(service.web3.eth.get_balance(service.web3.eth.default_account), decimals=WETH9.decimals())}")
+    weth9 = WETH9(web3=service.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
+    console.print(f"WETH9: {to_human(weth9.balance_of(service.web3.eth.default_account), decimals=WETH9.decimals())}")
+    dai = DAI(web3=service.web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")
+    console.print(f"  DAI: {to_human(dai.balance_of(service.web3.eth.default_account), decimals=DAI.decimals())}")
+    usdc = USDC(web3=service.web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
+    console.print(f" USDC: {to_human(usdc.balance_of(service.web3.eth.default_account), decimals=USDC.decimals())}")
+    wbtc = WBTC(web3=service.web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")
+    console.print(f" WBTC: {to_human(wbtc.balance_of(service.web3.eth.default_account), decimals=WBTC.decimals())}")
 
 
 # TODO(mateu.sh): support ETH wrapping
