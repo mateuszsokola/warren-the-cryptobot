@@ -137,32 +137,32 @@ def create_exchanges_with_routes(web3: Web3, async_web3: Web3) -> dict[str, List
                     ),
                 ],
             ),
-            # uniswap_v2_router01
-            UniswapV2Exchange(
-                name="uniswap_v2_router01",
-                uniswap_v2_factory=UniswapV2Factory(web3=web3, address="0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"),
-                uniswap_v2_router=UniswapV2Router(web3=web3, address="0xf164fC0Ec4E93095b804a4795bBe1e041497b92a"),
-                token_pairs=[
-                    UniswapV2TokenPairMeta(
-                        name="WETH9/DAI",
-                        token0=WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
-                        token1=DAI(web3=web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F"),
-                        fee=Fraction(3, 100),
-                    ),
-                    UniswapV2TokenPairMeta(
-                        name="WETH9/WBTC",
-                        token0=WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
-                        token1=WBTC(web3=web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"),
-                        fee=Fraction(3, 100),
-                    ),
-                    UniswapV2TokenPairMeta(
-                        name="WETH9/USDC",
-                        token0=WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
-                        token1=USDC(web3=web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
-                        fee=Fraction(3, 100),
-                    ),
-                ],
-            ),
+            # # uniswap_v2_router01
+            # UniswapV2Exchange(
+            #     name="uniswap_v2_router01",
+            #     uniswap_v2_factory=UniswapV2Factory(web3=web3, address="0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"),
+            #     uniswap_v2_router=UniswapV2Router(web3=web3, address="0xf164fC0Ec4E93095b804a4795bBe1e041497b92a"),
+            #     token_pairs=[
+            #         UniswapV2TokenPairMeta(
+            #             name="WETH9/DAI",
+            #             token0=WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+            #             token1=DAI(web3=web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F"),
+            #             fee=Fraction(3, 100),
+            #         ),
+            #         UniswapV2TokenPairMeta(
+            #             name="WETH9/WBTC",
+            #             token0=WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+            #             token1=WBTC(web3=web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"),
+            #             fee=Fraction(3, 100),
+            #         ),
+            #         UniswapV2TokenPairMeta(
+            #             name="WETH9/USDC",
+            #             token0=WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+            #             token1=USDC(web3=web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"),
+            #             fee=Fraction(3, 100),
+            #         ),
+            #     ],
+            # ),
             # uniswap_v2_router02
             UniswapV2Exchange(
                 name="uniswap_v2_router02",

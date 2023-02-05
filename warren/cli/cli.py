@@ -265,7 +265,14 @@ def create_order(
         trigger_price = Decimal(Prompt.ask("Trigger price"))
 
         percent_of_tokens = Decimal(Prompt.ask("Percent of tokens to flip (excluding gas fees)", default=str(100)))
-        await token_pair.token_in.approve(uniswap_v3_router_address, max_amount_in=token_in_balance)
+        # UniswapV3 Router
+        await token_pair.token_in.approve("0xE592427A0AEce92De3Edee1F18E0157C05861564", max_amount_in=token_in_balance)
+        # UniswapV2 Router02
+        await token_pair.token_in.approve("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", max_amount_in=token_in_balance)
+        # PancakeSwap
+        await token_pair.token_in.approve("0xEfF92A263d31888d860bD50809A8D171709b7b1c", max_amount_in=token_in_balance)
+        # Sushiswap
+        await token_pair.token_in.approve("0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F", max_amount_in=token_in_balance)
 
         new_order = OrderDto(
             type=order_types[order_type_idx],
