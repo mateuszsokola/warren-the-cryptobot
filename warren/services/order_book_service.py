@@ -35,25 +35,39 @@ class OrderBookService:
             token0_balance = token0.balance_of(self.web3.eth.default_account)
             token1_balance = token1.balance_of(self.web3.eth.default_account)
 
-            higest_price_dex = None
+            # TODO(mateu.sh): add sell (at highest price) order
+            higest_price_exchange = None
             higest_price = 0
 
+            # TODO(mateu.sh): add buy (at lowest price) order
             lowest_price_dex = None
             lowest_price = 0
 
             for exchange in exchanges:
-                current_price = (
+                exchange_price = (
                     exchange.calculate_token1_to_token0_amount_out()
                     if order.token0_to_token1
                     else exchange.calculate_token1_to_token0_amount_out()
                 )
 
-            token_in_amount = token0_balance if order.token0_to_token1 else token1_balance
+                if higest_price < exchange_price:
+                    higest_price_exchange = exchange
+                    higest_price = exchange_price
 
-            if order.type.value == OrderType["stop_loss"].value and current_price <= order.trigger_price:
+                if lowest_price > exchange_price:
+                    lowest_price_exchange = exchange
+                    lowest_price = exchange_price
+
+            token_in_amount = token0_balance if order.token0_to_token1 else token1_balance
+            exchange = None
+
+            # TODO(mateu.sh): refactor those conditional statements
+            if order.type.value == OrderType["stop_loss"].value and exchange_price <= order.trigger_price:
                 amount_in = int(token_in_amount * order.percent)
-            elif order.type.value == OrderType["take_profit"].value and current_price >= order.trigger_price:
+                exchange = higest_price_exchange
+            elif order.type.value == OrderType["take_profit"].value and exchange_price >= order.trigger_price:
                 amount_in = int(token_in_amount * order.percent)
+                exchange = higest_price_exchange
             else:
                 await asyncio.sleep(0)
                 continue
