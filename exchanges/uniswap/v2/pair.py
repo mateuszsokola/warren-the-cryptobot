@@ -1,14 +1,15 @@
 from fractions import Fraction
 from web3 import Web3
-from warren.services.transaction_service import TransactionService
 from warren.utils.load_contract_abi import load_contract_abi
 
 
 class UniswapV2Pair:
-    def __init__(self, web3: Web3, address: str, fee: Fraction = Fraction(3, 1000)):
+    def __init__(self, web3: Web3, address: str, token0: str, token1: str, fee: Fraction = Fraction(3, 1000)):
         self.web3 = web3
 
         self.address = address
+        self.token0 = token0
+        self.token1 = token1
         self.contract = web3.eth.contract(
             address=address,
             abi=load_contract_abi("Pair.json", "artifacts/uniswap/v2"),

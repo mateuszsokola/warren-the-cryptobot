@@ -9,9 +9,9 @@ from web3.eth import AsyncEth, Eth
 from web3.main import get_default_modules
 from web3.net import AsyncNet
 from warren.core.database import Database
+from warren.core.create_exchanges_with_routes import create_exchanges_with_routes
 from warren.core.setup_wizard import SetupWizard
 from warren.services.order_book_service import OrderBookService
-from warren.services.transaction_service import TransactionService
 from warren.utils.retryable_eth_module import retryable_eth_module
 
 
@@ -54,14 +54,12 @@ def create_service(config_path: str, passphrase: str = "") -> OrderBookService:
     """
     web3.middleware_onion.add(simple_cache_middleware)
 
-    transaction_service = TransactionService(
-        async_web3=async_web3,
-        web3=web3,
-    )
+    # TODO(mateu.sh): load routes per network
+    token_routes = create_exchanges_with_routes(web3=web3, async_web3=async_web3)
 
     return OrderBookService(
         async_web3=async_web3,
         web3=web3,
         database=database,
-        transaction_service=transaction_service,
+        token_routes=token_routes,
     )

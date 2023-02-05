@@ -1,7 +1,7 @@
 from web3 import Web3
 from warren.core.uniswap_v3_token_pair import UniswapV3TokenPair
 from warren.models.token_pair import TokenPair
-from warren.services.base_token_pair import BaseTokenPair
+from warren.core.base_token_pair import BaseTokenPair
 from warren.services.transaction_service import TransactionService
 
 from warren.tokens.dai import Dai

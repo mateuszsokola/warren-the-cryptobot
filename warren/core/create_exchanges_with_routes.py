@@ -14,9 +14,10 @@ from tokens.dai import DAI
 from tokens.usdc import USDC
 from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
+from warren.core.base_token_pair import BaseTokenPair
 from warren.core.uniswap_v2_token_pair import UniswapV2TokenPair
 from warren.core.uniswap_v3_token_pair import UniswapV3TokenPair
-from .network import Network
+from warren.models.network import Network
 
 
 class BaseTokenPairMetaV2:
@@ -46,13 +47,16 @@ class UniswapV3Exchange(BaseExchange):
     uniswap_v3_quoter: UniswapV3Quoter
 
 
-# dai 0x6B175474E89094C44Da98b954EedeAC495271d0F
-# usdc 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
-# wbtc 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599
-# weth9 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+#
+# ERC-20 Tokens addresses on Ethereum
+#
+# DAI 0x6B175474E89094C44Da98b954EedeAC495271d0F
+# USDC 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+# WBTC 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599
+# WETH9 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 
 
-def create_exchanges_with_routes(web3: Web3, async_web3: Web3):
+def create_exchanges_with_routes(web3: Web3, async_web3: Web3) -> dict[str, List[BaseTokenPair]]:
     exchanges = {
         [Network.Ethereum.value]: [
             # uniswap_v3_quoter
