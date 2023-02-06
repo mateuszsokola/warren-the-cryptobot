@@ -1,11 +1,11 @@
 from typing import List
-from pydantic import BaseModel
 from exchanges.uniswap.v2.factory import UniswapV2Factory
 from exchanges.uniswap.v2.router import UniswapV2Router
+from exchanges.uniswap.v3.base_quoter import UniswapV3BaseQuoter
 from exchanges.uniswap.v3.pool import UniswapV3Pool
 from exchanges.uniswap.v3.router import UniswapV3Router
-from exchanges.uniswap.v3.quoter import UniswapV3Quoter
-from warren.models.token_pair import BaseTokenPairMetaV2, UniswapV2TokenPairMeta
+from warren.models.base_model import BaseModel
+from warren.models.base_token_pair import BaseTokenPairMetaV2, UniswapV2TokenPairMeta
 
 
 class BaseExchange(BaseModel):
@@ -22,5 +22,4 @@ class UniswapV2Exchange(BaseExchange):
 class UniswapV3Exchange(BaseExchange):
     uniswap_v3_pool: UniswapV3Pool
     uniswap_v3_router: UniswapV3Router
-    uniswap_v3_quoter: UniswapV3Quoter
-
+    uniswap_v3_quoter: UniswapV3BaseQuoter

@@ -17,8 +17,8 @@ class UniswapV2Factory:
 
     def get_pair(self, params: GetPairParams, fee: Fraction = Fraction(3, 1000)) -> UniswapV2Pair:
         address = self.contract.functions.getPair(
-            params.token_in,
-            params.token_out,
+            params.token0,
+            params.token0,
         ).call()
 
-        return UniswapV2Pair(web3=self.web3, address=address, fee=fee)
+        return UniswapV2Pair(web3=self.web3, address=address, token0=params.token0, token1=params.token1, fee=fee)

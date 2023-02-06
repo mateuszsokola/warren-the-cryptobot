@@ -16,7 +16,7 @@ from warren.core.uniswap_v2_token_pair import UniswapV2TokenPair
 from warren.core.uniswap_v3_token_pair import UniswapV3TokenPair
 from warren.models.exchange import UniswapV2Exchange, UniswapV3Exchange
 from warren.models.network import Network
-from warren.models.token_pair import BaseTokenPairMetaV2, UniswapV2TokenPairMeta
+from warren.models.base_token_pair import BaseTokenPairMetaV2, UniswapV2TokenPairMeta
 
 #
 # ERC-20 Tokens addresses on Ethereum
@@ -29,7 +29,7 @@ from warren.models.token_pair import BaseTokenPairMetaV2, UniswapV2TokenPairMeta
 
 def create_exchanges_with_routes(web3: Web3, async_web3: Web3) -> dict[str, List[BaseTokenPair]]:
     exchanges = {
-        [Network.Ethereum.value]: [
+        Network.Ethereum.value: [
             # uniswap_v3_quoter
             # UniswapV3Exchange(
             #     name="uniswap_v3_quoter",

@@ -1,4 +1,5 @@
 from web3 import Web3
+from exchanges.uniswap.v3.base_quoter import UniswapV3BaseQuoter
 
 from exchanges.uniswap.v3.models.quote_exact_input_single_params import (
     QuoteExactInputSingle,
@@ -9,7 +10,7 @@ from warren.utils.load_contract_abi import load_contract_abi
 uniswap_v3_quoter_v2_address = "0x61fFE014bA17989E743c5F6cB21bF9697530B21e"
 
 
-class UniswapV3QuoterV2:
+class UniswapV3QuoterV2(UniswapV3BaseQuoter):
     def __init__(self, web3: Web3, address: str):
         self.web3 = web3
         self.address = address

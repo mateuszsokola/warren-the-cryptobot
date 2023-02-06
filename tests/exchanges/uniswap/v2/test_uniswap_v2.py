@@ -16,7 +16,7 @@ async def test_uniswap_v2_router01(orderbook: OrderBookService):
         web3=orderbook.web3, transaction_service=orderbook.transaction_service, address=uniswap_v2_factory_address
     )
 
-    pair_params = GetPairParams(token_in=weth9_contract_address, token_out=dai_contract_address)
+    pair_params = GetPairParams(token0=weth9_contract_address, token1=dai_contract_address)
     uniswap_v2_pair = uniswap_v2_factory.get_pair(pair_params)
 
     amount_in = int(1 * 10**18)

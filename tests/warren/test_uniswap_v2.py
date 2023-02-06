@@ -2,9 +2,9 @@ import pytest
 from fractions import Fraction
 
 from warren.services.order_book_service import OrderBookService
-from warren.tokens.dai import Dai, dai_contract_address
-from warren.tokens.usdc import UsdC, usdc_contract_address
-from warren.tokens.weth9 import WEth9, weth9_contract_address
+from tokens.dai import DAI, dai_contract_address
+from tokens.usdc import USDC, usdc_contract_address
+from tokens.weth9 import WETH9, weth9_contract_address
 from exchanges.uniswap.v2.factory import UniswapV2Factory
 from exchanges.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
 from exchanges.uniswap.v2.models.get_pair_params import GetPairParams
@@ -18,7 +18,7 @@ async def test_uniswap_v2_router01(orderbook: OrderBookService):
         web3=orderbook.web3, transaction_service=orderbook.transaction_service, address=uniswap_v2_factory_address
     )
 
-    pair_params = GetPairParams(token_in=weth9_contract_address, token_out=dai_contract_address)
+    pair_params = GetPairParams(token0=weth9_contract_address, token1=dai_contract_address)
     uniswap_v2_pair = uniswap_v2_factory.get_pair(pair_params)
 
     amount_in = int(1 * 10**18)
@@ -30,16 +30,16 @@ async def test_uniswap_v2_router01(orderbook: OrderBookService):
         web3=orderbook.web3, transaction_service=orderbook.transaction_service, address=uniswap_v2_router_address
     )
 
-    dai = Dai(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
-    weth9 = WEth9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
+    dai = DAI(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
+    weth9 = WETH9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
     await weth9.deposit(amount_in=amount_in)
     await weth9.approve(uniswap_v2_router_address, max_amount_in=amount_in)
 
     fee = await orderbook.transaction_service.calculate_tx_fees()
 
     params = ExactTokensForTokensParams(
-        token_in=weth9_contract_address,
-        token_out=dai_contract_address,
+        token0=weth9_contract_address,
+        token1=dai_contract_address,
         amount_in=amount_in,
         amount_out_minimum=0,
         deadline=9999999999999999,
@@ -58,7 +58,7 @@ async def test_uniswap_v2_router02(orderbook: OrderBookService):
         web3=orderbook.web3, transaction_service=orderbook.transaction_service, address=uniswap_v2_factory_address
     )
 
-    pair_params = GetPairParams(token_in=weth9_contract_address, token_out=dai_contract_address)
+    pair_params = GetPairParams(token0=weth9_contract_address, token1=dai_contract_address)
     uniswap_v2_pair = uniswap_v2_factory.get_pair(pair_params)
 
     amount_in = int(1 * 10**18)
@@ -70,16 +70,16 @@ async def test_uniswap_v2_router02(orderbook: OrderBookService):
         web3=orderbook.web3, transaction_service=orderbook.transaction_service, address=uniswap_v2_router_address
     )
 
-    dai = Dai(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
-    weth9 = WEth9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
+    dai = DAI(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
+    weth9 = WETH9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
     await weth9.deposit(amount_in=amount_in)
     await weth9.approve(uniswap_v2_router_address, max_amount_in=amount_in)
 
     fee = await orderbook.transaction_service.calculate_tx_fees()
 
     params = ExactTokensForTokensParams(
-        token_in=weth9_contract_address,
-        token_out=dai_contract_address,
+        token0=weth9_contract_address,
+        token1=dai_contract_address,
         amount_in=amount_in,
         amount_out_minimum=0,
         deadline=9999999999999999,
@@ -98,7 +98,7 @@ async def test_sushiswap(orderbook: OrderBookService):
         web3=orderbook.web3, transaction_service=orderbook.transaction_service, address=sushiswap_factory_address
     )
 
-    pair_params = GetPairParams(token_in=weth9_contract_address, token_out=dai_contract_address)
+    pair_params = GetPairParams(token0=weth9_contract_address, token1=dai_contract_address)
     uniswap_v2_pair = sushiswap_factory.get_pair(pair_params)
 
     amount_in = int(1 * 10**18)
@@ -110,16 +110,16 @@ async def test_sushiswap(orderbook: OrderBookService):
         web3=orderbook.web3, transaction_service=orderbook.transaction_service, address=sushiswap_router_address
     )
 
-    dai = Dai(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
-    weth9 = WEth9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
+    dai = DAI(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
+    weth9 = WETH9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
     await weth9.deposit(amount_in=amount_in)
     await weth9.approve(sushiswap_router_address, max_amount_in=amount_in)
 
     fee = await orderbook.transaction_service.calculate_tx_fees()
 
     params = ExactTokensForTokensParams(
-        token_in=weth9_contract_address,
-        token_out=dai_contract_address,
+        token0=weth9_contract_address,
+        token1=dai_contract_address,
         amount_in=amount_in,
         amount_out_minimum=0,
         deadline=9999999999999999,
@@ -138,7 +138,7 @@ async def test_pancakeswap(orderbook: OrderBookService):
         web3=orderbook.web3, transaction_service=orderbook.transaction_service, address=pancakeswap_factory_address
     )
 
-    pair_params = GetPairParams(token_in=weth9_contract_address, token_out=usdc_contract_address)
+    pair_params = GetPairParams(token0=weth9_contract_address, token1=usdc_contract_address)
     uniswap_v2_pair = pancakeswap_factory.get_pair(pair_params, fee=Fraction(25, 10000))
 
     amount_in = int(1 * 10**18)
@@ -150,16 +150,16 @@ async def test_pancakeswap(orderbook: OrderBookService):
         web3=orderbook.web3, transaction_service=orderbook.transaction_service, address=pancakeswap_router_address
     )
 
-    usdc = UsdC(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
-    weth9 = WEth9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
+    usdc = USDC(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
+    weth9 = WETH9(web3=orderbook.web3, transaction_service=orderbook.transaction_service)
     await weth9.deposit(amount_in=amount_in)
     await weth9.approve(pancakeswap_router_address, max_amount_in=amount_in)
 
     fee = await orderbook.transaction_service.calculate_tx_fees()
 
     params = ExactTokensForTokensParams(
-        token_in=weth9_contract_address,
-        token_out=usdc_contract_address,
+        token0=weth9_contract_address,
+        token1=usdc_contract_address,
         amount_in=amount_in,
         amount_out_minimum=0,
         deadline=9999999999999999,
