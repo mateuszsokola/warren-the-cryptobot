@@ -1,15 +1,12 @@
 from fractions import Fraction
 from typing import List
 from web3 import Web3
-from pydantic import BaseModel
 from exchanges.uniswap.v2.models.get_pair_params import GetPairParams
 from exchanges.uniswap.v2.factory import UniswapV2Factory
 from exchanges.uniswap.v2.router import UniswapV2Router
 from exchanges.uniswap.v3.pool import UniswapV3Pool
 from exchanges.uniswap.v3.quoter_v2 import UniswapV3QuoterV2
 from exchanges.uniswap.v3.router import UniswapV3Router
-from exchanges.uniswap.v3.quoter import UniswapV3Quoter
-from tokens.base_token import BaseToken
 from tokens.dai import DAI
 from tokens.usdc import USDC
 from tokens.wbtc import WBTC
@@ -17,35 +14,9 @@ from tokens.weth9 import WETH9
 from warren.core.base_token_pair import BaseTokenPair
 from warren.core.uniswap_v2_token_pair import UniswapV2TokenPair
 from warren.core.uniswap_v3_token_pair import UniswapV3TokenPair
+from warren.models.exchange import UniswapV2Exchange, UniswapV3Exchange
 from warren.models.network import Network
-
-
-class BaseTokenPairMetaV2:
-    name: str
-    token0: BaseToken
-    token1: BaseToken
-
-
-class UniswapV2TokenPairMeta(BaseTokenPairMetaV2):
-    fee: Fraction
-
-
-class BaseExchange(BaseModel):
-    name: str
-    token_pairs: List[BaseTokenPairMetaV2]
-
-
-class UniswapV2Exchange(BaseExchange):
-    uniswap_v2_factory: UniswapV2Factory
-    uniswap_v2_router: UniswapV2Router
-    token_pairs: List[UniswapV2TokenPairMeta]
-
-
-class UniswapV3Exchange(BaseExchange):
-    uniswap_v3_pool: UniswapV3Pool
-    uniswap_v3_router: UniswapV3Router
-    uniswap_v3_quoter: UniswapV3Quoter
-
+from warren.models.token_pair import BaseTokenPairMetaV2, UniswapV2TokenPairMeta
 
 #
 # ERC-20 Tokens addresses on Ethereum
