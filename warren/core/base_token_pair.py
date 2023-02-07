@@ -1,16 +1,11 @@
 from web3 import Web3
 
-from tokens.base_token import BaseToken
-
 
 class BaseTokenPair:
-    def __init__(
-        self,
-        web3: Web3,
-        async_web3: Web3,
-    ):
+    def __init__(self, web3: Web3, async_web3: Web3, name: str):
         self.web3 = web3
         self.async_web3 = async_web3
+        self.name = name
 
     def calculate_token0_to_token1_amount_out(self, amount_in: int) -> int:
         pass

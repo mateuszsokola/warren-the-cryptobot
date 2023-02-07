@@ -12,14 +12,12 @@ class UniswapV2TokenPair(BaseTokenPair):
         self,
         web3: Web3,
         async_web3: Web3,
+        name: str,
         token_pair: UniswapV2Pair,
         router: UniswapV2Router,
         min_balance_to_transact: int = 0,
     ):
-        super().__init__(
-            web3,
-            async_web3,
-        )
+        super().__init__(web3, async_web3, name)
 
         self.transaction_service = TransactionService(
             web3=web3,
@@ -28,23 +26,6 @@ class UniswapV2TokenPair(BaseTokenPair):
         self.min_balance_to_transact = min_balance_to_transact
         self.uniswap_v2_pair = token_pair
         self.uniswap_v2_router = router
-
-    async def swap(self, amount_in: int, gas_limit: int = 120000):
-        tx_fees = await self.transaction_service.calculate_tx_fees(gas_limit=gas_limit)
-
-        params = ExactTokensForTokensParams(
-            token_in=self.uniswap_v2_pair.token0,
-            token_out=self.uniswap_v2_pair.token0,
-            amount_in=amount_in,
-            amount_out_minimum=0,
-            deadline=9999999999999999,
-        )
-
-        tx_params = self.uniswap_v2_router.swap_exact_tokens_for_tokens(
-            params, tx_fees.gas_limit, tx_fees.max_fee_per_gas, tx_fees.max_fee_per_gas
-        )
-
-        return await self.transaction_service.send_transaction(tx_params)
 
     def calculate_token0_to_token1_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
         amount_out = self.uniswap_v2_pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)

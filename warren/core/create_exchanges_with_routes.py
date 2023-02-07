@@ -217,6 +217,7 @@ def create_exchanges_with_routes(
                 result[token_pair.name] = UniswapV2TokenPair(
                     web3=web3,
                     async_web3=async_web3,
+                    name=exchange.name,
                     token_pair=uniswap_v2_pair,
                     router=exchange.uniswap_v2_router,
                     # TODO(mateu.sh): parametrize
@@ -226,6 +227,7 @@ def create_exchanges_with_routes(
                 result[token_pair.name] = UniswapV3TokenPair(
                     web3=web3,
                     async_web3=async_web3,
+                    name=exchange.name,
                     token0=token_pair.token0.address,
                     token1=token_pair.token1.address,
                     pool=exchange.uniswap_v3_pool,
@@ -623,6 +625,7 @@ def get_exchanges_by_token_pair(
                     instance = UniswapV2TokenPair(
                         web3=web3,
                         async_web3=async_web3,
+                        name=exchange.name,
                         token_pair=uniswap_v2_pair,
                         router=exchange.uniswap_v2_router,
                         # TODO(mateu.sh): parametrize
@@ -632,6 +635,7 @@ def get_exchanges_by_token_pair(
                     instance = UniswapV3TokenPair(
                         web3=web3,
                         async_web3=async_web3,
+                        name=exchange.name,
                         token0=token_pair.token0.address,
                         token1=token_pair.token1.address,
                         pool=exchange.uniswap_v3_pool,
