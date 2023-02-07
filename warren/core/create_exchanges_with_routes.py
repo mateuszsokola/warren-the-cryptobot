@@ -218,6 +218,8 @@ def create_exchanges_with_routes(
                     web3=web3,
                     async_web3=async_web3,
                     name=exchange.name,
+                    token0=token_pair.token0,
+                    token1=token_pair.token1,
                     token_pair=uniswap_v2_pair,
                     router=exchange.uniswap_v2_router,
                     # TODO(mateu.sh): parametrize
@@ -228,8 +230,8 @@ def create_exchanges_with_routes(
                     web3=web3,
                     async_web3=async_web3,
                     name=exchange.name,
-                    token0=token_pair.token0.address,
-                    token1=token_pair.token1.address,
+                    token0=token_pair.token0,
+                    token1=token_pair.token1,
                     pool=exchange.uniswap_v3_pool,
                     quoter=exchange.uniswap_v3_quoter,
                     router=exchange.uniswap_v3_router,
@@ -422,11 +424,20 @@ def get_token_routes(web3: Web3, network: Network = Network.Ethereum) -> dict[Ba
 
     for exchange in exchanges[network.value]:
         for token_pair in exchange.token_pairs:
-            if token_pair.token0.name not in result.keys():
-                result[token_pair.token0.name] = []
+            token0_name = token_pair.token0.name
+            token1_name = token_pair.token1.name
 
-            if token_pair.token1.name not in result[token_pair.token0.name]:
-                result[token_pair.token0.name].append(token_pair.token1.name)
+            if token0_name not in result.keys():
+                result[token0_name] = []
+
+            if token1_name not in result.keys():
+                result[token1_name] = []
+
+            if token1_name not in result[token0_name]:
+                result[token0_name].append(token1_name)
+
+            if token0_name not in result[token1_name]:
+                result[token1_name].append(token0_name)
 
     return result
 
@@ -626,6 +637,8 @@ def get_exchanges_by_token_pair(
                         web3=web3,
                         async_web3=async_web3,
                         name=exchange.name,
+                        token0=token_pair.token0,
+                        token1=token_pair.token1,
                         token_pair=uniswap_v2_pair,
                         router=exchange.uniswap_v2_router,
                         # TODO(mateu.sh): parametrize
@@ -636,8 +649,8 @@ def get_exchanges_by_token_pair(
                         web3=web3,
                         async_web3=async_web3,
                         name=exchange.name,
-                        token0=token_pair.token0.address,
-                        token1=token_pair.token1.address,
+                        token0=token_pair.token0,
+                        token1=token_pair.token1,
                         pool=exchange.uniswap_v3_pool,
                         quoter=exchange.uniswap_v3_quoter,
                         router=exchange.uniswap_v3_router,

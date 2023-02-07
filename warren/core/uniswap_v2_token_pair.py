@@ -1,5 +1,6 @@
 from web3 import Web3
 from exchanges.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
+from tokens.base_token import BaseToken
 from warren.core.base_token_pair import BaseTokenPair
 from warren.services.transaction_service import TransactionService
 
@@ -13,11 +14,13 @@ class UniswapV2TokenPair(BaseTokenPair):
         web3: Web3,
         async_web3: Web3,
         name: str,
+        token0: BaseToken,
+        token1: BaseToken,
         token_pair: UniswapV2Pair,
         router: UniswapV2Router,
         min_balance_to_transact: int = 0,
     ):
-        super().__init__(web3, async_web3, name)
+        super().__init__(web3, async_web3, name, token0, token1)
 
         self.transaction_service = TransactionService(
             web3=web3,

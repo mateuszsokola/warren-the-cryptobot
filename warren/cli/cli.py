@@ -268,9 +268,14 @@ def create_order(
         console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals())} {token0.name}[green]")
 
         for exchange in exchanges:
-            console.print(
-                f"Current price on {exchange.name}: {to_human(exchange.calculate_token0_to_token1_amount_out(), decimals=token1.decimals())} {token1.name}"
-            )
+            if token0.name == exchange.token0:
+                console.print(
+                    f"Current price on {exchange.name}: {to_human(exchange.calculate_token0_to_token1_amount_out(), decimals=token1.decimals())} {token1.name}"
+                )
+            else:
+                console.print(
+                    f"Current price on {exchange.name}: {to_human(exchange.calculate_token1_to_token0_amount_out(), decimals=token1.decimals())} {token1.name}"
+                )
 
         # TODO(mateu.sh): bring back `min_balance_to_transact`
         # if token_in_balance < token_pair.min_balance_to_transact:

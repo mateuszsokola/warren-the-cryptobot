@@ -43,7 +43,7 @@ class Database:
 
         self.cur.execute(
             """
-                CREATE TABLE IF NOT EXISTS order_book (
+                CREATE TABLE IF NOT EXISTS order_book_v2 (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     type VARCHAR NOT NULL,
                     token0 VARCHAR NOT NULL,
@@ -68,7 +68,7 @@ class Database:
     def create_order(self, order: OrderDto):
         self.cur.execute(
             """
-                INSERT INTO order_book
+                INSERT INTO order_book_v2
                 (type, token0, token1, trigger_price, percent, status)
                 VALUES(?, ?, ?, ?, ?);
             """,
@@ -84,7 +84,7 @@ class Database:
         self.con.commit()
 
     def change_order_status(self, id: int, status: OrderStatus = OrderStatus.cancelled):
-        update_query = "UPDATE order_book SET status = ? WHERE id = ?"
+        update_query = "UPDATE order_book_v2 SET status = ? WHERE id = ?"
         self.cur.execute(
             update_query,
             [status.name, id],
@@ -101,7 +101,7 @@ class Database:
         select_query = """
             SELECT 
             id, type, token0, token1, trigger_price, percent, status
-            FROM order_book
+            FROM order_book_v2
         """
         if status is None:
             res = self.cur.execute(f"{select_query}").fetchall()

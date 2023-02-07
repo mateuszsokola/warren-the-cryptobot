@@ -1,4 +1,5 @@
 from web3 import Web3
+from tokens.base_token import BaseToken
 from warren.core.base_token_pair import BaseTokenPair
 
 from exchanges.uniswap.v3.models.exact_input_single_params import ExactInputSingleParams
@@ -17,15 +18,15 @@ class UniswapV3TokenPair(BaseTokenPair):
         self,
         web3: Web3,
         async_web3: Web3,
+        token0: BaseToken,
+        token1: BaseToken,
         name: str,
-        token0: str,
-        token1: str,
         pool: UniswapV3Pool,
         quoter: UniswapV3QuoterV2,
         router: UniswapV3Router,
         min_balance_to_transact: int = 0,
     ):
-        super().__init__(web3, async_web3, name)
+        super().__init__(web3, async_web3, name, token0, token1)
 
         self.transaction_service = TransactionService(
             web3=web3,
@@ -37,20 +38,21 @@ class UniswapV3TokenPair(BaseTokenPair):
         self.uniswap_v3_quoter_v2 = quoter
         self.uniswap_v3_router = router
 
-        self.token0 = token0
-        self.token1 = token1
-
     def calculate_token0_to_token1_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
-        return self._calculate_amount_out(token_in=self.token0, token_out=self.token1, amount_in=amount_in)
+        return self._calculate_amount_out(token_in=self.token0.address, token_out=self.token1.address, amount_in=amount_in)
 
     def calculate_token1_to_token0_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
-        return self._calculate_amount_out(token_in=self.token1, token_out=self.token0, amount_in=amount_in)
+        return self._calculate_amount_out(token_in=self.token1.address, token_out=self.token0.address, amount_in=amount_in)
 
     async def swap_token0_to_token1(self, amount_in: int, gas_limit: int = 120000):
-        return await self._swap(token_in=self.token0, token_out=self.token1, amount_in=amount_in, gas_limit=gas_limit)
+        return await self._swap(
+            token_in=self.token0.address, token_out=self.token1.address, amount_in=amount_in, gas_limit=gas_limit
+        )
 
     async def swap_token1_to_token0(self, amount_in: int, gas_limit: int = 120000):
-        return await self._swap(token_in=self.token1, token_out=self.token0, amount_in=amount_in, gas_limit=gas_limit)
+        return await self._swap(
+            token_in=self.token1.address, token_out=self.token0.address, amount_in=amount_in, gas_limit=gas_limit
+        )
 
     def _calculate_amount_out(self, token_in: str, token_out: str, amount_in: int = int(1 * 10**18)) -> int:
         quote_exact_input_single_params = QuoteExactInputSingleParams(
