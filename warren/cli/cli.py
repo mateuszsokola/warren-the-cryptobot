@@ -268,7 +268,7 @@ def create_order(
         console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals())} {token0.name}[green]")
 
         for exchange in exchanges:
-            if token0.name == exchange.token0:
+            if token0.name == exchange.token0.name:
                 console.print(
                     f"Current price on {exchange.name}: {to_human(exchange.calculate_token0_to_token1_amount_out(), decimals=token1.decimals())} {token1.name}"
                 )
