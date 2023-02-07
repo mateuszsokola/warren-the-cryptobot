@@ -1,17 +1,19 @@
 import sqlite3
 from decimal import Decimal
 from typing import List
+from web3 import Web3
+from warren.core.create_token import create_token
 from warren.models.option import OptionDto
 from warren.models.order import OrderDao, OrderDto, OrderStatus, OrderType
-from warren.models.token_pair import TokenPair
 
 
-def order_dao_factory(order: tuple):
-    (id, order_type, token_pair, trigger_price, percent, status) = order
+def order_dao_factory(web3: Web3, order: tuple):
+    (id, order_type, token0, token1, trigger_price, percent, status) = order
     return OrderDao(
         id=id,
         type=OrderType[order_type],
-        token_pair=TokenPair[token_pair],
+        token0=create_token(web3=web3, name=token0),
+        token1=create_token(web3=web3, name=token1),
         trigger_price=int(trigger_price),
         percent=Decimal(percent),
         status=OrderStatus[status],
@@ -44,8 +46,8 @@ class Database:
                 CREATE TABLE IF NOT EXISTS order_book (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     type VARCHAR NOT NULL,
-                    token_pair VARCHAR NOT NULL,
-                    token0_to_token1 INT NOT NULL DEFAULT 1,
+                    token0 VARCHAR NOT NULL,
+                    token1 VARCHAR NOT NULL,
                     trigger_price VARCHAR NOT NULL,
                     percent VARCHAR NOT NULL,
                     status VARCHAR NOT NULL
@@ -67,13 +69,13 @@ class Database:
         self.cur.execute(
             """
                 INSERT INTO order_book
-                (type, token_pair, token0_to_token1, trigger_price, percent, status)
+                (type, token0, token1, trigger_price, percent, status)
                 VALUES(?, ?, ?, ?, ?);
             """,
             (
                 order.type.name,
-                order.token_pair.name,
-                order.token0_to_token1,
+                order.token0.name,
+                order.token1.name,
                 str(order.trigger_price),
                 order.percent,
                 order.status.name,
@@ -95,10 +97,10 @@ class Database:
 
         return [OptionDto(id=id, option_name=option_name, option_value=option_value) for (id, option_name, option_value) in res]
 
-    def list_orders(self, status: OrderStatus | None = None, func=order_dao_factory) -> List[OrderDao]:
+    def list_orders(self, web3: Web3, status: OrderStatus | None = None, func=order_dao_factory) -> List[OrderDao]:
         select_query = """
             SELECT 
-            id, type, token_pair, trigger_price, percent, status
+            id, type, token0, token1, trigger_price, percent, status
             FROM order_book
         """
         if status is None:
@@ -106,4 +108,4 @@ class Database:
         else:
             res = self.cur.execute(f"{select_query} WHERE status = ?", [status.name]).fetchall()
 
-        return [func(order) for order in res]
+        return [func(web3, order) for order in res]

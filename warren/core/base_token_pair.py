@@ -1,5 +1,7 @@
 from web3 import Web3
 
+from tokens.base_token import BaseToken
+
 
 class BaseTokenPair:
     def __init__(

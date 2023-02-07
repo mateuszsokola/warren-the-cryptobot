@@ -1,7 +1,7 @@
 from decimal import Decimal
 from enum import Enum
-from pydantic import BaseModel
-from warren.models.token_pair import TokenPair
+from tokens.base_token import BaseToken
+from warren.models.base_model import BaseModel
 
 
 class OrderStatus(str, Enum):
@@ -18,8 +18,8 @@ class OrderType(str, Enum):
 class OrderDao(BaseModel):
     id: int
     type: OrderType
-    token_pair: TokenPair
-    token0_to_token1: bool
+    token0: BaseToken
+    token1: BaseToken
     trigger_price: int
     percent: Decimal
     status: OrderStatus
@@ -27,8 +27,8 @@ class OrderDao(BaseModel):
 
 class OrderDto(BaseModel):
     type: OrderType
-    token_pair: TokenPair
-    token0_to_token1: bool
+    token0: BaseToken
+    token1: BaseToken
     trigger_price: int
     percent: Decimal
     status: OrderStatus

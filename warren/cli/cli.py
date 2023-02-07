@@ -10,8 +10,9 @@ from tokens.usdc import USDC
 from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
 from warren.core.create_database import create_database
+from warren.core.create_exchanges_with_routes import get_exchanges_by_token_pair, get_token_routes
 from warren.core.create_service import create_service
-from warren.core.create_token_pair import create_token_pair
+from warren.core.create_token import create_token
 from warren.core.setup_wizard import SetupWizard
 from warren.models.option import OptionDto
 from warren.models.order import OrderDto, OrderStatus, OrderType
@@ -160,22 +161,22 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
         passphrase = Prompt.ask("Enter passphrase")
         service = create_service(config_path=config_dir, passphrase=passphrase)
 
-        weth9 = WEth9(web3=service.web3, transaction_service=service.transaction_service)
+        weth9 = WETH9(web3=service.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
 
         current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
-        console.print(f"Before ETH balance: {to_human(current_balance, decimals=WEth9.decimals())} ETH")
+        console.print(f"Before ETH balance: {to_human(current_balance, decimals=WETH9.decimals())} ETH")
         weth9_balance = weth9.balance_of(service.web3.eth.default_account)
-        console.print(f"Before WETH9 balance: {to_human(weth9_balance, decimals=WEth9.decimals())} WETH9")
+        console.print(f"Before WETH9 balance: {to_human(weth9_balance, decimals=WETH9.decimals())} WETH9")
 
         amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
-        wei_amount_in = to_wei(amount_in, decimals=WEth9.decimals())
+        wei_amount_in = to_wei(amount_in, decimals=WETH9.decimals())
         await weth9.deposit(amount_in=wei_amount_in)
-        console.print(f"Wrapped {to_human(wei_amount_in, decimals=WEth9.decimals())} ETH into WETH9")
+        console.print(f"Wrapped {to_human(wei_amount_in, decimals=WETH9.decimals())} ETH into WETH9")
 
         current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
-        console.print(f"After ETH balance: {to_human(current_balance, decimals=WEth9.decimals())} ETH")
+        console.print(f"After ETH balance: {to_human(current_balance, decimals=WETH9.decimals())} ETH")
         weth9_balance = weth9.balance_of(service.web3.eth.default_account)
-        console.print(f"After WETH9 balance: {to_human(weth9_balance, decimals=WEth9.decimals())} WETH9")
+        console.print(f"After WETH9 balance: {to_human(weth9_balance, decimals=WETH9.decimals())} WETH9")
 
     asyncio.run(main())
 
@@ -234,50 +235,65 @@ def create_order(
 
         order_type_idx = int(Prompt.ask("Choose order type", choices=choices))
 
-        token_pairs = []
+        token_routes = get_token_routes(web3=order_book_v2.web3)
+
+        tokens = []
         choices = []
-        for idx, token_pair_idx in enumerate(TokenPair):
-            console.print(f"{idx}) {token_pair_idx.value}")
-            token_pairs.append(token_pair_idx)
+        for idx, token in enumerate(token_routes.keys()):
+            console.print(f"{idx}) {token}")
+            tokens.append(token)
             choices.append(str(idx))
 
-        token_pair_idx = int(Prompt.ask("Choose token pair", choices=choices))
+        token0_idx = int(Prompt.ask("Choose token0", choices=choices))
+        token0 = create_token(web3=order_book_v2.web3, name=tokens[token0_idx])
 
-        token_pair = create_token_pair(
-            async_web3=order_book_v2.async_web3,
+        tokens = []
+        choices = []
+        for idx, token in enumerate(token_routes[token0.name]):
+            console.print(f"{idx}) {token}")
+            tokens.append(token)
+            choices.append(str(idx))
+
+        token1_idx = int(Prompt.ask("Choose token1", choices=choices))
+        token1 = create_token(web3=order_book_v2.web3, name=tokens[token1_idx])
+
+        exchanges = get_exchanges_by_token_pair(
             web3=order_book_v2.web3,
-            transaction_service=order_book_v2.transaction_service,
-            token_pair=token_pairs[token_pair_idx],
+            async_web3=order_book_v2.async_web3,
+            token0=token0,
+            token1=token1,
         )
 
-        token_in_balance = token_pair.token_in.balance_of(order_book_v2.web3.eth.default_account)
-        console.print(
-            f"Current price: {to_human(token_pair.quote(), decimals=token_pair.token_out.decimals())} {token_pair.token_out.name}"
-        )
-        console.print(
-            f"Balance: [green]{to_human(token_in_balance, decimals=token_pair.token_in.decimals())} {token_pair.token_in.name}[green]"
-        )
+        token0_balance = token0.balance_of(order_book_v2.web3.eth.default_account)
 
-        if token_in_balance < token_pair.min_balance_to_transact:
-            console.print(f"You don't have enough tokens")
-            sys.exit(1)
+        for exchange in exchanges:
+            console.print(
+                f"Current price: {to_human(exchange.calculate_token0_to_token1_amount_out(), decimals=token1.decimals())} {token1.name}"
+            )
+            console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals())} {token0.name}[green]")
+
+        # TODO(mateu.sh): bring back `min_balance_to_transact`
+        # if token_in_balance < token_pair.min_balance_to_transact:
+        #     console.print(f"You don't have enough tokens")
+        #     sys.exit(1)
 
         trigger_price = Decimal(Prompt.ask("Trigger price"))
 
         percent_of_tokens = Decimal(Prompt.ask("Percent of tokens to flip (excluding gas fees)", default=str(100)))
         # UniswapV3 Router
-        await token_pair.token_in.approve("0xE592427A0AEce92De3Edee1F18E0157C05861564", max_amount_in=token_in_balance)
+        await token0.approve("0xE592427A0AEce92De3Edee1F18E0157C05861564", max_amount_in=token0_balance)
         # UniswapV2 Router02
-        await token_pair.token_in.approve("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", max_amount_in=token_in_balance)
+        await token0.approve("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", max_amount_in=token0_balance)
         # PancakeSwap
-        await token_pair.token_in.approve("0xEfF92A263d31888d860bD50809A8D171709b7b1c", max_amount_in=token_in_balance)
+        await token0.approve("0xEfF92A263d31888d860bD50809A8D171709b7b1c", max_amount_in=token0_balance)
         # Sushiswap
-        await token_pair.token_in.approve("0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F", max_amount_in=token_in_balance)
+        await token0.approve("0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F", max_amount_in=token0_balance)
 
         new_order = OrderDto(
             type=order_types[order_type_idx],
-            token_pair=token_pairs[token_pair_idx],
-            trigger_price=to_wei(trigger_price, decimals=token_pair.token_out.decimals()),
+            token0=token0,
+            token1=token1,
+            trigger_price=to_wei(trigger_price, decimals=token1.decimals()),
             percent=Decimal(percent_of_tokens / Decimal(100)),
             status=OrderStatus.active,
         )
