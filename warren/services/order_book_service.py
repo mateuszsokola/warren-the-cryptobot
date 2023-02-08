@@ -76,11 +76,10 @@ class OrderBookService:
                 continue
 
             try:
-                print("token1_to_token0", token1_to_token0)
                 if token1_to_token0:
-                    await exchange.swap_token0_to_token1(amount_in=amount_in)
+                    await exchange.swap_token0_to_token1(amount_in=amount_in, gas_limit=200000)
                 else:
-                    await exchange.swap_token1_to_token0(amount_in=amount_in)
+                    await exchange.swap_token1_to_token0(amount_in=amount_in, gas_limit=200000)
 
                 self.database.change_order_status(id=order.id, status=OrderStatus.executed)
                 logger.info(f"Order #{order.id} has been executed")

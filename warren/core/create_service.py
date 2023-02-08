@@ -9,7 +9,6 @@ from web3.eth import AsyncEth, Eth
 from web3.main import get_default_modules
 from web3.net import AsyncNet
 from warren.core.database import Database
-from warren.core.create_exchanges_with_routes import create_exchanges_with_routes
 from warren.core.setup_wizard import SetupWizard
 from warren.services.order_book_service import OrderBookService
 from warren.utils.retryable_eth_module import retryable_eth_module

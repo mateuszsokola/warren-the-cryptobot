@@ -1,6 +1,7 @@
 from fractions import Fraction
 from typing import List
 from web3 import Web3
+
 from exchanges.uniswap.v2.models.get_pair_params import GetPairParams
 from exchanges.uniswap.v2.factory import UniswapV2Factory
 from exchanges.uniswap.v2.router import UniswapV2Router
@@ -33,29 +34,29 @@ class Router:
                     params = GetPairParams(token0=token_pair.token0.address, token1=token_pair.token1.address)
                     uniswap_v2_pair = exchange.uniswap_v2_factory.get_pair(params, fee=token_pair.fee)
 
-                    result[token_pair.name] = UniswapV2TokenPair(
-                        web3=self.web3,
-                        async_web3=self.async_web3,
-                        name=exchange.name,
-                        token0=token_pair.token0,
-                        token1=token_pair.token1,
-                        token_pair=uniswap_v2_pair,
-                        router=exchange.uniswap_v2_router,
-                        # TODO(mateu.sh): parametrize
-                        min_balance_to_transact=0,
+                    result.append(
+                        UniswapV2TokenPair(
+                            web3=self.web3,
+                            async_web3=self.async_web3,
+                            name=exchange.name,
+                            token0=token_pair.token0,
+                            token1=token_pair.token1,
+                            token_pair=uniswap_v2_pair,
+                            router=exchange.uniswap_v2_router,
+                        )
                     )
                 elif isinstance(exchange, UniswapV3Exchange):
-                    result[token_pair.name] = UniswapV3TokenPair(
-                        web3=self.web3,
-                        async_web3=self.async_web3,
-                        name=exchange.name,
-                        token0=token_pair.token0,
-                        token1=token_pair.token1,
-                        pool=exchange.uniswap_v3_pool,
-                        quoter=exchange.uniswap_v3_quoter,
-                        router=exchange.uniswap_v3_router,
-                        # TODO(mateu.sh): parametrize
-                        min_balance_to_transact=0,
+                    result.append(
+                        UniswapV3TokenPair(
+                            web3=self.web3,
+                            async_web3=self.async_web3,
+                            name=exchange.name,
+                            token0=token_pair.token0,
+                            token1=token_pair.token1,
+                            pool=exchange.uniswap_v3_pool,
+                            quoter=exchange.uniswap_v3_quoter,
+                            router=exchange.uniswap_v3_router,
+                        )
                     )
                 else:
                     continue

@@ -26,7 +26,7 @@ class UniswapV3TokenPair(BaseTokenPair):
         router: UniswapV3Router,
         min_balance_to_transact: int = 0,
     ):
-        super().__init__(web3, async_web3, name, token0, token1)
+        super().__init__(web3=web3, async_web3=async_web3, name=name, token0=token0, token1=token1)
 
         self.transaction_service = TransactionService(
             web3=web3,
