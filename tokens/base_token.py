@@ -15,7 +15,7 @@ class BaseToken:
         self.address = address
         self.contract = web3.eth.contract(address=address, abi=load_contract_abi(abi_name, "artifacts/tokens"))
 
-    async def approve(
+    def approve(
         self,
         address: str,
         max_amount_in: int,

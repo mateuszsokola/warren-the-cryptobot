@@ -16,7 +16,7 @@ from warren.core.create_token import create_token
 from warren.core.setup_wizard import SetupWizard
 from warren.models.option import OptionDto
 from warren.models.order import OrderDto, OrderStatus, OrderType
-from warren.models.token_pair import TokenPair
+from warren.services.transaction_service import TransactionService
 from warren.utils.format_exception import format_exception
 from warren.utils.logger import logger
 from warren.utils.print_order_table import print_order_table
@@ -170,7 +170,18 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
 
         amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
         wei_amount_in = to_wei(amount_in, decimals=WETH9.decimals())
-        await weth9.deposit(amount_in=wei_amount_in)
+
+        transaction_service = TransactionService(web3=service.web3, async_web3=service.async_web3)
+        fees = await transaction_service.calculate_tx_fees(gas_limit=120000)
+
+        await transaction_service.send_transaction(
+            weth9.deposit(
+                amount_in=wei_amount_in,
+                gas_limit=fees.gas_limit,
+                max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
+                max_fee_per_gas=fees.max_fee_per_gas,
+            )
+        )
         console.print(f"Wrapped {to_human(wei_amount_in, decimals=WETH9.decimals())} ETH into WETH9")
 
         current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
@@ -283,16 +294,53 @@ def create_order(
         #     sys.exit(1)
 
         trigger_price = Decimal(Prompt.ask("Trigger price"))
-
         percent_of_tokens = Decimal(Prompt.ask("Percent of tokens to flip (excluding gas fees)", default=str(100)))
-        # UniswapV3 Router
-        await token0.approve("0xE592427A0AEce92De3Edee1F18E0157C05861564", max_amount_in=token0_balance)
-        # UniswapV2 Router02
-        await token0.approve("0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D", max_amount_in=token0_balance)
-        # PancakeSwap
-        await token0.approve("0xEfF92A263d31888d860bD50809A8D171709b7b1c", max_amount_in=token0_balance)
-        # Sushiswap
-        await token0.approve("0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F", max_amount_in=token0_balance)
+
+        transaction_service = TransactionService(web3=order_book_v2.web3, async_web3=order_book_v2.async_web3)
+        fees = await transaction_service.calculate_tx_fees(gas_limit=120000)
+
+        await asyncio.gather(
+            transaction_service.send_transaction(
+                # UniswapV3 Router
+                token0.approve(
+                    "0xE592427A0AEce92De3Edee1F18E0157C05861564",
+                    max_amount_in=token0_balance,
+                    gas_limit=fees.gas_limit,
+                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
+                    max_fee_per_gas=fees.max_fee_per_gas,
+                )
+            ),
+            transaction_service.send_transaction(
+                # UniswapV2 Router02
+                token0.approve(
+                    "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+                    max_amount_in=token0_balance,
+                    gas_limit=fees.gas_limit,
+                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
+                    max_fee_per_gas=fees.max_fee_per_gas,
+                )
+            ),
+            transaction_service.send_transaction(
+                # PancakeSwap
+                token0.approve(
+                    "0xEfF92A263d31888d860bD50809A8D171709b7b1c",
+                    max_amount_in=token0_balance,
+                    gas_limit=fees.gas_limit,
+                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
+                    max_fee_per_gas=fees.max_fee_per_gas,
+                )
+            ),
+            transaction_service.send_transaction(
+                # Sushiswap
+                token0.approve(
+                    "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
+                    max_amount_in=token0_balance,
+                    gas_limit=fees.gas_limit,
+                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
+                    max_fee_per_gas=fees.max_fee_per_gas,
+                )
+            ),
+        )
 
         new_order = OrderDto(
             type=order_types[order_type_idx],

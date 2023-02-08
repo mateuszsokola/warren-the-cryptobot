@@ -70,7 +70,7 @@ class Database:
             """
                 INSERT INTO order_book_v2
                 (type, token0, token1, trigger_price, percent, status)
-                VALUES(?, ?, ?, ?, ?);
+                VALUES(?, ?, ?, ?, ?, ?);
             """,
             (
                 order.type.name,

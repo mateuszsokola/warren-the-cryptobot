@@ -19,7 +19,7 @@ class OrderBookService:
         self.latest_checked_block = 0
 
     async def seek_for_opportunities(self):
-        order_list = self.database.list_orders(status=OrderStatus.active)
+        order_list = self.database.list_orders(web3=self.web3, status=OrderStatus.active)
         if len(order_list) == 0:
             return
 
@@ -76,6 +76,7 @@ class OrderBookService:
                 continue
 
             try:
+                print("token1_to_token0", token1_to_token0)
                 if token1_to_token0:
                     await exchange.swap_token0_to_token1(amount_in=amount_in)
                 else:

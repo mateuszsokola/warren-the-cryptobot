@@ -11,7 +11,7 @@ class WETH9(BaseToken):
             abi_name="WETH9.json",
         )
 
-    async def deposit(self, amount_in: int, gas_limit: int, max_priority_fee_per_gas: int, max_fee_per_gas: int):
+    def deposit(self, amount_in: int, gas_limit: int, max_priority_fee_per_gas: int, max_fee_per_gas: int):
         tx = self.contract.functions.deposit().build_transaction(
             {
                 "type": 2,
