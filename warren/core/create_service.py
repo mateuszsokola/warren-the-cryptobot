@@ -11,7 +11,6 @@ from web3.net import AsyncNet
 from warren.core.database import Database
 from warren.core.setup_wizard import SetupWizard
 from warren.services.order_book_service import OrderBookService
-from warren.services.transaction_service import TransactionService
 from warren.utils.retryable_eth_module import retryable_eth_module
 
 
@@ -54,14 +53,8 @@ def create_service(config_path: str, passphrase: str = "") -> OrderBookService:
     """
     web3.middleware_onion.add(simple_cache_middleware)
 
-    transaction_service = TransactionService(
-        async_web3=async_web3,
-        web3=web3,
-    )
-
     return OrderBookService(
         async_web3=async_web3,
         web3=web3,
         database=database,
-        transaction_service=transaction_service,
     )

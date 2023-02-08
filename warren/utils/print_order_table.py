@@ -2,7 +2,7 @@ from typing import List
 from rich.console import Console
 from rich.table import Table
 from warren.models.order import OrderDao
-from warren.tokens.dai import Dai
+from tokens.dai import DAI
 from warren.utils.to_human import to_human
 
 # TODO(mateu.sh): find better place for it
@@ -22,7 +22,7 @@ def print_order_table(order_list: List[OrderDao]):
             order.type.value,
             order.token_pair.value,
             # TODO(mateu.sh): it suppose to display all decimals instead of cutting them once hit zeros
-            f"{to_human(order.trigger_price, decimals=Dai.decimals())} DAI",
+            f"{to_human(order.trigger_price, decimals=DAI.decimals())} DAI",
             f"{int(order.percent * 100)} %",
             order.status.value,
         )

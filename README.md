@@ -9,11 +9,22 @@ Trading order book for Uniswap v3.
 
 ## Supported swaps
 
-* [ETH](https://coinmarketcap.com/currencies/ethereum/) to [DAI](https://coinmarketcap.com/currencies/multi-collateral-dai/) (on Ethereum Mainnet)
-* [DAI](https://coinmarketcap.com/currencies/multi-collateral-dai/) to [ETH](https://coinmarketcap.com/currencies/ethereum/) (on Ethereum Mainnet)
-* [ETH](https://coinmarketcap.com/currencies/ethereum/) to [WBTC](https://coinmarketcap.com/currencies/wrapped-bitcoin/) (on Ethereum Mainnet)
-* [WBTC](https://coinmarketcap.com/currencies/wrapped-bitcoin/) to [ETH](https://coinmarketcap.com/currencies/ethereum/) (on Ethereum Mainnet)
+* [ETH](https://coinmarketcap.com/currencies/ethereum/) to [DAI](https://coinmarketcap.com/currencies/multi-collateral-dai/) (Ethereum Mainnet)
+* [DAI](https://coinmarketcap.com/currencies/multi-collateral-dai/) to [ETH](https://coinmarketcap.com/currencies/ethereum/) (Ethereum Mainnet)
+* [ETH](https://coinmarketcap.com/currencies/ethereum/) to [WBTC](https://coinmarketcap.com/currencies/wrapped-bitcoin/) (Ethereum Mainnet)
+* [WBTC](https://coinmarketcap.com/currencies/wrapped-bitcoin/) to [ETH](https://coinmarketcap.com/currencies/ethereum/) (Ethereum Mainnet)
+* [ETH](https://coinmarketcap.com/currencies/ethereum/) to [USDC](https://coinmarketcap.com/currencies/usd-coin/) (Ethereum Mainnet)
+* [USDC](https://coinmarketcap.com/currencies/usd-coin/) to [ETH](https://coinmarketcap.com/currencies/ethereum/) (Ethereum Mainnet)
 * More to be added.
+
+
+## Supported DEX’s
+
+* [Uniswap v2](https://uniswap.org/) (Ethereum Mainnet)
+* [Uniswap v3](https://uniswap.org/) (Ethereum Mainnet)
+* [Sushi](https://www.sushi.com/) (Ethereum Mainnet)
+* [PancakeSwap](https://pancakeswap.finance/?chain=eth) (Ethereum Mainnet)
+
 
 ## Commands
 
