@@ -1,6 +1,5 @@
 import pytest
 from web3 import Web3
-
 from tokens.weth9 import WETH9
 from warren.services.transaction_service import TransactionService
 
