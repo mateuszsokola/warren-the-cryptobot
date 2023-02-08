@@ -32,16 +32,10 @@ def orderbook() -> OrderBookService:
     account = accounts[0]
     web3.eth.default_account = account.address
 
-    transaction_service = TransactionService(
-        async_web3=async_web3,
-        web3=web3,
-    )
-
     return OrderBookService(
         async_web3=async_web3,
         web3=web3,
         database=database,
-        transaction_service=transaction_service,
     )
 
 
@@ -54,7 +48,7 @@ def isolation(fn_isolation, orderbook):
     yield
 
     orderbook.latest_checked_block = 0
-    orderbook.database.cur.execute("DELETE FROM order_book")
+    orderbook.database.cur.execute("DELETE FROM order_book_v2")
     orderbook.database.con.commit()
     # after tests revert to initial blockchain snapshot
     chain.revert()

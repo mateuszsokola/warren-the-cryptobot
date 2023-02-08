@@ -1,7 +1,5 @@
 import pytest
 from web3 import Web3
-
-from warren.services.order_book_service import OrderBookService
 from tokens.dai import DAI
 from tokens.weth9 import WETH9
 from exchanges.uniswap.v2.factory import UniswapV2Factory
