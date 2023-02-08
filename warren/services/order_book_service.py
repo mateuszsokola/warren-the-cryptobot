@@ -48,7 +48,7 @@ class OrderBookService:
                 b = exchange.token0.name == order.token1.name and exchange.token1.name == order.token0.name
                 if a or b:
                     exchange_price = (
-                        exchange.calculate_token1_to_token0_amount_out() if b else exchange.calculate_token1_to_token0_amount_out()
+                        exchange.calculate_token1_to_token0_amount_out() if b else exchange.calculate_token0_to_token1_amount_out()
                     )
 
                     if highest_price < exchange_price:
@@ -65,10 +65,10 @@ class OrderBookService:
             exchange = None
 
             # TODO(mateu.sh): refactor those conditional statements
-            if order.type.value == OrderType["stop_loss"].value and exchange_price <= order.trigger_price:
+            if order.type.value == OrderType["stop_loss"].value and lowest_price <= order.trigger_price:
                 amount_in = int(highest_amount_in * order.percent)
                 exchange = highest_price_exchange
-            elif order.type.value == OrderType["take_profit"].value and exchange_price >= order.trigger_price:
+            elif order.type.value == OrderType["take_profit"].value and highest_price >= order.trigger_price:
                 amount_in = int(highest_amount_in * order.percent)
                 exchange = highest_price_exchange
             else:
