@@ -54,12 +54,8 @@ def create_service(config_path: str, passphrase: str = "") -> OrderBookService:
     """
     web3.middleware_onion.add(simple_cache_middleware)
 
-    # TODO(mateu.sh): load routes per network
-    token_routes = create_exchanges_with_routes(web3=web3, async_web3=async_web3)
-
     return OrderBookService(
         async_web3=async_web3,
         web3=web3,
         database=database,
-        token_routes=token_routes,
     )
