@@ -2,9 +2,7 @@ import pytest
 from decimal import Decimal
 from tokens.dai import DAI
 from tokens.weth9 import WETH9
-from warren.core.create_token_pair import create_token_pair
 from warren.models.order import OrderDto, OrderStatus, OrderType
-from warren.models.token_pair import TokenPair
 from warren.services.order_book_service import OrderBookService
 from warren.services.transaction_service import TransactionService
 from warren.utils.to_wei import to_wei
@@ -41,6 +39,10 @@ async def test_stop_losses(orderbook: OrderBookService, transaction_service: Tra
         )
     )
 
+    # TODO(mateu.sh): This route is actually wrong. Uniswap V2 is less expensive than v3 in this case
+    # * Current price on uniswap_v3_quoter_v2: 1517.024094830368309726 DAI
+    # * Current price on uniswap_v2_router02: 1473.276814248781148190 DAI
+    # * Current price on sushiswap: 1472.650060106236758540 DAI
     await transaction_service.send_transaction(
         weth9.approve(
             uniswap_v3_router_address,

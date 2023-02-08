@@ -18,7 +18,7 @@ class OrderBookService:
 
         self.latest_checked_block = 0
 
-    async def seek_for_opportunities(self):
+    async def seek_for_opportunities(self, gas_limit: int = 200000):
         order_list = self.database.list_orders(web3=self.web3, status=OrderStatus.active)
         if len(order_list) == 0:
             return
@@ -77,9 +77,9 @@ class OrderBookService:
 
             try:
                 if token1_to_token0:
-                    await exchange.swap_token1_to_token0(amount_in=amount_in)
+                    await exchange.swap_token1_to_token0(amount_in=amount_in, gas_limit=gas_limit)
                 else:
-                    await exchange.swap_token0_to_token1(amount_in=amount_in)
+                    await exchange.swap_token0_to_token1(amount_in=amount_in, gas_limit=gas_limit)
 
                 self.database.change_order_status(id=order.id, status=OrderStatus.executed)
                 logger.info(f"Order #{order.id} has been executed")

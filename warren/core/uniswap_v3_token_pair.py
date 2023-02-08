@@ -84,7 +84,7 @@ class UniswapV3TokenPair(BaseTokenPair):
 
         tx = self.uniswap_v3_router.exact_input_single(
             exact_input_single_params,
-            gas_limit=tx_fees.gas_limit,
+            gas_limit=gas_limit,
             max_fee_per_gas=tx_fees.max_fee_per_gas,
             max_priority_fee_per_gas=tx_fees.max_priority_fee_per_gas,
         )
