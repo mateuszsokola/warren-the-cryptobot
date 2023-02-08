@@ -38,7 +38,7 @@ class OrderBookService:
             token1_to_token0: bool = False
 
             # TODO(mateu.sh): add buy (at lowest price) order
-            lowest_price_dex = None
+            lowest_price_exchange = None
             lowest_price: int = 0
             lowest_amount_in: int = 0
 
@@ -54,13 +54,13 @@ class OrderBookService:
                     if highest_price < exchange_price:
                         highest_price_exchange = exchange
                         highest_price = exchange_price
-                        highest_amount_in = token0_balance if b else token1_balance
+                        highest_amount_in = token1_balance if b else token0_balance
                         token1_to_token0 = b
 
                     if lowest_price > exchange_price:
                         lowest_price_exchange = exchange
                         lowest_price = exchange_price
-                        lowest_amount_in = token0_balance if b else token1_balance
+                        lowest_amount_in = token1_balance if b else token0_balance
 
             exchange = None
 
@@ -77,9 +77,9 @@ class OrderBookService:
 
             try:
                 if token1_to_token0:
-                    await exchange.swap_token0_to_token1(amount_in=amount_in, gas_limit=200000)
+                    await exchange.swap_token1_to_token0(amount_in=amount_in)
                 else:
-                    await exchange.swap_token1_to_token0(amount_in=amount_in, gas_limit=200000)
+                    await exchange.swap_token0_to_token1(amount_in=amount_in)
 
                 self.database.change_order_status(id=order.id, status=OrderStatus.executed)
                 logger.info(f"Order #{order.id} has been executed")
