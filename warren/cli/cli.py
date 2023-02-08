@@ -10,7 +10,6 @@ from tokens.usdc import USDC
 from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
 from warren.core.create_database import create_database
-from warren.core.create_exchanges_with_routes import get_exchanges_by_token_pair, get_token_routes
 from warren.core.create_service import create_service
 from warren.core.create_token import create_token
 from warren.core.setup_wizard import SetupWizard
@@ -246,7 +245,7 @@ def create_order(
 
         order_type_idx = int(Prompt.ask("Choose order type", choices=choices))
 
-        token_routes = get_token_routes(web3=order_book_v2.web3)
+        token_routes = order_book_v2.router.get_token_routes()
 
         tokens = []
         choices = []
@@ -268,9 +267,7 @@ def create_order(
         token1_idx = int(Prompt.ask("Choose token1", choices=choices))
         token1 = create_token(web3=order_book_v2.web3, name=tokens[token1_idx])
 
-        exchanges = get_exchanges_by_token_pair(
-            web3=order_book_v2.web3,
-            async_web3=order_book_v2.async_web3,
+        exchanges = order_book_v2.router.get_exchanges_by_token_pair(
             token0=token0,
             token1=token1,
         )

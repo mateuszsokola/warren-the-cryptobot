@@ -8,6 +8,7 @@ from exchanges.uniswap.v2.router import UniswapV2Router
 from exchanges.uniswap.v3.pool import UniswapV3Pool
 from exchanges.uniswap.v3.quoter_v2 import UniswapV3QuoterV2
 from exchanges.uniswap.v3.router import UniswapV3Router
+from tokens.base_token import BaseToken
 from tokens.dai import DAI
 from tokens.usdc import USDC
 from tokens.wbtc import WBTC
@@ -18,6 +19,15 @@ from warren.core.uniswap_v3_token_pair import UniswapV3TokenPair
 from warren.models.exchange import BaseExchange, UniswapV2Exchange, UniswapV3Exchange
 from warren.models.network import Network
 from warren.models.base_token_pair import BaseTokenPairMetaV2, UniswapV2TokenPairMeta
+
+
+#
+# ERC-20 Tokens addresses on Ethereum
+#
+# DAI 0x6B175474E89094C44Da98b954EedeAC495271d0F
+# USDC 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48
+# WBTC 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599
+# WETH9 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
 
 
 class Router:
@@ -60,6 +70,75 @@ class Router:
                     )
                 else:
                     continue
+
+        return result
+
+    def get_exchanges_by_token_pair(
+        self, token0: BaseToken, token1: BaseToken, network: Network = Network.Ethereum
+    ) -> List[BaseTokenPair]:
+        result = []
+
+        for exchange in self._get_exchanges(network):
+            for token_pair in exchange.token_pairs:
+                a = token_pair.token0.name == token0.name and token_pair.token1.name == token1.name
+                b = token_pair.token0.name == token1.name and token_pair.token1.name == token0.name
+
+                if a or b:
+                    instance = None
+                    if isinstance(exchange, UniswapV2Exchange):
+                        params = GetPairParams(token0=token_pair.token0.address, token1=token_pair.token1.address)
+                        uniswap_v2_pair = exchange.uniswap_v2_factory.get_pair(params, fee=token_pair.fee)
+
+                        instance = UniswapV2TokenPair(
+                            web3=self.web3,
+                            async_web3=self.async_web3,
+                            name=exchange.name,
+                            token0=token_pair.token0,
+                            token1=token_pair.token1,
+                            token_pair=uniswap_v2_pair,
+                            router=exchange.uniswap_v2_router,
+                            # TODO(mateu.sh): parametrize
+                            min_balance_to_transact=0,
+                        )
+                    elif isinstance(exchange, UniswapV3Exchange):
+                        instance = UniswapV3TokenPair(
+                            web3=self.web3,
+                            async_web3=self.async_web3,
+                            name=exchange.name,
+                            token0=token_pair.token0,
+                            token1=token_pair.token1,
+                            pool=exchange.uniswap_v3_pool,
+                            quoter=exchange.uniswap_v3_quoter,
+                            router=exchange.uniswap_v3_router,
+                            # TODO(mateu.sh): parametrize
+                            min_balance_to_transact=0,
+                        )
+                    else:
+                        continue
+
+                    result.append(instance)
+
+        return result
+
+    def get_token_routes(self, network: Network = Network.Ethereum) -> dict[BaseToken, List[BaseToken]]:
+        result: dict[BaseToken, List[BaseToken]] = {}
+
+        for exchange in self._get_exchanges(network):
+            for token_pair in exchange.token_pairs:
+                token0_name = token_pair.token0.name
+                token1_name = token_pair.token1.name
+
+                if token0_name not in result.keys():
+                    result[token0_name] = []
+
+                if token1_name not in result.keys():
+                    result[token1_name] = []
+
+                if token1_name not in result[token0_name]:
+                    result[token0_name].append(token1_name)
+
+                if token0_name not in result[token1_name]:
+                    result[token1_name].append(token0_name)
 
         return result
 
