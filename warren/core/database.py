@@ -1,23 +1,8 @@
 import sqlite3
 from decimal import Decimal
-from typing import List
-from web3 import Web3
-from warren.core.create_token import create_token
+from typing import Callable, List
 from warren.models.option import OptionDto
-from warren.models.order import OrderDao, OrderDto, OrderStatus, OrderType
-
-
-def order_dao_factory(web3: Web3, order: tuple):
-    (id, order_type, token0, token1, trigger_price, percent, status) = order
-    return OrderDao(
-        id=id,
-        type=OrderType[order_type],
-        token0=create_token(web3=web3, name=token0),
-        token1=create_token(web3=web3, name=token1),
-        trigger_price=int(trigger_price),
-        percent=Decimal(percent),
-        status=OrderStatus[status],
-    )
+from warren.models.order import OrderDao, OrderDto, OrderStatus
 
 
 class Database:
@@ -97,7 +82,7 @@ class Database:
 
         return [OptionDto(id=id, option_name=option_name, option_value=option_value) for (id, option_name, option_value) in res]
 
-    def list_orders(self, web3: Web3, status: OrderStatus | None = None, func=order_dao_factory) -> List[OrderDao]:
+    def list_orders(self, func: Callable, status: OrderStatus | None = None) -> List[OrderDao]:
         select_query = """
             SELECT 
             id, type, token0, token1, trigger_price, percent, status
@@ -108,4 +93,4 @@ class Database:
         else:
             res = self.cur.execute(f"{select_query} WHERE status = ?", [status.name]).fetchall()
 
-        return [func(web3, order) for order in res]
+        return [func(order) for order in res]

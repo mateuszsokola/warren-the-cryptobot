@@ -1,0 +1,58 @@
+ethereum: 
+  - name: Uniswap v3
+    type: uniswap_v3
+    addresses:
+      pool: "0xC2e9F25Be6257c210d7Adf0D4Cd6E3E881ba25f8"
+      router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+      quoter_v2: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e"
+    pairs:
+      - token0: WETH9
+        token1: DAI
+      - token0: WETH9
+        token1: WBTC
+      - token0: WETH9
+        token1: USDC      
+  - name: Uniswap v2
+    type: uniswap_v2
+    addresses:
+      factory: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+      router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+    meta:
+      fee: 
+        numerator: 3
+        denumerator: 100     
+    pairs:
+      - token0: WETH9
+        token1: DAI
+      - token0: WETH9
+        token1: WBTC
+      - token0: WETH9
+        token1: USDC            
+  - name: PancakeSwap
+    type: uniswap_v2
+    addresses:
+      factory: "0x1097053Fd2ea711dad45caCcc45EfF7548fCB362"
+      router: "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
+    meta:
+      fee: 
+        numerator: 25
+        denumerator: 1000
+    pairs:
+      - token0: WETH9
+        token1: USDC       
+  - name: SushiSwap
+    type: uniswap_v2
+    addresses:
+      factory: "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac"
+      router: "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+    meta:
+      fee:
+        numerator: 3
+        denumerator: 100 
+    pairs:
+      - token0: WETH9
+        token1: DAI
+      - token0: WETH9
+        token1: WBTC
+      - token0: WETH9
+        token1: USDC                 

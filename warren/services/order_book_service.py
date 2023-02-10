@@ -1,9 +1,25 @@
 import asyncio
+import functools
+from decimal import Decimal
 from web3 import Web3
 from warren.core.database import Database
+from warren.core.token import Token
 from warren.core.router import Router
-from warren.models.order import OrderStatus, OrderType
+from warren.models.order import OrderDao, OrderStatus, OrderType
 from warren.utils.logger import logger
+
+
+def order_dao_factory(token: Token, order: tuple) -> OrderDao:
+    (id, order_type, token0, token1, trigger_price, percent, status) = order
+    return OrderDao(
+        id=id,
+        type=OrderType[order_type],
+        token0=token.get_token_by_name(token0),
+        token1=token.get_token_by_name(token1),
+        trigger_price=int(trigger_price),
+        percent=Decimal(percent),
+        status=OrderStatus[status],
+    )
 
 
 class OrderBookService:
@@ -11,15 +27,16 @@ class OrderBookService:
         self.async_web3 = async_web3
         self.web3 = web3
         self.database = database
-        self.router = Router(
+        self.token = Token(
             async_web3=async_web3,
             web3=web3,
         )
+        self.router = Router(async_web3=async_web3, web3=web3, token=self.token)
 
         self.latest_checked_block = 0
 
     async def seek_for_opportunities(self, gas_limit: int = 200000):
-        order_list = self.database.list_orders(web3=self.web3, status=OrderStatus.active)
+        order_list = self.database.list_orders(func=functools.partial(order_dao_factory, self.token), status=OrderStatus.active)
         if len(order_list) == 0:
             return
 
@@ -42,7 +59,7 @@ class OrderBookService:
             lowest_price: int = 0
             lowest_amount_in: int = 0
 
-            exchanges = self.router.get_exchange_list()
+            exchanges = self.router.get_token_pairs()
             for exchange in exchanges:
                 a = exchange.token0.name == order.token0.name and exchange.token1.name == order.token1.name
                 b = exchange.token0.name == order.token1.name and exchange.token1.name == order.token0.name

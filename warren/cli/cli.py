@@ -23,6 +23,7 @@ from warren.utils.runner import Runner
 from warren.utils.to_human import to_human
 from warren.utils.to_wei import to_wei
 
+
 main_app = typer.Typer()
 
 
@@ -255,7 +256,8 @@ def create_order(
             choices.append(str(idx))
 
         token0_idx = int(Prompt.ask("Choose token0", choices=choices))
-        token0 = create_token(web3=order_book_v2.web3, name=tokens[token0_idx])
+        token0_name = tokens[token0_idx]
+        token0 = order_book_v2.token.get_token_by_name(token0_name)
 
         tokens = []
         choices = []
@@ -265,9 +267,10 @@ def create_order(
             choices.append(str(idx))
 
         token1_idx = int(Prompt.ask("Choose token1", choices=choices))
-        token1 = create_token(web3=order_book_v2.web3, name=tokens[token1_idx])
+        token1_name = tokens[token1_idx]
+        token1 = order_book_v2.token.get_token_by_name(token1_name)
 
-        exchanges = order_book_v2.router.get_exchanges_by_token_pair(
+        exchanges = order_book_v2.router.get_token_pair_token0_and_token1(
             token0=token0,
             token1=token1,
         )
