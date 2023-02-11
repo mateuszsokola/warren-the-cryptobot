@@ -9,9 +9,9 @@ from tokens.dai import DAI
 from tokens.usdc import USDC
 from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
+from warren.cli.degen import degen_app
 from warren.core.create_database import create_database
 from warren.core.create_service import create_service
-from warren.core.create_token import create_token
 from warren.core.setup_wizard import SetupWizard
 from warren.models.option import OptionDto
 from warren.models.order import OrderDto, OrderStatus, OrderType
@@ -25,6 +25,7 @@ from warren.utils.to_wei import to_wei
 
 
 main_app = typer.Typer()
+main_app.add_typer(degen_app, name="degen")
 
 
 @main_app.command()
@@ -270,7 +271,7 @@ def create_order(
         token1_name = tokens[token1_idx]
         token1 = order_book_v2.token.get_token_by_name(token1_name)
 
-        exchanges = order_book_v2.router.get_token_pair_token0_and_token1(
+        exchanges = order_book_v2.router.get_token_pair_by_token0_and_token1(
             token0=token0,
             token1=token1,
         )
