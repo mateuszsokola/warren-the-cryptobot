@@ -5,7 +5,8 @@ import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-from warren.core.create_service import create_service
+from grid_trading.core.create_service import create_service
+from grid_trading.models.order import GridTradingOrderDto, GridTradingOrderStatus
 from warren.core.create_token import create_token
 from warren.core.setup_wizard import SetupWizard
 from warren.managers.exchange_manager import ExchangeManager
@@ -16,10 +17,10 @@ from warren.utils.logger import logger
 from warren.utils.to_human import to_human
 from warren.utils.to_wei import to_wei
 
-degen_app = typer.Typer()
+grid_trading_app = typer.Typer()
 
 
-@degen_app.command()
+@grid_trading_app.command()
 def create_strategy(
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
 ):
@@ -56,14 +57,48 @@ def create_strategy(
         table = create_token_prices_by_exchange_table(exchange_manager)
         console.print(table)
 
-        buy_trigger_price_decimal = Decimal(Prompt.ask("Price delta for buy orders"))
-        buy_trigger_price = to_wei(amount=buy_trigger_price_decimal, decimals=token1.decimals())
-        console.print(f"The system will buy tokens when price at any exchanges drops below {to_human(int(exchange_manager.lowest_price[2] - buy_trigger_price), decimals=token1.decimals())} {token1.name}")
+        buy_delta_trigger_decimal = Decimal(Prompt.ask("Price delta for buy orders"))
+        buy_delta_trigger = to_wei(amount=buy_delta_trigger_decimal, decimals=token1.decimals())
+        console.print(
+            f"SIMULATION FOR THE FIRST TX ONLY! Tokens will be bought when price on any exchange drops below {to_human(int(exchange_manager.lowest_price[2] - buy_delta_trigger), decimals=token1.decimals())} {token1.name}"
+        )
 
-        sell_trigger_price_decimal = Decimal(Prompt.ask("Price delta for sell orders"))
-        sell_trigger_price = to_wei(amount=sell_trigger_price_decimal, decimals=token1.decimals())
-        console.print(f"The system will sell tokens when price at any exchanges exceeds {to_human(int(exchange_manager.highest_price[2] + sell_trigger_price), decimals=token1.decimals())} {token1.name}")
+        sell_delta_trigger_decimal = Decimal(Prompt.ask("Price delta for sell orders"))
+        sell_delta_trigger = to_wei(amount=sell_delta_trigger_decimal, decimals=token1.decimals())
+        console.print(
+            f"SIMULATION FOR THE FIRST TX ONLY! Tokens will be sold when price on any exchange exceeds {to_human(int(exchange_manager.highest_price[2] + sell_delta_trigger), decimals=token1.decimals())} {token1.name}"
+        )
+
+        percent_of_tokens = Decimal(Prompt.ask("Percent of tokens per flip (excluding gas fees)"))
 
         confirm = Confirm.ask("is it correct?")
+
+        if confirm is False:
+            console.print(f"Operation cancelled.")
+            sys.exit(0)
+
+        new_order = GridTradingOrderDto(
+            token0=token0,
+            token1=token1,
+            buy_delta_trigger=buy_delta_trigger,
+            sell_delta_trigger=sell_delta_trigger,
+            percent_per_flip=Decimal(percent_of_tokens / Decimal(100)),
+            status=GridTradingOrderStatus.active,
+        )
+        order_book_v2.database.create_grid_trading_order(order=new_order)
+
+        console.print(f"The new order has been created.")
+
+        # 
+        # TODO
+        # ======
+        # - [ ] - Persist strategy in database (maybe warren_options? - wrong i'd say) include current prices
+        # - [ ] - Implement trading bot
+        # - [ ] - Record trxs in database 
+        # - [ ] - Move order book to separate CLI group
+        # - [ ] - Allow tokens to execute trxs (all relevant routers)
+        # - [ ] - Display warning if amount of tokens doens't allow to execute any trx
+
+
 
     asyncio.run(main())

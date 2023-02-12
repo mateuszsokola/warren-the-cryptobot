@@ -23,7 +23,6 @@ class ExchangeManager:
     def retrieve_prices(self) -> List[Tuple[BaseTokenPair, int, int]]:
         return self._prices
 
-
     def _fetch_prices(self):
         result: List[Tuple(BaseTokenPair, int)] = []
 
@@ -37,10 +36,10 @@ class ExchangeManager:
 
             pricepoint = (exchange, int(1 * 10 ** self.token0.decimals()), price)
 
-            if self.highest_price is None or self.highest_price[2] < pricepoint[2]: 
+            if self.highest_price is None or self.highest_price[2] < pricepoint[2]:
                 self.highest_price = pricepoint
 
-            if self.lowest_price is None or self.lowest_price[2] > pricepoint[2]: 
+            if self.lowest_price is None or self.lowest_price[2] > pricepoint[2]:
                 self.lowest_price = pricepoint
 
             result.append(pricepoint)

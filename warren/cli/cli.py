@@ -9,7 +9,7 @@ from tokens.dai import DAI
 from tokens.usdc import USDC
 from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
-from warren.cli.degen import degen_app
+from grid_trading.core.cli import grid_trading_app
 from warren.core.create_database import create_database
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
@@ -25,7 +25,7 @@ from warren.utils.to_wei import to_wei
 
 
 main_app = typer.Typer()
-main_app.add_typer(degen_app, name="degen")
+main_app.add_typer(grid_trading_app, name="grid-trading")
 
 
 @main_app.command()
@@ -162,6 +162,7 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
         passphrase = Prompt.ask("Enter passphrase")
         service = create_service(config_path=config_dir, passphrase=passphrase)
 
+        # TODO(mateu.sh): this shouldn't be hardcoded
         weth9 = WETH9(web3=service.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
 
         current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)

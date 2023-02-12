@@ -1,6 +1,7 @@
 import sqlite3
 from decimal import Decimal
 from typing import Callable, List
+from grid_trading.models.order import GridTradingOrderDao
 from warren.models.option import OptionDto
 from warren.models.order import OrderDao, OrderDto, OrderStatus
 
@@ -35,6 +36,20 @@ class Database:
                     token1 VARCHAR NOT NULL,
                     trigger_price VARCHAR NOT NULL,
                     percent VARCHAR NOT NULL,
+                    status VARCHAR NOT NULL
+                )
+            """
+        )
+
+        self.cur.execute(
+            """
+                CREATE TABLE IF NOT EXISTS grid_trading_orders (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    token0 VARCHAR NOT NULL,
+                    token1 VARCHAR NOT NULL,
+                    buy_delta_trigger VARCHAR NOT NULL,
+                    sell_delta_trigger VARCHAR NOT NULL,
+                    percent_per_flip VARCHAR NOT NULL,
                     status VARCHAR NOT NULL
                 )
             """
@@ -94,3 +109,21 @@ class Database:
             res = self.cur.execute(f"{select_query} WHERE status = ?", [status.name]).fetchall()
 
         return [func(order) for order in res]
+
+    def create_grid_trading_order(self, order: GridTradingOrderDao):
+        self.cur.execute(
+            """
+                INSERT INTO grid_trading_orders
+                (token0, token1, buy_delta_trigger, sell_delta_trigger, percent_per_flip, status)
+                VALUES(?, ?, ?, ?, ?, ?);
+            """,
+            (
+                order.token0.name,
+                order.token1.name,
+                str(order.buy_delta_trigger),
+                str(order.sell_delta_trigger),
+                order.percent_per_flip,
+                order.status.name,
+            ),
+        )
+        self.con.commit()
