@@ -127,13 +127,18 @@ def start(
 
         passphrase = Prompt.ask("Enter passphrase")
 
-        order_book_v2 = create_service(config_path=config_dir, passphrase=passphrase)
+        services = create_service(config_path=config_dir, passphrase=passphrase)
         runner = Runner.getInstance()
 
         try:
             await asyncio.gather(
                 runner.with_loop(
-                    order_book_v2.seek_for_opportunities,
+                    services.order_book.seek_for_opportunities,
+                    interval=seek_interval,
+                    stop_on_exception=False,
+                ),
+                runner.with_loop(
+                    services.grid_trading.find_opportunities,
                     interval=seek_interval,
                     stop_on_exception=False,
                 ),
@@ -160,20 +165,20 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
             sys.exit(1)
 
         passphrase = Prompt.ask("Enter passphrase")
-        service = create_service(config_path=config_dir, passphrase=passphrase)
+        services = create_service(config_path=config_dir, passphrase=passphrase)
 
         # TODO(mateu.sh): this shouldn't be hardcoded
-        weth9 = WETH9(web3=service.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
+        weth9 = WETH9(web3=services.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
 
-        current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
+        current_balance = services.web3.eth.get_balance(services.web3.eth.default_account)
         console.print(f"Before ETH balance: {to_human(current_balance, decimals=WETH9.decimals())} ETH")
-        weth9_balance = weth9.balance_of(service.web3.eth.default_account)
+        weth9_balance = weth9.balance_of(services.web3.eth.default_account)
         console.print(f"Before WETH9 balance: {to_human(weth9_balance, decimals=WETH9.decimals())} WETH9")
 
         amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
         wei_amount_in = to_wei(amount_in, decimals=WETH9.decimals())
 
-        transaction_service = TransactionService(web3=service.web3, async_web3=service.async_web3)
+        transaction_service = TransactionService(web3=services.web3, async_web3=services.async_web3)
         fees = await transaction_service.calculate_tx_fees(gas_limit=120000)
 
         await transaction_service.send_transaction(
@@ -186,9 +191,9 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
         )
         console.print(f"Wrapped {to_human(wei_amount_in, decimals=WETH9.decimals())} ETH into WETH9")
 
-        current_balance = service.web3.eth.get_balance(service.web3.eth.default_account)
+        current_balance = services.web3.eth.get_balance(services.web3.eth.default_account)
         console.print(f"After ETH balance: {to_human(current_balance, decimals=WETH9.decimals())} ETH")
-        weth9_balance = weth9.balance_of(service.web3.eth.default_account)
+        weth9_balance = weth9.balance_of(services.web3.eth.default_account)
         console.print(f"After WETH9 balance: {to_human(weth9_balance, decimals=WETH9.decimals())} WETH9")
 
     asyncio.run(main())
@@ -207,19 +212,19 @@ def balances(
         console.print("It seems like the config path does not exist. Did you run the setup script?")
         sys.exit(1)
 
-    service = create_service(config_dir)
+    services = create_service(config_dir)
 
     console.print("")
     console.print("Token balances:\n")
-    console.print(f"  ETH: {to_human(service.web3.eth.get_balance(service.web3.eth.default_account), decimals=WETH9.decimals())}")
-    weth9 = WETH9(web3=service.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
-    console.print(f"WETH9: {to_human(weth9.balance_of(service.web3.eth.default_account), decimals=WETH9.decimals())}")
-    dai = DAI(web3=service.web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")
-    console.print(f"  DAI: {to_human(dai.balance_of(service.web3.eth.default_account), decimals=DAI.decimals())}")
-    usdc = USDC(web3=service.web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
-    console.print(f" USDC: {to_human(usdc.balance_of(service.web3.eth.default_account), decimals=USDC.decimals())}")
-    wbtc = WBTC(web3=service.web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")
-    console.print(f" WBTC: {to_human(wbtc.balance_of(service.web3.eth.default_account), decimals=WBTC.decimals())}")
+    console.print(f"  ETH: {to_human(services.web3.eth.get_balance(services.web3.eth.default_account), decimals=WETH9.decimals())}")
+    weth9 = WETH9(web3=services.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
+    console.print(f"WETH9: {to_human(weth9.balance_of(services.web3.eth.default_account), decimals=WETH9.decimals())}")
+    dai = DAI(web3=services.web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")
+    console.print(f"  DAI: {to_human(dai.balance_of(services.web3.eth.default_account), decimals=DAI.decimals())}")
+    usdc = USDC(web3=services.web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
+    console.print(f" USDC: {to_human(usdc.balance_of(services.web3.eth.default_account), decimals=USDC.decimals())}")
+    wbtc = WBTC(web3=services.web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")
+    console.print(f" WBTC: {to_human(wbtc.balance_of(services.web3.eth.default_account), decimals=WBTC.decimals())}")
 
 
 # TODO(mateu.sh): support ETH wrapping
@@ -237,7 +242,8 @@ def create_order(
             sys.exit(1)
 
         passphrase = Prompt.ask("Enter passphrase")
-        order_book_v2 = create_service(config_path=config_dir, passphrase=passphrase)
+        services = create_service(config_path=config_dir, passphrase=passphrase)
+        order_book_v2 = services.order_book
 
         order_types = []
         choices = []

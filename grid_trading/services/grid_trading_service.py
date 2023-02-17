@@ -2,24 +2,27 @@ import asyncio
 import functools
 from decimal import Decimal
 from web3 import Web3
+from grid_trading.models.order import GridTradingOrderDao, GridTradingOrderStatus
+from grid_trading.utils.create_grid import create_grid
 from warren.core.database import Database
 from warren.core.token import Token
 from warren.core.router import Router
-from warren.models.order import OrderDao, OrderStatus, OrderType
+from warren.managers.exchange_manager import ExchangeManager
 from warren.utils.logger import logger
 
 
-# def order_dao_factory(token: Token, order: tuple) -> OrderDao:
-#     (id, order_type, token0, token1, trigger_price, percent, status) = order
-#     return OrderDao(
-#         id=id,
-#         type=OrderType[order_type],
-#         token0=token.get_token_by_name(token0),
-#         token1=token.get_token_by_name(token1),
-#         trigger_price=int(trigger_price),
-#         percent=Decimal(percent),
-#         status=OrderStatus[status],
-#     )
+def grid_trading_order_dao_factory(token: Token, order: tuple) -> GridTradingOrderDao:
+    (id, token0, token1, reference_price, last_tx_price, grid_every_percent, percent_per_flip, status) = order
+    return GridTradingOrderDao(
+        id=id,
+        token0=token.get_token_by_name(token0),
+        token1=token.get_token_by_name(token1),
+        reference_price=int(reference_price),
+        last_tx_price=None if last_tx_price == 'None' else int(last_tx_price),
+        grid_every_percent=Decimal(grid_every_percent),
+        percent_per_flip=Decimal(percent_per_flip),
+        status=GridTradingOrderStatus[status],
+    )
 
 
 class GridTradingService:
@@ -35,14 +38,49 @@ class GridTradingService:
 
         self.latest_checked_block = 0
 
-    async def seek_for_opportunities(self, gas_limit: int = 200000):
-        # order_list = self.database.list_orders(func=functools.partial(order_dao_factory, self.token), status=OrderStatus.active)
-        # if len(order_list) == 0:
-        #     return
+    async def find_opportunities(self, gas_limit: int = 2000000):
+        strategy_list = self.database.list_grid_trading_orders(
+            func=functools.partial(grid_trading_order_dao_factory, self.token), status=GridTradingOrderStatus.active
+        )
+        if len(strategy_list) == 0:
+            return
 
         latest_block = await self.async_web3.eth.get_block("latest")
         if latest_block["number"] == self.latest_checked_block:
             return
 
+        for strategy in strategy_list:
+            token0_balance = strategy.token0.balance_of(self.web3.eth.default_account)
+            token1_balance = strategy.token1.balance_of(self.web3.eth.default_account)
+
+            last_price = strategy.reference_price if strategy.last_tx_price is None else int(strategy.last_tx_price)
+            (lower_limit, upper_limit) = create_grid(last_price, strategy.grid_every_percent)
+
+            exchanges = self.router.get_token_pair_by_token0_and_token1(strategy.token0, strategy.token1)
+            # TODO(mateu.sh): i don't like it returns so many values and tuples
+            exchange_manager = ExchangeManager(exchange_list=exchanges, token0=strategy.token0, token1=strategy.token1)
+
+            # buy tokens
+            if exchange_manager.lowest_price[2] <= lower_limit:
+                amount_in = int(token1_balance * strategy.percent_per_flip)
+
+                try:
+                    await exchange_manager.lowest_price[0].swap_token1_to_token0(amount_in=amount_in, gas_limit=gas_limit)
+                    self.database.change_grid_trading_order_last_tx_price(strategy.id, exchange_manager.lowest_price[2])
+                    logger.info(f"[GRID] Buy order #{strategy.id} has been executed at price {exchange_manager.lowest_price[2]}")
+                except Exception as e:
+                    raise e
+            # sell tokens
+            elif exchange_manager.highest_price[2] >= upper_limit:
+                amount_in = int(token0_balance * strategy.percent_per_flip)
+
+                try:
+                    await exchange_manager.highest_price[0].swap_token0_to_token1(amount_in=amount_in, gas_limit=gas_limit)
+                    self.database.change_grid_trading_order_last_tx_price(strategy.id, exchange_manager.highest_price[2])
+                    logger.info(f"[GRID] Sell order #{strategy.id} has been executed at price {exchange_manager.highest_price[2]}")
+                except Exception as e:
+                    raise e
+            else:
+                await asyncio.sleep(0)
 
         self.latest_checked_block = latest_block["number"]

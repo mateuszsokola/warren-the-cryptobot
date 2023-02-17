@@ -13,8 +13,9 @@ class GridTradingOrderDao(BaseModel):
     id: int
     token0: BaseToken
     token1: BaseToken
-    buy_delta_trigger: int
-    sell_delta_trigger: int
+    reference_price: int
+    last_tx_price: int | None
+    grid_every_percent: Decimal
     percent_per_flip: Decimal
     status: GridTradingOrderStatus
 
@@ -22,7 +23,8 @@ class GridTradingOrderDao(BaseModel):
 class GridTradingOrderDto(BaseModel):
     token0: BaseToken
     token1: BaseToken
-    buy_delta_trigger: int
-    sell_delta_trigger: int
+    reference_price: int
+    last_tx_price: int | None
+    grid_every_percent: Decimal
     percent_per_flip: Decimal
     status: GridTradingOrderStatus

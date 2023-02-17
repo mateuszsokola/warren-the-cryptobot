@@ -29,6 +29,7 @@ class TransactionService:
             if tx_receipt.status == 1:
                 logger.info(f"Transaction #{tx_hash.hex()} succeeded.")
             else:
+                print("tx_receipt", tx_receipt)
                 logger.error(f"Transaction #{tx_hash.hex()} failed. Increase gas limit.")
 
         except ValueError as value_error:
