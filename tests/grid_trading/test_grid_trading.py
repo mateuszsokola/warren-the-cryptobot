@@ -163,3 +163,103 @@ async def test_buy_orders(grid_trading: GridTradingService, transaction_service:
 
     assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(248931433622879918)
     assert dai.balance_of(grid_trading.web3.eth.default_account) == int(1137768071122776232295)
+
+
+@pytest.mark.asyncio
+async def test_multiple_orders(grid_trading: GridTradingService, transaction_service: TransactionService):
+    uniswap_v3_router_address = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+    sushi_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
+
+    dai = DAI(web3=grid_trading.web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")
+    weth9 = WETH9(web3=grid_trading.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
+
+    # current price = 1517024094830368309726
+    reference_price = to_wei(Decimal(1400), decimals=DAI.decimals())
+    mock_strategy = GridTradingOrderDto(
+        token0=weth9,
+        token1=dai,
+        reference_price=int(reference_price),
+        last_tx_price=None,
+        grid_every_percent=Decimal(0.05),
+        percent_per_flip=Decimal(0.25),
+        status=GridTradingOrderStatus.active,
+    )
+    grid_trading.database.create_grid_trading_order(order=mock_strategy)
+
+    fees = await transaction_service.calculate_tx_fees()
+    amount_in = int(1 * 10**18)
+
+    await transaction_service.send_transaction(
+        weth9.deposit(
+            amount_in=amount_in,
+            gas_limit=fees.gas_limit,
+            max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
+            max_fee_per_gas=fees.max_fee_per_gas,
+        )
+    )
+
+    await transaction_service.send_transaction(
+        weth9.approve(
+            uniswap_v3_router_address,
+            max_amount_in=amount_in,
+            gas_limit=fees.gas_limit,
+            max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
+            max_fee_per_gas=fees.max_fee_per_gas,
+        )
+    )
+    await transaction_service.send_transaction(
+        dai.approve(
+            sushi_router_address,
+            max_amount_in=int(1517024094830368309726),
+            gas_limit=fees.gas_limit,
+            max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
+            max_fee_per_gas=fees.max_fee_per_gas,
+        )
+    )
+
+    assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(1000000000000000000)
+    assert dai.balance_of(grid_trading.web3.eth.default_account) == int(0)
+
+    strategy_list = grid_trading.database.list_grid_trading_orders(
+        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
+    )
+    strategy = strategy_list[0]
+    assert strategy is not None
+
+    # Sell order
+    await grid_trading.find_opportunities()
+
+    assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(750000000000000000)
+    assert dai.balance_of(grid_trading.web3.eth.default_account) == int(379282133433460463304)
+
+    grid_trading.database.change_grid_trading_order_last_tx_price(strategy.id, last_tx_price=int(1800 * 10**18))
+
+    strategy_list = grid_trading.database.list_grid_trading_orders(
+        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
+    )
+
+    # Buy order
+    await grid_trading.find_opportunities()
+
+    strategy_list = grid_trading.database.list_grid_trading_orders(
+        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
+    )
+
+    assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(812241974468099649)
+    assert dai.balance_of(grid_trading.web3.eth.default_account) == int(284461600075095347478)
+
+    # Sell order
+    grid_trading.database.change_grid_trading_order_last_tx_price(strategy.id, last_tx_price=int(1400 * 10**18))
+
+    await grid_trading.find_opportunities()
+
+    assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(609181480851074737)
+    assert dai.balance_of(grid_trading.web3.eth.default_account) == int(592517657383009985662)
+
+    # Sell order
+    grid_trading.database.change_grid_trading_order_last_tx_price(strategy.id, last_tx_price=int(1400 * 10**18))
+
+    await grid_trading.find_opportunities()
+
+    assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(456886110638306053)
+    assert dai.balance_of(grid_trading.web3.eth.default_account) == int(823552164224990140454)

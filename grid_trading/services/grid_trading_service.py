@@ -61,13 +61,14 @@ class GridTradingService:
             # TODO(mateu.sh): i don't like it returns so many values and tuples
             exchange_manager = ExchangeManager(exchange_list=exchanges, token0=strategy.token0, token1=strategy.token1)
 
+            # TODO(mateu.sh): Add min tx value
             # TODO(mateu.sh): Hook min_token_balance_per_tx rather than 0
             # sell tokens
             if exchange_manager.highest_price[2] >= upper_limit and token0_balance > 0:
                 amount_in = int(token0_balance * strategy.percent_per_flip)
 
                 try:
-                    # TODO(mateu.sh): refactor to accept callback for success
+                    # TODO(mateu.sh): refactor to accept callback for success and failure
                     await exchange_manager.highest_price[0].swap_token0_to_token1(amount_in=amount_in, gas_limit=gas_limit)
                     self.database.change_grid_trading_order_last_tx_price(strategy.id, exchange_manager.highest_price[2])
                     logger.info(f"[GRID] Sell order #{strategy.id} has been executed at price {exchange_manager.highest_price[2]}")
