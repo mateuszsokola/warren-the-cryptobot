@@ -118,7 +118,7 @@ def create_strategy(
                     max_fee_per_gas=fees.max_fee_per_gas,
                 )
             ),
-        )            
+        )
 
         new_order = GridTradingOrderDto(
             token0=token0,

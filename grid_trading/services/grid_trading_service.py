@@ -18,7 +18,7 @@ def grid_trading_order_dao_factory(token: Token, order: tuple) -> GridTradingOrd
         token0=token.get_token_by_name(token0),
         token1=token.get_token_by_name(token1),
         reference_price=int(reference_price),
-        last_tx_price=None if last_tx_price == 'None' else int(last_tx_price),
+        last_tx_price=None if last_tx_price == "None" else int(last_tx_price),
         grid_every_percent=Decimal(grid_every_percent),
         percent_per_flip=Decimal(percent_per_flip),
         status=GridTradingOrderStatus[status],
@@ -38,7 +38,8 @@ class GridTradingService:
 
         self.latest_checked_block = 0
 
-    async def find_opportunities(self, gas_limit: int = 2000000):
+    # TODO(mateu.sh): move gas limit to config
+    async def find_opportunities(self, gas_limit: int = 200000):
         strategy_list = self.database.list_grid_trading_orders(
             func=functools.partial(grid_trading_order_dao_factory, self.token), status=GridTradingOrderStatus.active
         )
@@ -60,8 +61,21 @@ class GridTradingService:
             # TODO(mateu.sh): i don't like it returns so many values and tuples
             exchange_manager = ExchangeManager(exchange_list=exchanges, token0=strategy.token0, token1=strategy.token1)
 
+            # TODO(mateu.sh): Hook min_token_balance_per_tx rather than 0
+            # sell tokens
+            if exchange_manager.highest_price[2] >= upper_limit and token0_balance > 0:
+                amount_in = int(token0_balance * strategy.percent_per_flip)
+
+                try:
+                    # TODO(mateu.sh): refactor to accept callback for success
+                    await exchange_manager.highest_price[0].swap_token0_to_token1(amount_in=amount_in, gas_limit=gas_limit)
+                    self.database.change_grid_trading_order_last_tx_price(strategy.id, exchange_manager.highest_price[2])
+                    logger.info(f"[GRID] Sell order #{strategy.id} has been executed at price {exchange_manager.highest_price[2]}")
+                except Exception as e:
+                    raise e
+
             # buy tokens
-            if exchange_manager.lowest_price[2] <= lower_limit:
+            elif exchange_manager.lowest_price[2] <= lower_limit and token1_balance > 0:
                 amount_in = int(token1_balance * strategy.percent_per_flip)
 
                 try:
@@ -70,16 +84,7 @@ class GridTradingService:
                     logger.info(f"[GRID] Buy order #{strategy.id} has been executed at price {exchange_manager.lowest_price[2]}")
                 except Exception as e:
                     raise e
-            # sell tokens
-            elif exchange_manager.highest_price[2] >= upper_limit:
-                amount_in = int(token0_balance * strategy.percent_per_flip)
 
-                try:
-                    await exchange_manager.highest_price[0].swap_token0_to_token1(amount_in=amount_in, gas_limit=gas_limit)
-                    self.database.change_grid_trading_order_last_tx_price(strategy.id, exchange_manager.highest_price[2])
-                    logger.info(f"[GRID] Sell order #{strategy.id} has been executed at price {exchange_manager.highest_price[2]}")
-                except Exception as e:
-                    raise e
             else:
                 await asyncio.sleep(0)
 
