@@ -2,7 +2,7 @@ from web3 import Web3
 from grid_trading.services.grid_trading_service import GridTradingService
 from warren.core.database import Database
 from warren.models.base_model import BaseModel
-from warren.services.order_book_service import OrderBookService
+from order_book.core.order_book_service import OrderBookService
 
 
 class Service(BaseModel):

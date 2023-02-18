@@ -3,8 +3,8 @@ import pytest
 from decimal import Decimal
 from tokens.dai import DAI
 from tokens.weth9 import WETH9
-from warren.models.order import OrderDto, OrderStatus, OrderType
-from warren.services.order_book_service import OrderBookService, order_dao_factory
+from order_book.models.order import OrderDto, OrderStatus, OrderType
+from order_book.core.order_book_service import OrderBookService, order_dao_factory
 from warren.services.transaction_service import TransactionService
 from warren.utils.to_wei import to_wei
 

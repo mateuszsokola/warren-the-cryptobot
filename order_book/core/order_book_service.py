@@ -5,7 +5,7 @@ from web3 import Web3
 from warren.core.database import Database
 from warren.core.token import Token
 from warren.core.router import Router
-from warren.models.order import OrderDao, OrderStatus, OrderType
+from order_book.models.order import OrderDao, OrderStatus, OrderType
 from warren.utils.logger import logger
 
 

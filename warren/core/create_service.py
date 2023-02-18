@@ -12,7 +12,7 @@ from grid_trading.services.grid_trading_service import GridTradingService
 from warren.core.database import Database
 from warren.core.setup_wizard import SetupWizard
 from warren.models.service import Service
-from warren.services.order_book_service import OrderBookService
+from order_book.core.order_book_service import OrderBookService
 from warren.utils.retryable_eth_module import retryable_eth_module
 
 

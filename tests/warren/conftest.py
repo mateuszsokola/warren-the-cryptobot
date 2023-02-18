@@ -6,7 +6,7 @@ from web3.main import get_default_modules
 from web3.net import AsyncNet
 
 from warren.core.database import Database
-from warren.services.order_book_service import OrderBookService
+from order_book.core.order_book_service import OrderBookService
 from warren.utils.retryable_eth_module import retryable_eth_module
 
 

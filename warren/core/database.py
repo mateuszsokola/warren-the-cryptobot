@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Callable, List
 from grid_trading.models.order import GridTradingOrderDao, GridTradingOrderDto, GridTradingOrderStatus
 from warren.models.option import OptionDto
-from warren.models.order import OrderDao, OrderDto, OrderStatus
+from order_book.models.order import OrderDao, OrderDto, OrderStatus
 
 
 class Database:

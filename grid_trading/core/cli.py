@@ -11,7 +11,7 @@ from warren.core.setup_wizard import SetupWizard
 from warren.managers.exchange_manager import ExchangeManager
 from warren.services.transaction_service import TransactionService
 from warren.utils.choose_token_prompt import choose_token_prompt
-from warren.utils.create_token_prices_by_exchange_table import create_token_prices_by_exchange_table
+from grid_trading.utils.create_token_prices_by_exchange_table import create_token_prices_by_exchange_table
 from warren.utils.logger import logger
 from warren.utils.to_human import to_human
 from warren.utils.to_wei import to_wei

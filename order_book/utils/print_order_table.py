@@ -1,7 +1,7 @@
 from typing import List
 from rich.console import Console
 from rich.table import Table
-from warren.models.order import OrderDao
+from order_book.models.order import OrderDao
 from tokens.dai import DAI
 from warren.utils.to_human import to_human
 
