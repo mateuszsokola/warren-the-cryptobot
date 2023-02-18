@@ -1,25 +1,11 @@
 import asyncio
 import functools
-from decimal import Decimal
 from web3 import Web3
 from warren.core.database import Database
 from warren.core.token import Token
 from warren.core.router import Router
-from order_book.models.order import OrderDao, OrderStatus, OrderType
+from order_book.models.order import OrderBookOrderStatus, OrderBookOrderType, order_book_order_dao_factory
 from warren.utils.logger import logger
-
-
-def order_dao_factory(token: Token, order: tuple) -> OrderDao:
-    (id, order_type, token0, token1, trigger_price, percent, status) = order
-    return OrderDao(
-        id=id,
-        type=OrderType[order_type],
-        token0=token.get_token_by_name(token0),
-        token1=token.get_token_by_name(token1),
-        trigger_price=int(trigger_price),
-        percent=Decimal(percent),
-        status=OrderStatus[status],
-    )
 
 
 class OrderBookService:
@@ -36,7 +22,9 @@ class OrderBookService:
         self.latest_checked_block = 0
 
     async def seek_for_opportunities(self, gas_limit: int = 200000):
-        order_list = self.database.list_orders(func=functools.partial(order_dao_factory, self.token), status=OrderStatus.active)
+        order_list = self.database.list_orders(
+            func=functools.partial(order_book_order_dao_factory, self.token), status=OrderBookOrderStatus.active
+        )
         if len(order_list) == 0:
             return
 
@@ -82,10 +70,10 @@ class OrderBookService:
             exchange = None
 
             # TODO(mateu.sh): refactor those conditional statements
-            if order.type.value == OrderType["stop_loss"].value and lowest_price <= order.trigger_price:
+            if order.type.value == OrderBookOrderType["stop_loss"].value and lowest_price <= order.trigger_price:
                 amount_in = int(highest_amount_in * order.percent)
                 exchange = highest_price_exchange
-            elif order.type.value == OrderType["take_profit"].value and highest_price >= order.trigger_price:
+            elif order.type.value == OrderBookOrderType["take_profit"].value and highest_price >= order.trigger_price:
                 amount_in = int(highest_amount_in * order.percent)
                 exchange = highest_price_exchange
             else:
@@ -98,7 +86,7 @@ class OrderBookService:
                 else:
                     await exchange.swap_token0_to_token1(amount_in=amount_in, gas_limit=gas_limit)
 
-                self.database.change_order_status(id=order.id, status=OrderStatus.executed)
+                self.database.change_order_status(id=order.id, status=OrderBookOrderStatus.executed)
                 logger.info(f"Order #{order.id} has been executed")
             except Exception as e:
                 raise e

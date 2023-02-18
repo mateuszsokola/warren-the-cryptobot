@@ -8,7 +8,7 @@ from rich.prompt import Prompt
 from warren.core.create_database import create_database
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
-from order_book.models.order import OrderDto, OrderStatus, OrderType
+from order_book.models.order import OrderBookOrderDto, OrderBookOrderStatus, OrderBookOrderType
 from warren.services.transaction_service import TransactionService
 from order_book.utils.print_order_table import print_order_table
 from warren.utils.to_human import to_human
@@ -21,7 +21,7 @@ order_book_app = typer.Typer()
 # TODO(mateu.sh): support ETH wrapping
 # TODO(mateu.sh): get rid of repeated code
 @order_book_app.command()
-def create_order(
+def create(
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
 ):
     async def main():
@@ -38,7 +38,7 @@ def create_order(
 
         order_types = []
         choices = []
-        for idx, order_type_idx in enumerate(OrderType):
+        for idx, order_type_idx in enumerate(OrderBookOrderType):
             console.print(f"{idx}) {order_type_idx.value}")
             order_types.append(order_type_idx)
             choices.append(str(idx))
@@ -141,13 +141,13 @@ def create_order(
             ),
         )
 
-        new_order = OrderDto(
+        new_order = OrderBookOrderDto(
             type=order_types[order_type_idx],
             token0=token0,
             token1=token1,
             trigger_price=to_wei(trigger_price, decimals=token1.decimals()),
             percent=Decimal(percent_of_tokens / Decimal(100)),
-            status=OrderStatus.active,
+            status=OrderBookOrderStatus.active,
         )
         order_book_v2.database.create_order(order=new_order)
 
@@ -157,7 +157,7 @@ def create_order(
 
 
 @order_book_app.command()
-def cancel_order(
+def cancel(
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
 ):
     console: Console = Console()
@@ -169,18 +169,18 @@ def cancel_order(
 
     service = create_database(config_dir)
 
-    order_list = service.list_orders(status=OrderStatus.active)
+    order_list = service.list_orders(status=OrderBookOrderStatus.active)
     print_order_table(order_list=order_list)
 
     order_id = int(Prompt.ask("Which order do you want to cancel? Provide the Order ID"))
 
-    service.change_order_status(order_id, status=OrderStatus.cancelled)
+    service.change_order_status(order_id, status=OrderBookOrderStatus.cancelled)
 
     console.print(f"The order #{order_id} has been cancelled.")
 
 
 @order_book_app.command()
-def list_orders(
+def list(
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
 ):
     console: Console = Console()

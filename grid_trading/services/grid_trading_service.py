@@ -1,28 +1,13 @@
 import asyncio
 import functools
-from decimal import Decimal
 from web3 import Web3
-from grid_trading.models.order import GridTradingOrderDao, GridTradingOrderStatus
+from grid_trading.models.order import GridTradingOrderStatus, grid_trading_order_dao_factory
 from grid_trading.utils.create_grid import create_grid
 from warren.core.database import Database
 from warren.core.token import Token
 from warren.core.router import Router
 from warren.managers.exchange_manager import ExchangeManager
 from warren.utils.logger import logger
-
-
-def grid_trading_order_dao_factory(token: Token, order: tuple) -> GridTradingOrderDao:
-    (id, token0, token1, reference_price, last_tx_price, grid_every_percent, percent_per_flip, status) = order
-    return GridTradingOrderDao(
-        id=id,
-        token0=token.get_token_by_name(token0),
-        token1=token.get_token_by_name(token1),
-        reference_price=int(reference_price),
-        last_tx_price=None if last_tx_price == "None" else int(last_tx_price),
-        grid_every_percent=Decimal(grid_every_percent),
-        percent_per_flip=Decimal(percent_per_flip),
-        status=GridTradingOrderStatus[status],
-    )
 
 
 class GridTradingService:

@@ -1,9 +1,19 @@
 import sqlite3
 from decimal import Decimal
 from typing import Callable, List
-from grid_trading.models.order import GridTradingOrderDao, GridTradingOrderDto, GridTradingOrderStatus
+from grid_trading.models.order import (
+    GridTradingOrderDao,
+    GridTradingOrderDto,
+    GridTradingOrderStatus,
+    grid_trading_headless_order_dao_factory,
+)
 from warren.models.option import OptionDto
-from order_book.models.order import OrderDao, OrderDto, OrderStatus
+from order_book.models.order import (
+    OrderBookOrderDao,
+    OrderBookOrderDto,
+    OrderBookOrderStatus,
+    order_book_headless_order_dao_factory,
+)
 
 
 class Database:
@@ -66,7 +76,7 @@ class Database:
         )
         self.con.commit()
 
-    def create_order(self, order: OrderDto):
+    def create_order(self, order: OrderBookOrderDto):
         self.cur.execute(
             """
                 INSERT INTO order_book_v2
@@ -84,7 +94,7 @@ class Database:
         )
         self.con.commit()
 
-    def change_order_status(self, id: int, status: OrderStatus = OrderStatus.cancelled):
+    def change_order_status(self, id: int, status: OrderBookOrderStatus = OrderBookOrderStatus.cancelled):
         update_query = "UPDATE order_book_v2 SET status = ? WHERE id = ?"
         self.cur.execute(
             update_query,
@@ -98,7 +108,9 @@ class Database:
 
         return [OptionDto(id=id, option_name=option_name, option_value=option_value) for (id, option_name, option_value) in res]
 
-    def list_orders(self, func: Callable, status: OrderStatus | None = None) -> List[OrderDao]:
+    def list_orders(
+        self, func: Callable = order_book_headless_order_dao_factory, status: OrderBookOrderStatus | None = None
+    ) -> List[OrderBookOrderDao]:
         select_query = """
             SELECT 
             id, type, token0, token1, trigger_price, percent, status
@@ -111,7 +123,9 @@ class Database:
 
         return [func(order) for order in res]
 
-    def list_grid_trading_orders(self, func: Callable, status: GridTradingOrderStatus | None = None) -> List[GridTradingOrderDao]:
+    def list_grid_trading_orders(
+        self, func: Callable = grid_trading_headless_order_dao_factory, status: GridTradingOrderStatus | None = None
+    ) -> List[GridTradingOrderDao]:
         select_query = """
             SELECT 
             id, token0, token1, reference_price, last_tx_price, grid_every_percent, percent_per_flip, status
@@ -148,5 +162,13 @@ class Database:
         self.cur.execute(
             update_query,
             [str(last_tx_price), id],
+        )
+        self.con.commit()
+
+    def change_grid_trading_order_status(self, id: int, status: GridTradingOrderStatus = OrderBookOrderStatus.cancelled):
+        update_query = "UPDATE grid_trading_orders SET status = ? WHERE id = ?"
+        self.cur.execute(
+            update_query,
+            [status.name, id],
         )
         self.con.commit()

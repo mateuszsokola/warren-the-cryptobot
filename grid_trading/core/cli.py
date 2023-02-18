@@ -1,26 +1,25 @@
 import asyncio
 from decimal import Decimal
-import os
 import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 from grid_trading.models.order import GridTradingOrderDto, GridTradingOrderStatus
+from grid_trading.utils.print_strategy_table import print_strategy_table
+from warren.core.create_database import create_database
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
 from warren.managers.exchange_manager import ExchangeManager
 from warren.services.transaction_service import TransactionService
 from warren.utils.choose_token_prompt import choose_token_prompt
 from grid_trading.utils.create_token_prices_by_exchange_table import create_token_prices_by_exchange_table
-from warren.utils.logger import logger
 from warren.utils.to_human import to_human
-from warren.utils.to_wei import to_wei
 
 grid_trading_app = typer.Typer()
 
 
 @grid_trading_app.command()
-def create_strategy(
+def create(
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
 ):
     async def main():
@@ -139,8 +138,48 @@ def create_strategy(
         # - [X] - Persist strategy in database (maybe warren_options? - wrong i'd say) include current prices
         # - [X] - Implement trading bot
         # - [X] - Record trxs in database
-        # - [ ] - Move order book to separate CLI group
+        # - [X] - Move order book to separate CLI group
         # - [ ] - Allow tokens to execute trxs (all relevant routers)
         # - [ ] - Display warning if amount of tokens doens't allow to execute any trx
 
     asyncio.run(main())
+
+
+@grid_trading_app.command()
+def cancel(
+    config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
+):
+    console: Console = Console()
+
+    incorrect_config_dir = SetupWizard.verify_config_path(config_path=config_dir) == False
+    if incorrect_config_dir:
+        console.print("It seems like the config path does not exist. Did you run the setup script?")
+        sys.exit(1)
+
+    service = create_database(config_dir)
+
+    strategy_list = service.list_grid_trading_orders(status=GridTradingOrderStatus.active)
+    print_strategy_table(order_list=strategy_list)
+
+    strategy_id = int(Prompt.ask("Which strategy do you want to cancel? Provide the Order ID"))
+
+    service.change_grid_trading_order_status(strategy_id, status=GridTradingOrderStatus.cancelled)
+
+    console.print(f"The strategy #{strategy_id} has been cancelled.")
+
+
+@grid_trading_app.command()
+def list(
+    config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
+):
+    console: Console = Console()
+
+    incorrect_config_dir = SetupWizard.verify_config_path(config_path=config_dir) == False
+    if incorrect_config_dir:
+        console.print("It seems like the config path does not exist. Did you run the setup script?")
+        sys.exit(1)
+
+    service = create_database(config_dir)
+
+    order_list = service.list_grid_trading_orders(status=None)
+    print_strategy_table(order_list=order_list)
