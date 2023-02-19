@@ -1,8 +1,9 @@
 import asyncio
 import functools
 from web3 import Web3
-from grid_trading.models.order import GridTradingOrderStatus, grid_trading_order_dao_factory
+from grid_trading.models.strategy_status import StrategyStatus
 from grid_trading.utils.create_grid import create_grid
+from grid_trading.utils.create_strategy_dao import create_strategy_dao
 from warren.core.database import Database
 from warren.core.token import Token
 from warren.core.router import Router
@@ -26,7 +27,7 @@ class GridTradingService:
     # TODO(mateu.sh): move gas limit to config
     async def find_opportunities(self, gas_limit: int = 200000):
         strategy_list = self.database.list_grid_trading_orders(
-            func=functools.partial(grid_trading_order_dao_factory, self.token), status=GridTradingOrderStatus.active
+            func=functools.partial(create_strategy_dao, self.token), status=StrategyStatus.active
         )
         if len(strategy_list) == 0:
             return

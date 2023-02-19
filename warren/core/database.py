@@ -1,12 +1,10 @@
 import sqlite3
 from decimal import Decimal
 from typing import Callable, List
-from grid_trading.models.order import (
-    GridTradingOrderDao,
-    GridTradingOrderDto,
-    GridTradingOrderStatus,
-    grid_trading_headless_order_dao_factory,
-)
+from grid_trading.models.strategy_dao import BaseStrategyDao
+from grid_trading.models.strategy_dto import StrategyDto
+from grid_trading.models.strategy_status import StrategyStatus
+from grid_trading.utils.create_strategy_dao import create_base_strategy_dao
 from warren.models.option import OptionDto
 from order_book.models.order import (
     OrderBookOrderDao,
@@ -124,8 +122,8 @@ class Database:
         return [func(order) for order in res]
 
     def list_grid_trading_orders(
-        self, func: Callable = grid_trading_headless_order_dao_factory, status: GridTradingOrderStatus | None = None
-    ) -> List[GridTradingOrderDao]:
+        self, func: Callable = create_base_strategy_dao, status: StrategyStatus | None = None
+    ) -> List[BaseStrategyDao]:
         select_query = """
             SELECT 
             id, token0, token1, reference_price, last_tx_price, grid_every_percent, percent_per_flip, status
@@ -138,7 +136,7 @@ class Database:
 
         return [func(order) for order in res]
 
-    def create_grid_trading_order(self, order: GridTradingOrderDto):
+    def create_grid_trading_order(self, order: StrategyDto):
         self.cur.execute(
             """
                 INSERT INTO grid_trading_orders
@@ -165,7 +163,7 @@ class Database:
         )
         self.con.commit()
 
-    def change_grid_trading_order_status(self, id: int, status: GridTradingOrderStatus = OrderBookOrderStatus.cancelled):
+    def change_grid_trading_order_status(self, id: int, status: StrategyStatus = StrategyStatus.cancelled):
         update_query = "UPDATE grid_trading_orders SET status = ? WHERE id = ?"
         self.cur.execute(
             update_query,

@@ -1,4 +1,3 @@
-import functools
 import pytest
 from decimal import Decimal
 from exchanges.uniswap.v3.models.exact_input_single_params import ExactInputSingleParams
@@ -6,8 +5,9 @@ from exchanges.uniswap.v3.pool import UniswapV3Pool
 from exchanges.uniswap.v3.router import UniswapV3Router
 from tokens.dai import DAI
 from tokens.weth9 import WETH9
-from grid_trading.models.order import GridTradingOrderDto, GridTradingOrderStatus
-from grid_trading.services.grid_trading_service import GridTradingService, grid_trading_order_dao_factory
+from grid_trading.models.strategy_dto import StrategyDto
+from grid_trading.models.strategy_status import StrategyStatus
+from grid_trading.services.grid_trading_service import GridTradingService
 from warren.services.transaction_service import TransactionService
 from warren.utils.to_wei import to_wei
 
@@ -21,14 +21,14 @@ async def test_sell_orders(grid_trading: GridTradingService, transaction_service
 
     # current price = 1517024094830368309726
     reference_price = to_wei(Decimal(1400), decimals=DAI.decimals())
-    mock_strategy = GridTradingOrderDto(
+    mock_strategy = StrategyDto(
         token0=weth9,
         token1=dai,
         reference_price=int(reference_price),
         last_tx_price=None,
         grid_every_percent=Decimal(0.05),
         percent_per_flip=Decimal(0.25),
-        status=GridTradingOrderStatus.active,
+        status=StrategyStatus.active,
     )
     grid_trading.database.create_grid_trading_order(order=mock_strategy)
 
@@ -57,16 +57,12 @@ async def test_sell_orders(grid_trading: GridTradingService, transaction_service
     assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(1000000000000000000)
     assert dai.balance_of(grid_trading.web3.eth.default_account) == int(0)
 
-    strategy_list = grid_trading.database.list_grid_trading_orders(
-        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
-    )
+    strategy_list = grid_trading.database.list_grid_trading_orders(status=StrategyStatus.active)
     assert len(strategy_list) == 1
 
     await grid_trading.find_opportunities()
 
-    strategy_list = grid_trading.database.list_grid_trading_orders(
-        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
-    )
+    strategy_list = grid_trading.database.list_grid_trading_orders(status=StrategyStatus.active)
     assert len(strategy_list) == 1
 
     assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(750000000000000000)
@@ -86,14 +82,14 @@ async def test_buy_orders(grid_trading: GridTradingService, transaction_service:
 
     # current price = 1517024094830368309726
     reference_price = to_wei(Decimal(1800), decimals=DAI.decimals())
-    mock_strategy = GridTradingOrderDto(
+    mock_strategy = StrategyDto(
         token0=weth9,
         token1=dai,
         reference_price=int(reference_price),
         last_tx_price=None,
         grid_every_percent=Decimal(0.05),
         percent_per_flip=Decimal(0.25),
-        status=GridTradingOrderStatus.active,
+        status=StrategyStatus.active,
     )
     grid_trading.database.create_grid_trading_order(order=mock_strategy)
 
@@ -149,16 +145,12 @@ async def test_buy_orders(grid_trading: GridTradingService, transaction_service:
         )
     )
 
-    strategy_list = grid_trading.database.list_grid_trading_orders(
-        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
-    )
+    strategy_list = grid_trading.database.list_grid_trading_orders(status=StrategyStatus.active)
     assert len(strategy_list) == 1
 
     await grid_trading.find_opportunities()
 
-    strategy_list = grid_trading.database.list_grid_trading_orders(
-        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
-    )
+    strategy_list = grid_trading.database.list_grid_trading_orders(status=StrategyStatus.active)
     assert len(strategy_list) == 1
 
     assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(248931433622879918)
@@ -175,14 +167,14 @@ async def test_multiple_orders(grid_trading: GridTradingService, transaction_ser
 
     # current price = 1517024094830368309726
     reference_price = to_wei(Decimal(1400), decimals=DAI.decimals())
-    mock_strategy = GridTradingOrderDto(
+    mock_strategy = StrategyDto(
         token0=weth9,
         token1=dai,
         reference_price=int(reference_price),
         last_tx_price=None,
         grid_every_percent=Decimal(0.05),
         percent_per_flip=Decimal(0.25),
-        status=GridTradingOrderStatus.active,
+        status=StrategyStatus.active,
     )
     grid_trading.database.create_grid_trading_order(order=mock_strategy)
 
@@ -220,9 +212,7 @@ async def test_multiple_orders(grid_trading: GridTradingService, transaction_ser
     assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(1000000000000000000)
     assert dai.balance_of(grid_trading.web3.eth.default_account) == int(0)
 
-    strategy_list = grid_trading.database.list_grid_trading_orders(
-        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
-    )
+    strategy_list = grid_trading.database.list_grid_trading_orders(status=StrategyStatus.active)
     strategy = strategy_list[0]
     assert strategy is not None
 
@@ -234,16 +224,12 @@ async def test_multiple_orders(grid_trading: GridTradingService, transaction_ser
 
     grid_trading.database.change_grid_trading_order_last_tx_price(strategy.id, last_tx_price=int(1800 * 10**18))
 
-    strategy_list = grid_trading.database.list_grid_trading_orders(
-        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
-    )
+    strategy_list = grid_trading.database.list_grid_trading_orders(status=StrategyStatus.active)
 
     # Buy order
     await grid_trading.find_opportunities()
 
-    strategy_list = grid_trading.database.list_grid_trading_orders(
-        func=functools.partial(grid_trading_order_dao_factory, grid_trading.token), status=GridTradingOrderStatus.active
-    )
+    strategy_list = grid_trading.database.list_grid_trading_orders(status=StrategyStatus.active)
 
     assert weth9.balance_of(grid_trading.web3.eth.default_account) == int(812241974468099649)
     assert dai.balance_of(grid_trading.web3.eth.default_account) == int(284461600075095347478)

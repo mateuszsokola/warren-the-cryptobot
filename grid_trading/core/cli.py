@@ -4,7 +4,8 @@ import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-from grid_trading.models.order import GridTradingOrderDto, GridTradingOrderStatus
+from grid_trading.models.strategy_dto import BaseStrategyDto
+from grid_trading.models.strategy_status import StrategyStatus
 from grid_trading.utils.print_strategy_table import print_strategy_table
 from warren.core.create_database import create_database
 from warren.core.create_service import create_service
@@ -119,14 +120,14 @@ def create(
             ),
         )
 
-        new_order = GridTradingOrderDto(
+        new_order = BaseStrategyDto(
             token0=token0,
             token1=token1,
             reference_price=exchange_manager.highest_price[2],
             last_tx_price=None,
             grid_every_percent=Decimal(grid_every_percent / Decimal(100)),
             percent_per_flip=Decimal(percent_of_tokens / Decimal(100)),
-            status=GridTradingOrderStatus.active,
+            status=StrategyStatus.active,
         )
         services.database.create_grid_trading_order(order=new_order)
 
@@ -158,12 +159,12 @@ def cancel(
 
     service = create_database(config_dir)
 
-    strategy_list = service.list_grid_trading_orders(status=GridTradingOrderStatus.active)
-    print_strategy_table(order_list=strategy_list)
+    strategy_list = service.list_grid_trading_orders(status=StrategyStatus.active)
+    print_strategy_table(strategy_list=strategy_list)
 
     strategy_id = int(Prompt.ask("Which strategy do you want to cancel? Provide the Order ID"))
 
-    service.change_grid_trading_order_status(strategy_id, status=GridTradingOrderStatus.cancelled)
+    service.change_grid_trading_order_status(strategy_id, status=StrategyStatus.cancelled)
 
     console.print(f"The strategy #{strategy_id} has been cancelled.")
 
