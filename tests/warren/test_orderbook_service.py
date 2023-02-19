@@ -61,7 +61,7 @@ async def test_stop_losses(orderbook: OrderBookService, transaction_service: Tra
     order_list = orderbook.database.list_orders(status=OrderStatus.active)
     assert len(order_list) == 1
 
-    await orderbook.seek_for_opportunities()
+    await orderbook.find_opportunities()
 
     order_list = orderbook.database.list_orders(status=OrderStatus.executed)
     assert len(order_list) == 1
@@ -121,7 +121,7 @@ async def test_take_profit(orderbook: OrderBookService, transaction_service: Tra
     order_list = orderbook.database.list_orders(status=OrderStatus.active)
     assert len(order_list) == 1
 
-    await orderbook.seek_for_opportunities()
+    await orderbook.find_opportunities()
 
     order_list = orderbook.database.list_orders(status=OrderStatus.executed)
     assert len(order_list) == 1

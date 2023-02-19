@@ -131,7 +131,7 @@ def start(
         try:
             await asyncio.gather(
                 runner.with_loop(
-                    services.order_book.seek_for_opportunities,
+                    services.order_book.find_opportunities,
                     interval=seek_interval,
                     stop_on_exception=False,
                 ),
