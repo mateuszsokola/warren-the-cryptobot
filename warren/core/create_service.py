@@ -11,12 +11,13 @@ from web3.net import AsyncNet
 from grid_trading.core.grid_trading_service import GridTradingService
 from warren.core.database import Database
 from warren.core.setup_wizard import SetupWizard
+from warren.models.network import Network
 from warren.models.service import Service
 from order_book.core.order_book_service import OrderBookService
 from warren.utils.retryable_eth_module import retryable_eth_module
 
 
-def create_service(config_path: str, passphrase: str = "") -> Service:
+def create_service(config_path: str, passphrase: str = "", network: Network = Network.Ethereum) -> Service:
     database_file = SetupWizard.database_file_path(config_path)
     database = Database(database_file=database_file)
 
@@ -59,12 +60,14 @@ def create_service(config_path: str, passphrase: str = "") -> Service:
         async_web3=async_web3,
         web3=web3,
         database=database,
+        network=network,
     )
 
     grid_trading = GridTradingService(
         async_web3=async_web3,
         web3=web3,
         database=database,
+        network=network,
     )
 
     return Service(

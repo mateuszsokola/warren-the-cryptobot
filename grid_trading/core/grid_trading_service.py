@@ -11,20 +11,22 @@ from warren.core.database import Database
 from warren.core.token import Token
 from warren.core.router import Router
 from warren.managers.exchange_manager import ExchangeManager
+from warren.models.network import Network
 from warren.utils.logger import logger
 from warren.utils.to_human import to_human
 
 
 class GridTradingService:
-    def __init__(self, async_web3: Web3, web3: Web3, database: Database):
+    def __init__(self, async_web3: Web3, web3: Web3, database: Database, network: Network = Network.Ethereum):
         self.async_web3 = async_web3
         self.web3 = web3
         self.database = database
         self.token = Token(
             async_web3=async_web3,
             web3=web3,
+            network=network,
         )
-        self.router = Router(async_web3=async_web3, web3=web3, token=self.token)
+        self.router = Router(async_web3=async_web3, web3=web3, token=self.token, network=network)
 
         self.latest_checked_block = 0
 

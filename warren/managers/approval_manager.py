@@ -27,7 +27,7 @@ class ApprovalManager:
         self,
         token_list: List[BaseToken],
         exchange_list: List[BaseTokenPair],
-        amount_in: int = int(10 * 10**18),
+        amount_in: int = int(1000 * 10**18),
         gas_limit: int = 120000,
     ):
         fees = await self.transaction_manager.calculate_tx_fees(gas_limit=gas_limit)

@@ -4,10 +4,8 @@ import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-from tokens.dai import DAI
-from tokens.usdc import USDC
-from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
+from tokens.wxdai import WXDAI
 from grid_trading.core.cli import grid_trading_app
 from order_book.core.cli import order_book_app
 from warren.core.create_service import create_service
@@ -153,7 +151,7 @@ def start(
 
 
 @main_app.command()
-def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory.")):
+def wrap_native_token(config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory.")):
     async def main():
         console: Console = Console()
 
@@ -166,12 +164,15 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
         services = create_service(config_path=config_dir, passphrase=passphrase)
 
         # TODO(mateu.sh): this shouldn't be hardcoded
-        weth9 = WETH9(web3=services.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
+        wrapped_native_token = WETH9(web3=services.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
+        # wrapped_native_token = WXDAI(web3=services.web3, address="0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d")
 
         current_balance = services.web3.eth.get_balance(services.web3.eth.default_account)
         console.print(f"Before ETH balance: {to_human(current_balance, decimals=WETH9.decimals())} ETH")
-        weth9_balance = weth9.balance_of(services.web3.eth.default_account)
-        console.print(f"Before WETH9 balance: {to_human(weth9_balance, decimals=WETH9.decimals())} WETH9")
+        wrapped_balance = wrapped_native_token.balance_of(services.web3.eth.default_account)
+        console.print(
+            f"Before {wrapped_native_token.name} balance: {to_human(wrapped_balance, decimals=WETH9.decimals())} {wrapped_native_token.name}"
+        )
 
         amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
         wei_amount_in = to_wei(amount_in, decimals=WETH9.decimals())
@@ -180,24 +181,27 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
         fees = await transaction_service.calculate_tx_fees(gas_limit=120000)
 
         await transaction_service.send_transaction(
-            weth9.deposit(
+            wrapped_native_token.deposit(
                 amount_in=wei_amount_in,
                 gas_limit=fees.gas_limit,
                 max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
                 max_fee_per_gas=fees.max_fee_per_gas,
             )
         )
-        console.print(f"Wrapped {to_human(wei_amount_in, decimals=WETH9.decimals())} ETH into WETH9")
+        console.print(
+            f"Wrapped {to_human(wei_amount_in, decimals=wrapped_native_token.decimals())} ETH into {wrapped_native_token.name}"
+        )
 
         current_balance = services.web3.eth.get_balance(services.web3.eth.default_account)
         console.print(f"After ETH balance: {to_human(current_balance, decimals=WETH9.decimals())} ETH")
-        weth9_balance = weth9.balance_of(services.web3.eth.default_account)
-        console.print(f"After WETH9 balance: {to_human(weth9_balance, decimals=WETH9.decimals())} WETH9")
+        wrapped_balance = wrapped_native_token.balance_of(services.web3.eth.default_account)
+        console.print(
+            f"After {wrapped_native_token.name} balance: {to_human(wrapped_balance, decimals=WETH9.decimals())} {wrapped_native_token.name}"
+        )
 
     asyncio.run(main())
 
 
-# TODO(mateu.sh): use loop
 # TODO(mateu.sh): use table to print results - it will look better
 @main_app.command()
 def balances(
@@ -214,12 +218,9 @@ def balances(
 
     console.print("")
     console.print("Token balances:\n")
+
+    # TODO(mateu.sh): it should use native token
     console.print(f"  ETH: {to_human(services.web3.eth.get_balance(services.web3.eth.default_account), decimals=WETH9.decimals())}")
-    weth9 = WETH9(web3=services.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
-    console.print(f"WETH9: {to_human(weth9.balance_of(services.web3.eth.default_account), decimals=WETH9.decimals())}")
-    dai = DAI(web3=services.web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")
-    console.print(f"  DAI: {to_human(dai.balance_of(services.web3.eth.default_account), decimals=DAI.decimals())}")
-    usdc = USDC(web3=services.web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
-    console.print(f" USDC: {to_human(usdc.balance_of(services.web3.eth.default_account), decimals=USDC.decimals())}")
-    wbtc = WBTC(web3=services.web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")
-    console.print(f" WBTC: {to_human(wbtc.balance_of(services.web3.eth.default_account), decimals=WBTC.decimals())}")
+
+    for token in services.order_book.token.get_all_tokens():
+        console.print(f"{token.name}: {to_human(token.balance_of(services.web3.eth.default_account), decimals=token.decimals())}")

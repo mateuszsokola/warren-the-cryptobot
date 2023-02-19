@@ -20,12 +20,14 @@ from warren.utils.load_yaml import load_yaml
 class Router:
     _pairs: List[BaseTokenPair] = []
 
-    def __init__(self, web3: Web3, async_web3: Web3, token: Token, filename: str = "./routes.yml"):
+    def __init__(
+        self, web3: Web3, async_web3: Web3, token: Token, network: Network = Network.Ethereum, filename: str = "./routes.yml"
+    ):
         self.async_web3 = async_web3
         self.web3 = web3
         self.token = token
 
-        self._pairs = self._load_exchanges(filename=filename)
+        self._pairs = self._load_exchanges(filename=filename, network=network)
 
     def get_token_pairs(self) -> List[BaseTokenPair]:
         return self._pairs

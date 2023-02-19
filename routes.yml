@@ -1,4 +1,4 @@
-ethereum: 
+ethereum:
   - name: Uniswap v3
     type: uniswap_v3
     addresses:
@@ -11,35 +11,35 @@ ethereum:
       - token0: WETH9
         token1: WBTC
       - token0: WETH9
-        token1: USDC      
+        token1: USDC
   - name: Uniswap v2
     type: uniswap_v2
     addresses:
       factory: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
       router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
     meta:
-      fee: 
+      fee:
         numerator: 3
-        denumerator: 100     
+        denumerator: 100
     pairs:
       - token0: WETH9
         token1: DAI
       - token0: WETH9
         token1: WBTC
       - token0: WETH9
-        token1: USDC            
+        token1: USDC
   - name: PancakeSwap
     type: uniswap_v2
     addresses:
       factory: "0x1097053Fd2ea711dad45caCcc45EfF7548fCB362"
       router: "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
     meta:
-      fee: 
+      fee:
         numerator: 25
         denumerator: 1000
     pairs:
       - token0: WETH9
-        token1: USDC       
+        token1: USDC
   - name: SushiSwap
     type: uniswap_v2
     addresses:
@@ -48,11 +48,26 @@ ethereum:
     meta:
       fee:
         numerator: 3
-        denumerator: 100 
+        denumerator: 100
     pairs:
       - token0: WETH9
         token1: DAI
       - token0: WETH9
         token1: WBTC
       - token0: WETH9
-        token1: USDC                 
+        token1: USDC
+gnosis:
+  - name: Swapr
+    type: uniswap_v2
+    addresses:
+      factory: "0x5D48C95AdfFD4B40c1AAADc4e08fc44117E02179"
+      router: "0xE43e60736b1cb4a75ad25240E2f9a62Bff65c0C0"
+    meta:
+      fee:
+        numerator: 25
+        denumerator: 1000
+    pairs:
+      - token0: WXDAI
+        token1: GNO
+      - token0: WXDAI
+        token1: WETH9        

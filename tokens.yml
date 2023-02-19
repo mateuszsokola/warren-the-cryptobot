@@ -1,10 +1,20 @@
-networks:
-  ethereum: 
-    - name: DAI
-      address: "0x6B175474E89094C44Da98b954EedeAC495271d0F"
-    - name: USDC
-      address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
-    - name: WBTC
-      address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599" 
-    - name: WETH9
-      address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"     
+ethereum:
+  - name: DAI
+    address: "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+  - name: USDC
+    address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+  - name: WBTC
+    address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"
+  - name: WETH9
+    address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+gnosis:
+  - name: WXDAI
+    address: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"
+  - name: GNO
+    address: "0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb"
+  - name: USDC
+    address: "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83"
+  - name: WBTC
+    address: "0x8e5bBbb09Ed1ebdE8674Cda39A0c169401db4252"
+  - name: WETH9
+    address: "0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1"
