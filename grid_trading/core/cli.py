@@ -183,4 +183,4 @@ def list(
     service = create_database(config_dir)
 
     order_list = service.list_grid_trading_orders(status=None)
-    print_strategy_table(order_list=order_list)
+    print_strategy_table(strategy_list=order_list)

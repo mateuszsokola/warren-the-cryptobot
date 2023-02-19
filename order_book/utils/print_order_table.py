@@ -2,7 +2,7 @@ from typing import List
 from rich.console import Console
 from rich.table import Table
 from order_book.models.order_dao import BaseOrderDao
-from tokens.dai import DAI
+from tokens.utils.get_token_class_by_name import get_token_class_by_name
 from warren.utils.to_human import to_human
 
 
@@ -18,13 +18,14 @@ def print_order_table(order_list: List[BaseOrderDao]):
     table.add_column("Status", justify="right", style="green")
 
     for order in order_list:
+        TokenClass = get_token_class_by_name(order.token1)
+
         table.add_row(
             str(order.id),
             order.type.value,
             order.token0,
             order.token1,
-            # TODO(mateu.sh): use actual token name
-            f"{to_human(order.trigger_price, decimals=DAI.decimals())} DAI",
+            f"{to_human(order.trigger_price, decimals=TokenClass.decimals())} {order.token1}",
             f"{int(order.percent * 100)} %",
             order.status.value,
         )
