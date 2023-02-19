@@ -4,7 +4,7 @@ import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-from grid_trading.models.strategy_dto import BaseStrategyDto
+from grid_trading.models.strategy_dto import BaseStrategyDto, StrategyDto
 from grid_trading.models.strategy_status import StrategyStatus
 from grid_trading.utils.print_strategy_table import print_strategy_table
 from warren.core.create_database import create_database
@@ -120,7 +120,7 @@ def create(
             ),
         )
 
-        new_order = BaseStrategyDto(
+        new_order = StrategyDto(
             token0=token0,
             token1=token1,
             reference_price=exchange_manager.highest_price[2],
@@ -132,16 +132,6 @@ def create(
         services.database.create_grid_trading_order(order=new_order)
 
         console.print(f"The new order has been created.")
-
-        #
-        # TODO
-        # ======
-        # - [X] - Persist strategy in database (maybe warren_options? - wrong i'd say) include current prices
-        # - [X] - Implement trading bot
-        # - [X] - Record trxs in database
-        # - [X] - Move order book to separate CLI group
-        # - [ ] - Allow tokens to execute trxs (all relevant routers)
-        # - [ ] - Display warning if amount of tokens doens't allow to execute any trx
 
     asyncio.run(main())
 

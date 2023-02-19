@@ -1,3 +1,4 @@
+from typing import Callable
 from web3 import Web3
 from tokens.base_token import BaseToken
 from warren.core.base_token_pair import BaseTokenPair
@@ -44,14 +45,36 @@ class UniswapV3TokenPair(BaseTokenPair):
     def calculate_token1_to_token0_amount_out(self, amount_in: int = int(1 * 10**18)) -> int:
         return self._calculate_amount_out(token_in=self.token1.address, token_out=self.token0.address, amount_in=amount_in)
 
-    async def swap_token0_to_token1(self, amount_in: int, gas_limit: int = 120000):
+    async def swap_token0_to_token1(
+        self,
+        amount_in: int,
+        gas_limit: int = 120000,
+        success_cb: Callable = None,
+        failure_cb: Callable = None,
+    ):
         return await self._swap(
-            token_in=self.token0.address, token_out=self.token1.address, amount_in=amount_in, gas_limit=gas_limit
+            token_in=self.token0.address,
+            token_out=self.token1.address,
+            amount_in=amount_in,
+            gas_limit=gas_limit,
+            success_cb=success_cb,
+            failure_cb=failure_cb,
         )
 
-    async def swap_token1_to_token0(self, amount_in: int, gas_limit: int = 120000):
+    async def swap_token1_to_token0(
+        self,
+        amount_in: int,
+        gas_limit: int = 120000,
+        success_cb: Callable = None,
+        failure_cb: Callable = None,
+    ):
         return await self._swap(
-            token_in=self.token1.address, token_out=self.token0.address, amount_in=amount_in, gas_limit=gas_limit
+            token_in=self.token1.address,
+            token_out=self.token0.address,
+            amount_in=amount_in,
+            gas_limit=gas_limit,
+            success_cb=success_cb,
+            failure_cb=failure_cb,
         )
 
     def _calculate_amount_out(self, token_in: str, token_out: str, amount_in: int = int(1 * 10**18)) -> int:
@@ -68,7 +91,15 @@ class UniswapV3TokenPair(BaseTokenPair):
 
         return quote_exact_input_single.amount_out
 
-    async def _swap(self, token_in: str, token_out: str, amount_in: int, gas_limit: int = 120000):
+    async def _swap(
+        self,
+        token_in: str,
+        token_out: str,
+        amount_in: int,
+        gas_limit: int = 120000,
+        success_cb: Callable = None,
+        failure_cb: Callable = None,
+    ):
         tx_fees = await self.transaction_service.calculate_tx_fees(gas_limit=gas_limit)
 
         exact_input_single_params = ExactInputSingleParams(
@@ -89,4 +120,8 @@ class UniswapV3TokenPair(BaseTokenPair):
             max_priority_fee_per_gas=tx_fees.max_priority_fee_per_gas,
         )
 
-        return await self.transaction_service.send_transaction(tx)
+        return await self.transaction_service.send_transaction(
+            tx,
+            success_cb=success_cb,
+            failure_cb=failure_cb,
+        )

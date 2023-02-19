@@ -1,3 +1,4 @@
+from typing import Callable
 from web3 import Web3
 
 from tokens.base_token import BaseToken
@@ -17,8 +18,20 @@ class BaseTokenPair:
     def calculate_token1_to_token0_amount_out(self, amount_in: int) -> int:
         pass
 
-    async def swap_token0_to_token1(self, amount_in: int, gas_limit: int = 120000):
+    async def swap_token0_to_token1(
+        self,
+        amount_in: int,
+        gas_limit: int = 120000,
+        success_cb: Callable = None,
+        failure_cb: Callable = None,
+    ):
         pass
 
-    async def swap_token1_to_token0(self, amount_in: int, gas_limit: int = 120000):
+    async def swap_token1_to_token0(
+        self,
+        amount_in: int,
+        gas_limit: int = 120000,
+        success_cb: Callable = None,
+        failure_cb: Callable = None,
+    ):
         pass

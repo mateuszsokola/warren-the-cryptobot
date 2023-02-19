@@ -2,6 +2,7 @@ import asyncio
 import functools
 from typing import List
 from web3 import Web3
+from web3.types import TxReceipt
 from order_book.models.order_dao import OrderDao
 from order_book.models.order_status import OrderStatus
 from order_book.models.order_type import OrderType
@@ -84,14 +85,20 @@ class OrderBookService:
                 await asyncio.sleep(0)
                 continue
 
+            def success(tx: TxReceipt):
+                self.database.change_order_status(id=order.id, status=OrderStatus.executed)
+                logger.info(f"ORDER BOOK | Order #{order.id} has been executed. TX #{tx.transactionHash.hex()}")
+
             try:
                 if token1_to_token0:
-                    await exchange.swap_token1_to_token0(amount_in=amount_in, gas_limit=gas_limit)
+                    await exchange.swap_token1_to_token0(
+                        amount_in=amount_in, gas_limit=gas_limit, success_cb=success, failure_cb=None
+                    )
                 else:
-                    await exchange.swap_token0_to_token1(amount_in=amount_in, gas_limit=gas_limit)
+                    await exchange.swap_token0_to_token1(
+                        amount_in=amount_in, gas_limit=gas_limit, success_cb=success, failure_cb=None
+                    )
 
-                self.database.change_order_status(id=order.id, status=OrderStatus.executed)
-                logger.info(f"Order #{order.id} has been executed")
             except Exception as e:
                 raise e
 
