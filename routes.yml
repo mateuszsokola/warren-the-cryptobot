@@ -57,6 +57,24 @@ ethereum:
       - token0: WETH9
         token1: USDC
 gnosis:
+  - name: HoneySwap
+    type: uniswap_v2
+    addresses:
+      factory: "0xA818b4F111Ccac7AA31D0BCc0806d64F2E0737D7"
+      router: "0x1C232F01118CB8B424793ae03F870aa7D0ac7f77"
+    meta:
+      fee:
+        numerator: 3
+        denumerator: 100
+    pairs:
+      - token0: WXDAI
+        token1: GNO
+      - token0: WXDAI
+        token1: WETH9
+      - token0: WXDAI
+        token1: USDC
+      - token0: WXDAI
+        token1: WBTC
   - name: SushiSwap
     type: uniswap_v2
     addresses:
@@ -70,11 +88,11 @@ gnosis:
       - token0: WXDAI
         token1: GNO
       - token0: WXDAI
-        token1: WETH9       
+        token1: WETH9
       - token0: WXDAI
         token1: USDC
       - token0: WXDAI
-        token1: WBTC         
+        token1: WBTC
   - name: Swapr
     type: uniswap_v2
     addresses:
@@ -88,8 +106,8 @@ gnosis:
       - token0: WXDAI
         token1: GNO
       - token0: WXDAI
-        token1: WETH9       
+        token1: WETH9
       - token0: WXDAI
         token1: USDC
       - token0: WXDAI
-        token1: WBTC         
+        token1: WBTC
