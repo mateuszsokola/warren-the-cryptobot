@@ -10,8 +10,8 @@ from grid_trading.utils.print_strategy_table import print_strategy_table
 from warren.core.create_database import create_database
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
+from warren.managers.approval_manager import ApprovalManager
 from warren.managers.exchange_manager import ExchangeManager
-from warren.services.transaction_service import TransactionService
 from warren.utils.choose_token_prompt import choose_token_prompt
 from grid_trading.utils.create_token_prices_by_exchange_table import create_token_prices_by_exchange_table
 from warren.utils.to_human import to_human
@@ -71,51 +71,9 @@ def create(
             console.print(f"Operation cancelled.")
             sys.exit(0)
 
-        transaction_service = TransactionService(web3=services.web3, async_web3=services.async_web3)
-        fees = await transaction_service.calculate_tx_fees(gas_limit=120000)
-
-        await asyncio.gather(
-            transaction_service.send_transaction(
-                # UniswapV3 Router
-                token0.approve(
-                    "0xE592427A0AEce92De3Edee1F18E0157C05861564",
-                    max_amount_in=token0_balance,
-                    gas_limit=fees.gas_limit,
-                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
-                    max_fee_per_gas=fees.max_fee_per_gas,
-                )
-            ),
-            transaction_service.send_transaction(
-                # UniswapV2 Router02
-                token0.approve(
-                    "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-                    max_amount_in=token0_balance,
-                    gas_limit=fees.gas_limit,
-                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
-                    max_fee_per_gas=fees.max_fee_per_gas,
-                )
-            ),
-            transaction_service.send_transaction(
-                # PancakeSwap
-                token0.approve(
-                    "0xEfF92A263d31888d860bD50809A8D171709b7b1c",
-                    max_amount_in=token0_balance,
-                    gas_limit=fees.gas_limit,
-                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
-                    max_fee_per_gas=fees.max_fee_per_gas,
-                )
-            ),
-            transaction_service.send_transaction(
-                # Sushiswap
-                token0.approve(
-                    "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
-                    max_amount_in=token0_balance,
-                    gas_limit=fees.gas_limit,
-                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
-                    max_fee_per_gas=fees.max_fee_per_gas,
-                )
-            ),
-        )
+        approval_manager = ApprovalManager(web3=services.web3, async_web3=services.async_web3)
+        # TODO(mateu.sh): parametrize amount_in
+        await approval_manager.approve_swaps(token_list=[token0, token1], exchange_list=exchange_list)
 
         new_order = StrategyDto(
             token0=token0,

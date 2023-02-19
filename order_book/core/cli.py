@@ -3,14 +3,14 @@ from decimal import Decimal
 import sys
 import typer
 from rich.console import Console
-from rich.prompt import Prompt
+from rich.prompt import Prompt, Confirm
 from order_book.models.order_dto import OrderDto
 from order_book.models.order_status import OrderStatus
 from order_book.models.order_type import OrderType
 from warren.core.create_database import create_database
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
-from warren.services.transaction_service import TransactionService
+from warren.managers.approval_manager import ApprovalManager
 from order_book.utils.print_order_table import print_order_table
 from warren.utils.to_human import to_human
 from warren.utils.to_wei import to_wei
@@ -96,51 +96,15 @@ def create(
         trigger_price = Decimal(Prompt.ask("Trigger price"))
         percent_of_tokens = Decimal(Prompt.ask("Percent of tokens to flip (excluding gas fees)", default=str(100)))
 
-        transaction_service = TransactionService(web3=order_book_v2.web3, async_web3=order_book_v2.async_web3)
-        fees = await transaction_service.calculate_tx_fees(gas_limit=120000)
+        confirm = Confirm.ask("is it correct?")
 
-        await asyncio.gather(
-            transaction_service.send_transaction(
-                # UniswapV3 Router
-                token0.approve(
-                    "0xE592427A0AEce92De3Edee1F18E0157C05861564",
-                    max_amount_in=token0_balance,
-                    gas_limit=fees.gas_limit,
-                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
-                    max_fee_per_gas=fees.max_fee_per_gas,
-                )
-            ),
-            transaction_service.send_transaction(
-                # UniswapV2 Router02
-                token0.approve(
-                    "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
-                    max_amount_in=token0_balance,
-                    gas_limit=fees.gas_limit,
-                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
-                    max_fee_per_gas=fees.max_fee_per_gas,
-                )
-            ),
-            transaction_service.send_transaction(
-                # PancakeSwap
-                token0.approve(
-                    "0xEfF92A263d31888d860bD50809A8D171709b7b1c",
-                    max_amount_in=token0_balance,
-                    gas_limit=fees.gas_limit,
-                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
-                    max_fee_per_gas=fees.max_fee_per_gas,
-                )
-            ),
-            transaction_service.send_transaction(
-                # Sushiswap
-                token0.approve(
-                    "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F",
-                    max_amount_in=token0_balance,
-                    gas_limit=fees.gas_limit,
-                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
-                    max_fee_per_gas=fees.max_fee_per_gas,
-                )
-            ),
-        )
+        if confirm is False:
+            console.print(f"Operation cancelled.")
+            sys.exit(0)
+
+        approval_manager = ApprovalManager(web3=services.web3, async_web3=services.async_web3)
+        # TODO(mateu.sh): parametrize amount_in
+        await approval_manager.approve_swaps(token_list=[token0], exchange_list=exchanges)
 
         new_order = OrderDto(
             type=order_types[order_type_idx],
