@@ -4,16 +4,11 @@ from warren.models.base_model import BaseModel
 from .strategy_status import StrategyStatus
 
 
-class BaseStrategyDto(BaseModel):
-    token0: str
-    token1: str
+class StrategyDto(BaseModel):
+    token0: BaseToken
+    token1: BaseToken
     reference_price: int
     last_tx_price: int | None
     grid_every_percent: Decimal
     percent_per_flip: Decimal
     status: StrategyStatus
-
-
-class StrategyDto(BaseStrategyDto):
-    token0: BaseToken
-    token1: BaseToken
