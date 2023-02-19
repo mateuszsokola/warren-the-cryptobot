@@ -1,3 +1,4 @@
+from typing import Callable
 from web3 import Web3
 from exchanges.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
 from tokens.base_token import BaseToken
@@ -41,17 +42,47 @@ class UniswapV2TokenPair(BaseTokenPair):
 
         return amount_out
 
-    async def swap_token0_to_token1(self, amount_in: int, gas_limit: int = 120000):
+    async def swap_token0_to_token1(
+        self,
+        amount_in: int,
+        gas_limit: int = 120000,
+        success_cb: Callable = None,
+        failure_cb: Callable = None,
+    ):
         return await self._swap(
-            token_in=self.uniswap_v2_pair.token0, token_out=self.uniswap_v2_pair.token1, amount_in=amount_in, gas_limit=gas_limit
+            token_in=self.uniswap_v2_pair.token0,
+            token_out=self.uniswap_v2_pair.token1,
+            amount_in=amount_in,
+            gas_limit=gas_limit,
+            success_cb=success_cb,
+            failure_cb=failure_cb,
         )
 
-    async def swap_token1_to_token0(self, amount_in: int, gas_limit: int = 120000):
+    async def swap_token1_to_token0(
+        self,
+        amount_in: int,
+        gas_limit: int = 120000,
+        success_cb: Callable = None,
+        failure_cb: Callable = None,
+    ):
         return await self._swap(
-            token_in=self.uniswap_v2_pair.token1, token_out=self.uniswap_v2_pair.token0, amount_in=amount_in, gas_limit=gas_limit
+            token_in=self.uniswap_v2_pair.token1,
+            token_out=self.uniswap_v2_pair.token0,
+            amount_in=amount_in,
+            gas_limit=gas_limit,
+            success_cb=success_cb,
+            failure_cb=failure_cb,
         )
 
-    async def _swap(self, token_in: str, token_out: str, amount_in: int, gas_limit: int = 120000):
+    async def _swap(
+        self,
+        token_in: str,
+        token_out: str,
+        amount_in: int,
+        gas_limit: int = 120000,
+        success_cb: Callable = None,
+        failure_cb: Callable = None,
+    ):
         tx_fees = await self.transaction_service.calculate_tx_fees(gas_limit=gas_limit)
 
         params = ExactTokensForTokensParams(
@@ -66,4 +97,8 @@ class UniswapV2TokenPair(BaseTokenPair):
             params, tx_fees.gas_limit, tx_fees.max_fee_per_gas, tx_fees.max_fee_per_gas
         )
 
-        return await self.transaction_service.send_transaction(tx_params)
+        return await self.transaction_service.send_transaction(
+            tx_params=tx_params,
+            success_cb=success_cb,
+            failure_cb=failure_cb,
+        )

@@ -1,10 +1,11 @@
-import functools
 import pytest
 from decimal import Decimal
+from order_book.models.order_dto import OrderDto
+from order_book.models.order_status import OrderStatus
+from order_book.models.order_type import OrderType
 from tokens.dai import DAI
 from tokens.weth9 import WETH9
-from warren.models.order import OrderDto, OrderStatus, OrderType
-from warren.services.order_book_service import OrderBookService, order_dao_factory
+from order_book.core.order_book_service import OrderBookService
 from warren.services.transaction_service import TransactionService
 from warren.utils.to_wei import to_wei
 
@@ -57,16 +58,12 @@ async def test_stop_losses(orderbook: OrderBookService, transaction_service: Tra
     assert weth9.balance_of(orderbook.web3.eth.default_account) == int(1000000000000000000)
     assert dai.balance_of(orderbook.web3.eth.default_account) == int(0)
 
-    order_list = orderbook.database.list_orders(
-        func=functools.partial(order_dao_factory, orderbook.token), status=OrderStatus.active
-    )
+    order_list = orderbook.database.list_orders(status=OrderStatus.active)
     assert len(order_list) == 1
 
-    await orderbook.seek_for_opportunities()
+    await orderbook.find_opportunities()
 
-    order_list = orderbook.database.list_orders(
-        func=functools.partial(order_dao_factory, orderbook.token), status=OrderStatus.executed
-    )
+    order_list = orderbook.database.list_orders(status=OrderStatus.executed)
     assert len(order_list) == 1
 
     assert weth9.balance_of(orderbook.web3.eth.default_account) == int(0)
@@ -121,16 +118,12 @@ async def test_take_profit(orderbook: OrderBookService, transaction_service: Tra
     assert weth9.balance_of(orderbook.web3.eth.default_account) == int(1000000000000000000)
     assert dai.balance_of(orderbook.web3.eth.default_account) == int(0)
 
-    order_list = orderbook.database.list_orders(
-        func=functools.partial(order_dao_factory, orderbook.token), status=OrderStatus.active
-    )
+    order_list = orderbook.database.list_orders(status=OrderStatus.active)
     assert len(order_list) == 1
 
-    await orderbook.seek_for_opportunities()
+    await orderbook.find_opportunities()
 
-    order_list = orderbook.database.list_orders(
-        func=functools.partial(order_dao_factory, orderbook.token), status=OrderStatus.executed
-    )
+    order_list = orderbook.database.list_orders(status=OrderStatus.executed)
     assert len(order_list) == 1
 
     assert weth9.balance_of(orderbook.web3.eth.default_account) == int(0)

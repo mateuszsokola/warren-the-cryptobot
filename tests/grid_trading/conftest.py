@@ -5,13 +5,13 @@ from web3.eth import AsyncEth, Eth
 from web3.main import get_default_modules
 from web3.net import AsyncNet
 
+from grid_trading.core.grid_trading_service import GridTradingService
 from warren.core.database import Database
-from order_book.core.order_book_service import OrderBookService
 from warren.utils.retryable_eth_module import retryable_eth_module
 
 
 @pytest.fixture(scope="module")
-def orderbook() -> OrderBookService:
+def grid_trading() -> GridTradingService:
     database = Database(database_file=":memory:")
     eth1_api_url = "http://127.0.0.1:8545"
 
@@ -30,7 +30,7 @@ def orderbook() -> OrderBookService:
     account = accounts[0]
     web3.eth.default_account = account.address
 
-    return OrderBookService(
+    return GridTradingService(
         async_web3=async_web3,
         web3=web3,
         database=database,
@@ -38,15 +38,15 @@ def orderbook() -> OrderBookService:
 
 
 @pytest.fixture(autouse=True)
-def isolation(fn_isolation, orderbook):
+def isolation(fn_isolation, grid_trading):
     # before tests create blockchain snapshot
     chain.snapshot()
 
     # tests are happening here
     yield
 
-    orderbook.latest_checked_block = 0
-    orderbook.database.cur.execute("DELETE FROM order_book_v2")
-    orderbook.database.con.commit()
+    grid_trading.latest_checked_block = 0
+    grid_trading.database.cur.execute("DELETE FROM grid_trading_orders")
+    grid_trading.database.con.commit()
     # after tests revert to initial blockchain snapshot
     chain.revert()

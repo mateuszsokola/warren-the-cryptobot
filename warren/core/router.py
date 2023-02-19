@@ -13,7 +13,6 @@ from warren.core.base_token_pair import BaseTokenPair
 from warren.core.token import Token
 from warren.core.uniswap_v2_token_pair import UniswapV2TokenPair
 from warren.core.uniswap_v3_token_pair import UniswapV3TokenPair
-from warren.models.exchange import UniswapV2Exchange, UniswapV3Exchange
 from warren.models.network import Network
 from warren.utils.load_yaml import load_yaml
 
@@ -31,17 +30,19 @@ class Router:
     def get_token_pairs(self) -> List[BaseTokenPair]:
         return self._pairs
 
-    def get_token_pair_token0_and_token1(self, token0: BaseToken, token1: BaseToken) -> List[BaseTokenPair]:
+    def get_token_pair_by_token0_and_token1(self, token0: BaseToken, token1: BaseToken) -> List[BaseTokenPair]:
         result = []
 
         for pair in self._pairs:
-            if pair.token0.name == token0.name and pair.token1.name == token1.name:
+            a = pair.token0.name == token0.name and pair.token1.name == token1.name
+            b = pair.token0.name == token1.name and pair.token1.name == token0.name
+            if a or b:
                 result.append(pair)
 
         return result
 
-    def get_token_routes(self) -> dict[BaseToken, List[BaseToken]]:
-        result: dict[BaseToken, List[BaseToken]] = {}
+    def get_token_routes(self) -> dict[str, List[str]]:
+        result: dict[str, List[str]] = {}
 
         for exchange in self._pairs:
             token0_name = exchange.token0.name

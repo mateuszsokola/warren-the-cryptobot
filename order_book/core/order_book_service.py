@@ -1,25 +1,16 @@
 import asyncio
 import functools
-from decimal import Decimal
+from typing import List
 from web3 import Web3
+from web3.types import TxReceipt
+from order_book.models.order_dao import OrderDao
+from order_book.models.order_status import OrderStatus
+from order_book.models.order_type import OrderType
+from order_book.utils.create_order_dao import create_order_dao
 from warren.core.database import Database
 from warren.core.token import Token
 from warren.core.router import Router
-from warren.models.order import OrderDao, OrderStatus, OrderType
 from warren.utils.logger import logger
-
-
-def order_dao_factory(token: Token, order: tuple) -> OrderDao:
-    (id, order_type, token0, token1, trigger_price, percent, status) = order
-    return OrderDao(
-        id=id,
-        type=OrderType[order_type],
-        token0=token.get_token_by_name(token0),
-        token1=token.get_token_by_name(token1),
-        trigger_price=int(trigger_price),
-        percent=Decimal(percent),
-        status=OrderStatus[status],
-    )
 
 
 class OrderBookService:
@@ -35,8 +26,10 @@ class OrderBookService:
 
         self.latest_checked_block = 0
 
-    async def seek_for_opportunities(self, gas_limit: int = 200000):
-        order_list = self.database.list_orders(func=functools.partial(order_dao_factory, self.token), status=OrderStatus.active)
+    async def find_opportunities(self, gas_limit: int = 200000):
+        order_list: List[OrderDao] = self.database.list_orders(
+            func=functools.partial(create_order_dao, self.token), status=OrderStatus.active
+        )
         if len(order_list) == 0:
             return
 
@@ -92,14 +85,20 @@ class OrderBookService:
                 await asyncio.sleep(0)
                 continue
 
+            def success(tx: TxReceipt):
+                self.database.change_order_status(id=order.id, status=OrderStatus.executed)
+                logger.info(f"ORDER BOOK | Order #{order.id} has been executed. TX #{tx.transactionHash.hex()}")
+
             try:
                 if token1_to_token0:
-                    await exchange.swap_token1_to_token0(amount_in=amount_in, gas_limit=gas_limit)
+                    await exchange.swap_token1_to_token0(
+                        amount_in=amount_in, gas_limit=gas_limit, success_cb=success, failure_cb=None
+                    )
                 else:
-                    await exchange.swap_token0_to_token1(amount_in=amount_in, gas_limit=gas_limit)
+                    await exchange.swap_token0_to_token1(
+                        amount_in=amount_in, gas_limit=gas_limit, success_cb=success, failure_cb=None
+                    )
 
-                self.database.change_order_status(id=order.id, status=OrderStatus.executed)
-                logger.info(f"Order #{order.id} has been executed")
             except Exception as e:
                 raise e
 
