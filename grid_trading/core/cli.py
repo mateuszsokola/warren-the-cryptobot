@@ -4,7 +4,7 @@ import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-from grid_trading.models.strategy_dto import BaseStrategyDto, StrategyDto
+from grid_trading.models.strategy_dto import StrategyDto
 from grid_trading.models.strategy_status import StrategyStatus
 from grid_trading.utils.print_strategy_table import print_strategy_table
 from warren.core.create_database import create_database

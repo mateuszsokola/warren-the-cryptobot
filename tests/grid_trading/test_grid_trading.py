@@ -7,7 +7,7 @@ from tokens.dai import DAI
 from tokens.weth9 import WETH9
 from grid_trading.models.strategy_dto import StrategyDto
 from grid_trading.models.strategy_status import StrategyStatus
-from grid_trading.services.grid_trading_service import GridTradingService
+from grid_trading.core.grid_trading_service import GridTradingService
 from warren.services.transaction_service import TransactionService
 from warren.utils.to_wei import to_wei
 

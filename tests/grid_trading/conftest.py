@@ -5,7 +5,7 @@ from web3.eth import AsyncEth, Eth
 from web3.main import get_default_modules
 from web3.net import AsyncNet
 
-from grid_trading.services.grid_trading_service import GridTradingService
+from grid_trading.core.grid_trading_service import GridTradingService
 from warren.core.database import Database
 from warren.utils.retryable_eth_module import retryable_eth_module
 

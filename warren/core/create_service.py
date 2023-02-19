@@ -8,7 +8,7 @@ from web3 import Web3, AsyncHTTPProvider, HTTPProvider
 from web3.eth import AsyncEth, Eth
 from web3.main import get_default_modules
 from web3.net import AsyncNet
-from grid_trading.services.grid_trading_service import GridTradingService
+from grid_trading.core.grid_trading_service import GridTradingService
 from warren.core.database import Database
 from warren.core.setup_wizard import SetupWizard
 from warren.models.service import Service
