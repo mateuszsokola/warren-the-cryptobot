@@ -12,6 +12,7 @@ from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
 from warren.managers.approval_manager import ApprovalManager
 from order_book.utils.print_order_table import print_order_table
+from warren.utils.choose_token_prompt import choose_token_prompt
 from warren.utils.to_human import to_human
 from warren.utils.to_wei import to_wei
 
@@ -47,28 +48,18 @@ def create(
         order_type_idx = int(Prompt.ask("Choose order type", choices=choices))
 
         token_routes = order_book_v2.router.get_token_routes()
-
-        tokens = []
-        choices = []
-        for idx, token in enumerate(token_routes.keys()):
-            console.print(f"{idx}) {token}")
-            tokens.append(token)
-            choices.append(str(idx))
-
-        token0_idx = int(Prompt.ask("Choose token0", choices=choices))
-        token0_name = tokens[token0_idx]
-        token0 = order_book_v2.token.get_token_by_name(token0_name)
-
-        tokens = []
-        choices = []
-        for idx, token in enumerate(token_routes[token0.name]):
-            console.print(f"{idx}) {token}")
-            tokens.append(token)
-            choices.append(str(idx))
-
-        token1_idx = int(Prompt.ask("Choose token1", choices=choices))
-        token1_name = tokens[token1_idx]
-        token1 = order_book_v2.token.get_token_by_name(token1_name)
+        token0 = choose_token_prompt(
+            token_list=token_routes.keys(),
+            token_service=services.order_book.token,
+            console=console,
+            prompt_message="Choose token0",
+        )
+        token1 = choose_token_prompt(
+            token_list=token_routes[token0.name],
+            token_service=services.grid_trading.token,
+            console=console,
+            prompt_message="Choose token1",
+        )
 
         exchanges = order_book_v2.router.get_token_pair_by_token0_and_token1(
             token0=token0,
