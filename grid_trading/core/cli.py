@@ -62,9 +62,6 @@ def create(
         console.print(table)
 
         grid_every_percent = Decimal(Prompt.ask("Grid every `n` percent"))
-        # console.print(
-        #     f"SIMULATION FOR THE FIRST TX ONLY! Tokens will be bought when price on any exchange drops below {to_human(int(exchange_manager.lowest_price[2]), decimals=token1.decimals())} {token1.name}"
-        # )
 
         percent_of_tokens = Decimal(Prompt.ask("Percent of tokens per flip (excluding gas fees)"))
 

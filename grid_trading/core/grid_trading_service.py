@@ -60,7 +60,7 @@ class GridTradingService:
                 def success(tx: TxReceipt):
                     self.database.change_grid_trading_order_last_tx_price(strategy.id, exchange_manager.highest_price[2])
                     human_price = (
-                        f"{to_human(exchange_manager.highest_price[2], decimals=strategy.token0.decimals())} {strategy.token0.name}"
+                        f"{to_human(exchange_manager.highest_price[2], decimals=strategy.token1.decimals())} {strategy.token1.name}"
                     )
                     logger.info(
                         f"GRID TRADING | Sell order #{strategy.id} has been executed - {human_price}. TX #{tx.transactionHash.hex()}"
@@ -80,7 +80,7 @@ class GridTradingService:
                 def success(tx: TxReceipt):
                     self.database.change_grid_trading_order_last_tx_price(strategy.id, exchange_manager.lowest_price[2])
                     human_price = (
-                        f"{to_human(exchange_manager.lowest_price[2], decimals=strategy.token1.decimals())} {strategy.token1.name}"
+                        f"{to_human(exchange_manager.lowest_price[2], decimals=strategy.token0.decimals())} {strategy.token0.name}"
                     )
                     logger.info(
                         f"GRID TRADING | Buy order #{strategy.id} has been executed - {human_price}. TX #{tx.transactionHash.hex()}"
