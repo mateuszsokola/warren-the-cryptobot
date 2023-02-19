@@ -1,12 +1,12 @@
 from typing import List
 from rich.console import Console
 from rich.table import Table
-from order_book.models.order import OrderBookOrderDao
+from order_book.models.order_dao import BaseOrderDao
 from tokens.dai import DAI
 from warren.utils.to_human import to_human
 
 
-def print_order_table(order_list: List[OrderBookOrderDao]):
+def print_order_table(order_list: List[BaseOrderDao]):
     table = Table(title="Order book")
 
     table.add_column("ID", justify="right", style="cyan", no_wrap=True)

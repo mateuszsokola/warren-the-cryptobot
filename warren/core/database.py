@@ -5,13 +5,11 @@ from grid_trading.models.strategy_dao import BaseStrategyDao
 from grid_trading.models.strategy_dto import StrategyDto
 from grid_trading.models.strategy_status import StrategyStatus
 from grid_trading.utils.create_strategy_dao import create_base_strategy_dao
+from order_book.models.order_dto import OrderDto
+from order_book.models.order_dao import BaseOrderDao
+from order_book.models.order_status import OrderStatus
+from order_book.utils.create_order_dao import create_base_order_dao
 from warren.models.option import OptionDto
-from order_book.models.order import (
-    OrderBookOrderDao,
-    OrderBookOrderDto,
-    OrderBookOrderStatus,
-    order_book_headless_order_dao_factory,
-)
 
 
 class Database:
@@ -74,7 +72,7 @@ class Database:
         )
         self.con.commit()
 
-    def create_order(self, order: OrderBookOrderDto):
+    def create_order(self, order: OrderDto):
         self.cur.execute(
             """
                 INSERT INTO order_book_v2
@@ -92,7 +90,7 @@ class Database:
         )
         self.con.commit()
 
-    def change_order_status(self, id: int, status: OrderBookOrderStatus = OrderBookOrderStatus.cancelled):
+    def change_order_status(self, id: int, status: OrderStatus = OrderStatus.cancelled):
         update_query = "UPDATE order_book_v2 SET status = ? WHERE id = ?"
         self.cur.execute(
             update_query,
@@ -106,9 +104,7 @@ class Database:
 
         return [OptionDto(id=id, option_name=option_name, option_value=option_value) for (id, option_name, option_value) in res]
 
-    def list_orders(
-        self, func: Callable = order_book_headless_order_dao_factory, status: OrderBookOrderStatus | None = None
-    ) -> List[OrderBookOrderDao]:
+    def list_orders(self, func: Callable = create_base_order_dao, status: OrderStatus | None = None) -> List[BaseOrderDao]:
         select_query = """
             SELECT 
             id, type, token0, token1, trigger_price, percent, status
