@@ -57,6 +57,22 @@ ethereum:
       - token0: WETH9
         token1: USDC
 gnosis:
+  # - name: Empire
+  #   type: uniswap_v2
+  #   addresses:
+  #     factory: "0x06530550A48F990360DFD642d2132354A144F31d"
+  #     router: "0xe5759714998e8B50A33c7333C04C2d02e5dcE77f"
+  #   meta:
+  #     fee:
+  #       numerator: 3
+  #       denumerator: 100
+  #   pairs:
+  #     - token0: WXDAI
+  #       token1: GNO
+  #     - token0: WXDAI
+  #       token1: USDC
+  #     - token0: WXDAI
+  #       token1: WBTC
   - name: HoneySwap
     type: uniswap_v2
     addresses:

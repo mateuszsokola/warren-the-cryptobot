@@ -17,7 +17,7 @@ from order_book.core.order_book_service import OrderBookService
 from warren.utils.retryable_eth_module import retryable_eth_module
 
 
-def create_service(config_path: str, passphrase: str = "", network: Network = Network.Ethereum) -> Service:
+def create_service(config_path: str, passphrase: str = "", network: Network = Network.Gnosis) -> Service:
     database_file = SetupWizard.database_file_path(config_path)
     database = Database(database_file=database_file)
 

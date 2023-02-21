@@ -164,8 +164,8 @@ def wrap_native_token(config_dir: str = typer.Option(SetupWizard.default_config_
         services = create_service(config_path=config_dir, passphrase=passphrase)
 
         # TODO(mateu.sh): this shouldn't be hardcoded
-        wrapped_native_token = WETH9(web3=services.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
-        # wrapped_native_token = WXDAI(web3=services.web3, address="0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d")
+        # wrapped_native_token = WETH9(web3=services.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
+        wrapped_native_token = WXDAI(web3=services.web3, address="0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d")
 
         current_balance = services.web3.eth.get_balance(services.web3.eth.default_account)
         console.print(f"Before ETH balance: {to_human(current_balance, decimals=WETH9.decimals())} ETH")

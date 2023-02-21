@@ -8,6 +8,8 @@ ethereum:
   - name: WETH9
     address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
 gnosis:
+  - name: DAI
+    address: "0xFc8B2690F66B46fEC8B3ceeb95fF4Ac35a0054BC"
   - name: WXDAI
     address: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"
   - name: GNO
