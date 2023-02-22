@@ -11,7 +11,7 @@ from exchanges.uniswap.v3.models.quote_exact_input_single_params import (
 from exchanges.uniswap.v3.pool import UniswapV3Pool
 from exchanges.uniswap.v3.quoter_v2 import UniswapV3QuoterV2
 from exchanges.uniswap.v3.router import UniswapV3Router
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 
 
 class UniswapV3TokenPair(BaseTokenPair):
@@ -29,7 +29,7 @@ class UniswapV3TokenPair(BaseTokenPair):
     ):
         super().__init__(web3=web3, async_web3=async_web3, name=name, token0=token0, token1=token1)
 
-        self.transaction_service = TransactionService(
+        self.transaction_service = TransactionManager(
             web3=web3,
             async_web3=async_web3,
         )

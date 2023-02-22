@@ -53,7 +53,7 @@ def create(
         console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals())} {token0.name}[green]")
         console.print(f"Balance: [green]{to_human(token1_balance, decimals=token1.decimals())} {token1.name}[green]")
 
-        exchange_list = services.grid_trading.router.get_token_pair_by_token0_and_token1(
+        exchange_list = services.grid_trading.router.get_routes_by_token0_and_token1(
             token0=token0,
             token1=token1,
         )
@@ -73,7 +73,7 @@ def create(
 
         approval_manager = ApprovalManager(web3=services.web3, async_web3=services.async_web3)
         # TODO(mateu.sh): parametrize amount_in
-        await approval_manager.approve_swaps(token_list=[token0, token1], exchange_list=exchange_list)
+        await approval_manager.approve_swaps(token_list=[token0, token1], route_list=exchange_list)
 
         new_order = StrategyDto(
             token0=token0,

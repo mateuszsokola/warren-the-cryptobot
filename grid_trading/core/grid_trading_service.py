@@ -47,7 +47,7 @@ class GridTradingService:
             last_price = strategy.reference_price if strategy.last_tx_price is None else int(strategy.last_tx_price)
             (lower_limit, upper_limit) = create_grid(last_price, strategy.grid_every_percent)
 
-            exchanges = self.router.get_token_pair_by_token0_and_token1(strategy.token0, strategy.token1)
+            exchanges = self.router.get_routes_by_token0_and_token1(strategy.token0, strategy.token1)
             # TODO(mateu.sh): i don't like it returns so many values and tuples
             exchange_manager = ExchangeManager(exchange_list=exchanges, token0=strategy.token0, token1=strategy.token1)
 

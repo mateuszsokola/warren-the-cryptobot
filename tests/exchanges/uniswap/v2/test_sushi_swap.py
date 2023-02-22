@@ -6,11 +6,11 @@ from exchanges.uniswap.v2.factory import UniswapV2Factory
 from exchanges.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
 from exchanges.uniswap.v2.models.get_pair_params import GetPairParams
 from exchanges.uniswap.v2.router import UniswapV2Router
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 
 
 @pytest.mark.asyncio
-async def test_sushi_swap(web3: Web3, transaction_service: TransactionService):
+async def test_sushi_swap(web3: Web3, transaction_service: TransactionManager):
     sushi_factory_address = "0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac"
     sushi_factory = UniswapV2Factory(web3=web3, address=sushi_factory_address)
 

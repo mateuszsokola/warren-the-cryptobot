@@ -7,11 +7,11 @@ from exchanges.uniswap.v2.factory import UniswapV2Factory
 from exchanges.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
 from exchanges.uniswap.v2.models.get_pair_params import GetPairParams
 from exchanges.uniswap.v2.router import UniswapV2Router
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 
 
 @pytest.mark.asyncio
-async def test_pancake_swap(web3: Web3, transaction_service: TransactionService):
+async def test_pancake_swap(web3: Web3, transaction_service: TransactionManager):
     pancake_factory_address = "0x1097053Fd2ea711dad45caCcc45EfF7548fCB362"
     pancake_factory = UniswapV2Factory(web3=web3, address=pancake_factory_address)
 

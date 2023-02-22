@@ -13,7 +13,7 @@ from order_book.core.cli import order_book_app
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
 from warren.models.option import OptionDto
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 from warren.utils.format_exception import format_exception
 from warren.utils.logger import logger
 from warren.utils.runner import Runner
@@ -176,7 +176,7 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
         amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
         wei_amount_in = to_wei(amount_in, decimals=WETH9.decimals())
 
-        transaction_service = TransactionService(web3=services.web3, async_web3=services.async_web3)
+        transaction_service = TransactionManager(web3=services.web3, async_web3=services.async_web3)
         fees = await transaction_service.calculate_tx_fees(gas_limit=120000)
 
         await transaction_service.send_transaction(

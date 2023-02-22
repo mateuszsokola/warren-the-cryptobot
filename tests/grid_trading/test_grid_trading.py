@@ -8,12 +8,12 @@ from tokens.weth9 import WETH9
 from grid_trading.models.strategy_dto import StrategyDto
 from grid_trading.models.strategy_status import StrategyStatus
 from grid_trading.core.grid_trading_service import GridTradingService
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 from warren.utils.to_wei import to_wei
 
 
 @pytest.mark.asyncio
-async def test_sell_orders(grid_trading: GridTradingService, transaction_service: TransactionService):
+async def test_sell_orders(grid_trading: GridTradingService, transaction_service: TransactionManager):
     uniswap_v3_router_address = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
 
     dai = DAI(web3=grid_trading.web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")
@@ -70,7 +70,7 @@ async def test_sell_orders(grid_trading: GridTradingService, transaction_service
 
 
 @pytest.mark.asyncio
-async def test_buy_orders(grid_trading: GridTradingService, transaction_service: TransactionService):
+async def test_buy_orders(grid_trading: GridTradingService, transaction_service: TransactionManager):
     uniswap_v3_router_address = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
     sushi_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
 
@@ -158,7 +158,7 @@ async def test_buy_orders(grid_trading: GridTradingService, transaction_service:
 
 
 @pytest.mark.asyncio
-async def test_multiple_orders(grid_trading: GridTradingService, transaction_service: TransactionService):
+async def test_multiple_orders(grid_trading: GridTradingService, transaction_service: TransactionManager):
     uniswap_v3_router_address = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
     sushi_router_address = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"
 

@@ -5,7 +5,7 @@ from web3 import Web3, AsyncHTTPProvider, HTTPProvider
 from web3.eth import AsyncEth, Eth
 from web3.main import get_default_modules
 from web3.net import AsyncNet
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 from warren.utils.retryable_eth_module import retryable_eth_module
 
 
@@ -55,5 +55,5 @@ def async_web3() -> Web3:
 
 
 @pytest.fixture(scope="module")
-def transaction_service(web3: Web3, async_web3: Web3) -> TransactionService:
-    return TransactionService(web3=web3, async_web3=async_web3)
+def transaction_service(web3: Web3, async_web3: Web3) -> TransactionManager:
+    return TransactionManager(web3=web3, async_web3=async_web3)

@@ -1,11 +1,11 @@
 import pytest
 from web3 import Web3
 from tokens.weth9 import WETH9
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 
 
 @pytest.mark.asyncio
-async def test_eth_to_weth9(web3: Web3, transaction_service: TransactionService):
+async def test_eth_to_weth9(web3: Web3, transaction_service: TransactionManager):
     weth9 = WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
 
     assert weth9.balance_of(web3.eth.default_account) == int(0)

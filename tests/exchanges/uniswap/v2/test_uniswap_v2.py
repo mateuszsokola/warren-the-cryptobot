@@ -6,11 +6,11 @@ from exchanges.uniswap.v2.factory import UniswapV2Factory
 from exchanges.uniswap.v2.models.exact_tokens_for_tokens_params import ExactTokensForTokensParams
 from exchanges.uniswap.v2.models.get_pair_params import GetPairParams
 from exchanges.uniswap.v2.router import UniswapV2Router
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 
 
 @pytest.mark.asyncio
-async def test_uniswap_v2_router01(web3: Web3, transaction_service: TransactionService):
+async def test_uniswap_v2_router01(web3: Web3, transaction_service: TransactionManager):
     uniswap_v2_factory_address = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
     uniswap_v2_factory = UniswapV2Factory(web3=web3, address=uniswap_v2_factory_address)
 
@@ -64,7 +64,7 @@ async def test_uniswap_v2_router01(web3: Web3, transaction_service: TransactionS
 
 
 @pytest.mark.asyncio
-async def test_uniswap_v2_router02(web3: Web3, transaction_service: TransactionService):
+async def test_uniswap_v2_router02(web3: Web3, transaction_service: TransactionManager):
     uniswap_v2_factory_address = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
     uniswap_v2_factory = UniswapV2Factory(web3=web3, address=uniswap_v2_factory_address)
 

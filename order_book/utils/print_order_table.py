@@ -19,7 +19,7 @@ def print_order_table(order_list: List[BaseOrderDao]):
 
     for order in order_list:
         TokenClass = get_token_class_by_name(order.token1)
-
+        
         table.add_row(
             str(order.id),
             order.type.value,

@@ -36,7 +36,7 @@ def create(
 
         passphrase = Prompt.ask("Enter passphrase")
         services = create_service(config_path=config_dir, passphrase=passphrase)
-        order_book_v2 = services.order_book
+        order_book = services.order_book
 
         order_types = []
         choices = []
@@ -47,37 +47,31 @@ def create(
 
         order_type_idx = int(Prompt.ask("Choose order type", choices=choices))
 
-        token_routes = order_book_v2.router.get_token_routes()
         token0 = choose_token_prompt(
-            token_list=token_routes.keys(),
+            token_list=order_book.router.get_all_tokens(),
             token_service=services.order_book.token,
             console=console,
             prompt_message="Choose token0",
         )
+
         token1 = choose_token_prompt(
-            token_list=token_routes[token0.name],
+            token_list=order_book.router.get_all_tokens_by_token0(token0),
             token_service=services.grid_trading.token,
             console=console,
             prompt_message="Choose token1",
         )
 
-        exchanges = order_book_v2.router.get_token_pair_by_token0_and_token1(
+        routes = order_book.router.get_routes_by_token0_and_token1(
             token0=token0,
             token1=token1,
         )
 
-        token0_balance = token0.balance_of(order_book_v2.web3.eth.default_account)
+        token0_balance = token0.balance_of(order_book.web3.eth.default_account)
         console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals())} {token0.name}[green]")
 
-        for exchange in exchanges:
-            if token0.name == exchange.token0.name:
-                console.print(
-                    f"Current price on {exchange.name}: {to_human(exchange.calculate_token0_to_token1_amount_out(), decimals=token1.decimals())} {token1.name}"
-                )
-            else:
-                console.print(
-                    f"Current price on {exchange.name}: {to_human(exchange.calculate_token1_to_token0_amount_out(), decimals=token1.decimals())} {token1.name}"
-                )
+        for route in routes:
+            price = route.calculate_amount_out(token0=token0, token1=token1, amount_in=int(1 * 10 ** token1.decimals()))
+            console.print(f"Current price on {route.name}: {to_human(price, decimals=token1.decimals())} {token1.name}")
 
         # TODO(mateu.sh): bring back `min_balance_to_transact`
         # if token_in_balance < token_pair.min_balance_to_transact:
@@ -95,7 +89,7 @@ def create(
 
         approval_manager = ApprovalManager(web3=services.web3, async_web3=services.async_web3)
         # TODO(mateu.sh): parametrize amount_in
-        await approval_manager.approve_swaps(token_list=[token0], exchange_list=exchanges)
+        await approval_manager.approve_swaps(token_list=[token0], route_list=routes)
 
         new_order = OrderDto(
             type=order_types[order_type_idx],
@@ -105,7 +99,7 @@ def create(
             percent=Decimal(percent_of_tokens / Decimal(100)),
             status=OrderStatus.active,
         )
-        order_book_v2.database.create_order(order=new_order)
+        order_book.database.create_order(order=new_order)
 
         console.print(f"The new order has been created.")
 

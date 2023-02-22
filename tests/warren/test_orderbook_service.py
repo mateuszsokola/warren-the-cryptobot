@@ -6,12 +6,12 @@ from order_book.models.order_type import OrderType
 from tokens.dai import DAI
 from tokens.weth9 import WETH9
 from order_book.core.order_book_service import OrderBookService
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 from warren.utils.to_wei import to_wei
 
 
 @pytest.mark.asyncio
-async def test_stop_losses(orderbook: OrderBookService, transaction_service: TransactionService):
+async def test_stop_losses(orderbook: OrderBookService, transaction_service: TransactionManager):
     uniswap_v3_router_address = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
 
     dai = DAI(web3=orderbook.web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")
@@ -71,7 +71,7 @@ async def test_stop_losses(orderbook: OrderBookService, transaction_service: Tra
 
 
 @pytest.mark.asyncio
-async def test_take_profit(orderbook: OrderBookService, transaction_service: TransactionService):
+async def test_take_profit(orderbook: OrderBookService, transaction_service: TransactionManager):
     uniswap_v3_router_address = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
 
     dai = DAI(web3=orderbook.web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")

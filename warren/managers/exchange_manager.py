@@ -1,38 +1,33 @@
 from typing import List, Tuple
 from tokens.base_token import BaseToken
-from warren.core.base_token_pair import BaseTokenPair
+from warren.routes.base_route import BaseRoute
 
 
 class ExchangeManager:
-    _exchange_list: List[BaseTokenPair] = []
+    _exchange_list: List[BaseRoute] = []
     token0: BaseToken
     token1: BaseToken
     # TODO(mateu.sh): implement caching per block
     _block_number: int = 0
-    _prices: List[Tuple[BaseTokenPair, int, int]] = []
-    highest_price: Tuple[BaseTokenPair, int, int] = None
-    lowest_price: Tuple[BaseTokenPair, int, int] = None
+    _prices: List[Tuple[BaseRoute, int, int]] = []
+    highest_price: Tuple[BaseRoute, int, int] = None
+    lowest_price: Tuple[BaseRoute, int, int] = None
 
-    def __init__(self, exchange_list: List[BaseTokenPair], token0: BaseToken, token1: BaseToken):
+    def __init__(self, exchange_list: List[BaseRoute], token0: BaseToken, token1: BaseToken):
         self._exchange_list = exchange_list
         self.token0 = token0
         self.token1 = token1
 
         self._prices = self._fetch_prices()
 
-    def retrieve_prices(self) -> List[Tuple[BaseTokenPair, int, int]]:
+    def retrieve_prices(self) -> List[Tuple[BaseRoute, int, int]]:
         return self._prices
 
     def _fetch_prices(self):
-        result: List[Tuple(BaseTokenPair, int)] = []
+        result: List[Tuple(BaseRoute, int)] = []
 
         for exchange in self._exchange_list:
-            price = None
-
-            if self.token0.name == exchange.token0.name:
-                price = exchange.calculate_token0_to_token1_amount_out()
-            else:
-                price = exchange.calculate_token1_to_token0_amount_out()
+            price = exchange.calculate_amount_out(token0=self.token0, token1=self.token1)
 
             pricepoint = (exchange, int(1 * 10 ** self.token0.decimals()), price)
 
