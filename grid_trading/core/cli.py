@@ -11,9 +11,9 @@ from warren.core.create_database import create_database
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
 from warren.managers.approval_manager import ApprovalManager
-from warren.managers.exchange_manager import ExchangeManager
+from warren.managers.price_manager import PriceManager
 from warren.utils.choose_token_prompt import choose_token_prompt
-from grid_trading.utils.create_token_prices_by_exchange_table import create_token_prices_by_exchange_table
+from grid_trading.utils.token_prices_by_exchange_table import token_prices_by_route_table
 from warren.utils.to_human import to_human
 
 grid_trading_app = typer.Typer()
@@ -57,8 +57,8 @@ def create(
             token0=token0,
             token1=token1,
         )
-        exchange_manager = ExchangeManager(exchange_list=exchange_list, token0=token0, token1=token1)
-        table = create_token_prices_by_exchange_table(exchange_manager)
+        exchange_manager = PriceManager(route_list=exchange_list, token0=token0, token1=token1)
+        table = token_prices_by_route_table(exchange_manager)
         console.print(table)
 
         grid_every_percent = Decimal(Prompt.ask("Grid every `n` percent"))

@@ -3,8 +3,8 @@ from tokens.base_token import BaseToken
 from warren.routes.base_route import BaseRoute
 
 
-class ExchangeManager:
-    _exchange_list: List[BaseRoute] = []
+class PriceManager:
+    route_list: List[BaseRoute] = []
     token0: BaseToken
     token1: BaseToken
     # TODO(mateu.sh): implement caching per block
@@ -13,8 +13,8 @@ class ExchangeManager:
     highest_price: Tuple[BaseRoute, int, int] = None
     lowest_price: Tuple[BaseRoute, int, int] = None
 
-    def __init__(self, exchange_list: List[BaseRoute], token0: BaseToken, token1: BaseToken):
-        self._exchange_list = exchange_list
+    def __init__(self, route_list: List[BaseRoute], token0: BaseToken, token1: BaseToken):
+        self.route_list = route_list
         self.token0 = token0
         self.token1 = token1
 
@@ -26,10 +26,12 @@ class ExchangeManager:
     def _fetch_prices(self):
         result: List[Tuple(BaseRoute, int)] = []
 
-        for exchange in self._exchange_list:
-            price = exchange.calculate_amount_out(token0=self.token0, token1=self.token1)
+        amount_in = int(1 * 10 ** self.token0.decimals())
 
-            pricepoint = (exchange, int(1 * 10 ** self.token0.decimals()), price)
+        for exchange in self.route_list:
+            price = exchange.calculate_amount_out(token0=self.token0, token1=self.token1, amount_in=amount_in)
+
+            pricepoint = (exchange, amount_in, price)
 
             if self.highest_price is None or self.highest_price[2] < pricepoint[2]:
                 self.highest_price = pricepoint

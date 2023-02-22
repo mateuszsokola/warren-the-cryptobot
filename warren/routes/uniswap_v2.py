@@ -54,8 +54,8 @@ class UniswapV2Route(BaseRoute):
         tx_fees = await self.transaction_manager.calculate_tx_fees(gas_limit=gas_limit)
 
         params = ExactTokensForTokensParams(
-            token_in=token0,
-            token_out=token1,
+            token_in=token0.address,
+            token_out=token1.address,
             amount_in=amount_in,
             amount_out_minimum=min_amount_out,
             deadline=9999999999999999,
