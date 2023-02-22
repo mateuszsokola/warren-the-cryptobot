@@ -70,8 +70,8 @@ def create(
         console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals())} {token0.name}[green]")
 
         for route in routes:
-            price = route.calculate_amount_out(token0=token0, token1=token1, amount_in=int(1 * 10 ** token1.decimals()))
-            console.print(f"Current price on {route.name}: {to_human(price, decimals=token1.decimals())} {token1.name}")
+            price = route.calculate_amount_out(token0=token0, token1=token1, amount_in=int(1 * 10 ** token0.decimals()))
+            console.print(f"{route.name}: {to_human(price, decimals=token1.decimals())} {token1.name}")
 
         # TODO(mateu.sh): bring back `min_balance_to_transact`
         # if token_in_balance < token_pair.min_balance_to_transact:

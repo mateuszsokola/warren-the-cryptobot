@@ -20,7 +20,7 @@ class StableSwap3pool:
         self,
         params: GetDyParams,
     ) -> int:
-        amount_out = self.contract.functions.get_dy([params.token0_index, params.token1_index, params.amount_in]).call()
+        amount_out = self.contract.functions.get_dy(params.token0_index, params.token1_index, params.amount_in).call()
 
         return amount_out
 

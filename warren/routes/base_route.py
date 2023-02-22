@@ -17,10 +17,13 @@ class BaseRoute:
         self,
         token0: BaseToken,
         token1: BaseToken,
-    ):
+    ) -> List[str]:
         token_names = list(map(lambda token: token.name, self.tokens))
+
         assert token0.name in token_names
         assert token1.name in token_names
+
+        return token_names
 
     def calculate_amount_out(self, token0: BaseToken, token1: BaseToken, amount_in: int) -> int:
         pass

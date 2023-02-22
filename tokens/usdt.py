@@ -10,3 +10,7 @@ class USDT(BaseToken):
             name="USDT",
             abi_name="IUSDT.json",
         )
+
+    @staticmethod
+    def decimals() -> int:
+        return 6

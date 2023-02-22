@@ -28,11 +28,11 @@ class StableSwap3poolRoute(BaseRoute):
         self.pool = pool
 
     def calculate_amount_out(self, token0: BaseToken, token1: BaseToken, amount_in: int) -> int:
-        super().assert_tokens(token0, token1)
+        token_names = super().assert_tokens(token0, token1)
 
         params = GetDyParams(
-            token0_index=self.tokens.index(token0),
-            token1_index=self.tokens.index(token1),
+            token0_index=token_names.index(token0.name),
+            token1_index=token_names.index(token1.name),
             amount_in=amount_in,
         )
         amount_out = self.pool.get_dy(params=params)
@@ -49,13 +49,13 @@ class StableSwap3poolRoute(BaseRoute):
         success_cb: Callable = None,
         failure_cb: Callable = None,
     ):
-        super().assert_tokens(token0, token1)
+        token_names = super().assert_tokens(token0, token1)
 
         tx_fees = await self.transaction_manager.calculate_tx_fees(gas_limit=gas_limit)
 
         params = ExchangeParams(
-            token0_index=self.tokens.index(token0),
-            token1_index=self.tokens.index(token1),
+            token0_index=token_names.index(token0.name),
+            token1_index=token_names.index(token1.name),
             amount_in=amount_in,
             min_amount_out=min_amount_out,
         )
