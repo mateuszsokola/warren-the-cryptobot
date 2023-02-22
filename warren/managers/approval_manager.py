@@ -52,8 +52,7 @@ class ApprovalManager:
                             )
                         )
                     )
-
-                if isinstance(route, UniswapV2Route):
+                elif isinstance(route, UniswapV2Route):
                     txs.append(
                         asyncio.create_task(
                             self.transaction_manager.send_transaction(
@@ -86,6 +85,6 @@ class ApprovalManager:
                         )
                     )
                 else:
-                    logger.warn(f"TOKEN APPROVAL | Unsupported TokenPair for Route `{route.name}")
+                    logger.warn(f"TOKEN APPROVAL | Unsupported Route: {route.name}")
 
         return await asyncio.gather(*txs)

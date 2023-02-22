@@ -20,7 +20,11 @@ class StableSwap3pool:
         self,
         params: GetDyParams,
     ) -> int:
-        amount_out = self.contract.functions.get_dy(params.token0_index, params.token1_index, params.amount_in).call()
+        amount_out = self.contract.functions.get_dy(
+            params.token0_index,
+            params.token1_index,
+            params.amount_in,
+        ).call()
 
         return amount_out
 
@@ -37,7 +41,10 @@ class StableSwap3pool:
         max_fee_per_gas: int,
     ):
         tx = self.contract.functions.exchange(
-            [params.token0_index, params.token1_index, params.amount_in, params.min_amount_out]
+            params.token0_index,
+            params.token1_index,
+            params.amount_in,
+            params.min_amount_out,
         ).build_transaction(
             {
                 "type": 2,

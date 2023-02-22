@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.prompt import Prompt, Confirm
 from tokens.dai import DAI
 from tokens.usdc import USDC
+from tokens.usdt import USDT
 from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
 from grid_trading.core.cli import grid_trading_app
@@ -221,5 +222,7 @@ def balances(
     console.print(f"  DAI: {to_human(dai.balance_of(services.web3.eth.default_account), decimals=DAI.decimals())}")
     usdc = USDC(web3=services.web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
     console.print(f" USDC: {to_human(usdc.balance_of(services.web3.eth.default_account), decimals=USDC.decimals())}")
+    usdt = USDT(web3=services.web3, address="0xdAC17F958D2ee523a2206206994597C13D831ec7")
+    console.print(f" USDT: {to_human(usdt.balance_of(services.web3.eth.default_account), decimals=USDT.decimals())}")
     wbtc = WBTC(web3=services.web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")
     console.print(f" WBTC: {to_human(wbtc.balance_of(services.web3.eth.default_account), decimals=WBTC.decimals())}")

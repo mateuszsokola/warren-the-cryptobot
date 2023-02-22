@@ -88,8 +88,7 @@ def create(
             sys.exit(0)
 
         approval_manager = ApprovalManager(web3=services.web3, async_web3=services.async_web3)
-        # TODO(mateu.sh): parametrize amount_in
-        await approval_manager.approve_swaps(token_list=[token0], route_list=routes)
+        await approval_manager.approve_swaps(token_list=[token0], route_list=routes, amount_in=token0_balance)
 
         new_order = OrderDto(
             type=order_types[order_type_idx],

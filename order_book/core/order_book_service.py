@@ -58,7 +58,7 @@ class OrderBookService:
             routes = self.router.get_routes_by_token0_and_token1(order.token0, order.token1)
             for route in routes:
                 route_price = route.calculate_amount_out(
-                    order.token0, order.token1, amount_in=int(1 * 10 ** order.token1.decimals())
+                    order.token0, order.token1, amount_in=int(1 * 10 ** order.token0.decimals())
                 )
 
                 if highest_price < route_price:
