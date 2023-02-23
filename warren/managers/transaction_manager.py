@@ -1,12 +1,12 @@
 import ast
 from typing import Callable
 from web3 import Web3
-from web3.types import TxParams, TxReceipt
+from web3.types import TxParams
 from warren.models.tx_fees import TxFees
 from warren.utils.logger import logger
 
 
-class TransactionService:
+class TransactionManager:
     def __init__(self, async_web3: Web3, web3: Web3):
         self.async_web3 = async_web3
         self.web3 = web3

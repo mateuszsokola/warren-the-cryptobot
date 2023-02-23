@@ -11,9 +11,9 @@ from warren.core.create_database import create_database
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
 from warren.managers.approval_manager import ApprovalManager
-from warren.managers.exchange_manager import ExchangeManager
+from warren.managers.price_manager import PriceManager
 from warren.utils.choose_token_prompt import choose_token_prompt
-from grid_trading.utils.create_token_prices_by_exchange_table import create_token_prices_by_exchange_table
+from grid_trading.utils.token_prices_by_exchange_table import token_prices_by_route_table
 from warren.utils.to_human import to_human
 
 grid_trading_app = typer.Typer()
@@ -53,12 +53,12 @@ def create(
         console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals())} {token0.name}[green]")
         console.print(f"Balance: [green]{to_human(token1_balance, decimals=token1.decimals())} {token1.name}[green]")
 
-        exchange_list = services.grid_trading.router.get_token_pair_by_token0_and_token1(
+        exchange_list = services.grid_trading.router.get_routes_by_token0_and_token1(
             token0=token0,
             token1=token1,
         )
-        exchange_manager = ExchangeManager(exchange_list=exchange_list, token0=token0, token1=token1)
-        table = create_token_prices_by_exchange_table(exchange_manager)
+        exchange_manager = PriceManager(route_list=exchange_list, token0=token0, token1=token1)
+        table = token_prices_by_route_table(exchange_manager)
         console.print(table)
 
         grid_every_percent = Decimal(Prompt.ask("Grid every `n` percent"))
@@ -73,7 +73,7 @@ def create(
 
         approval_manager = ApprovalManager(web3=services.web3, async_web3=services.async_web3)
         # TODO(mateu.sh): parametrize amount_in
-        await approval_manager.approve_swaps(token_list=[token0, token1], exchange_list=exchange_list)
+        await approval_manager.approve_swaps(token_list=[token0, token1], route_list=exchange_list)
 
         new_order = StrategyDto(
             token0=token0,

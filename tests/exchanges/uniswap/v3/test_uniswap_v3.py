@@ -7,11 +7,11 @@ from exchanges.uniswap.v3.models.quote_exact_input_single_params import QuoteExa
 from exchanges.uniswap.v3.pool import UniswapV3Pool
 from exchanges.uniswap.v3.quoter_v2 import UniswapV3QuoterV2
 from exchanges.uniswap.v3.router import UniswapV3Router
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 
 
 @pytest.mark.asyncio
-async def test_uniswap_v3(web3: Web3, transaction_service: TransactionService):
+async def test_uniswap_v3(web3: Web3, transaction_service: TransactionManager):
     uniswap_v3_router_address = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
 
     uniswap_v3_pool = UniswapV3Pool(web3=web3, address="0xC2e9F25Be6257c210d7Adf0D4Cd6E3E881ba25f8")

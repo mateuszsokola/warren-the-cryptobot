@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.prompt import Prompt, Confirm
 from tokens.dai import DAI
 from tokens.usdc import USDC
+from tokens.usdt import USDT
 from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
 from grid_trading.core.cli import grid_trading_app
@@ -13,7 +14,7 @@ from order_book.core.cli import order_book_app
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
 from warren.models.option import OptionDto
-from warren.services.transaction_service import TransactionService
+from warren.managers.transaction_manager import TransactionManager
 from warren.utils.format_exception import format_exception
 from warren.utils.logger import logger
 from warren.utils.runner import Runner
@@ -176,7 +177,7 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
         amount_in = int(Prompt.ask("Enter amount to wrap (ETH)"))
         wei_amount_in = to_wei(amount_in, decimals=WETH9.decimals())
 
-        transaction_service = TransactionService(web3=services.web3, async_web3=services.async_web3)
+        transaction_service = TransactionManager(web3=services.web3, async_web3=services.async_web3)
         fees = await transaction_service.calculate_tx_fees(gas_limit=120000)
 
         await transaction_service.send_transaction(
@@ -221,5 +222,7 @@ def balances(
     console.print(f"  DAI: {to_human(dai.balance_of(services.web3.eth.default_account), decimals=DAI.decimals())}")
     usdc = USDC(web3=services.web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
     console.print(f" USDC: {to_human(usdc.balance_of(services.web3.eth.default_account), decimals=USDC.decimals())}")
+    usdt = USDT(web3=services.web3, address="0xdAC17F958D2ee523a2206206994597C13D831ec7")
+    console.print(f" USDT: {to_human(usdt.balance_of(services.web3.eth.default_account), decimals=USDT.decimals())}")
     wbtc = WBTC(web3=services.web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")
     console.print(f" WBTC: {to_human(wbtc.balance_of(services.web3.eth.default_account), decimals=WBTC.decimals())}")
