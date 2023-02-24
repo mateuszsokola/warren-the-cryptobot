@@ -2,6 +2,7 @@ from fractions import Fraction
 from typing import List
 from web3 import Web3
 
+from exchanges.mooniswap.mooniswap import MooniSwap
 from exchanges.stableswap.tripool import StableSwap3pool
 from exchanges.uniswap.v2.models.get_pair_params import GetPairParams
 from exchanges.uniswap.v2.factory import UniswapV2Factory
@@ -12,6 +13,7 @@ from exchanges.uniswap.v3.router import UniswapV3Router
 from tokens.base_token import BaseToken
 from warren.core.token import Token
 from warren.routes.base_route import BaseRoute
+from warren.routes.mooniswap_route import MooniswapRoute
 from warren.routes.stableswap_3pool_route import StableSwap3poolRoute
 from warren.routes.uniswap_v2 import UniswapV2Route
 from warren.routes.uniswap_v3 import UniswapV3Route
@@ -77,11 +79,27 @@ class Router:
 
         result: List[BaseRoute] = []
         for exchange_meta in file_content[network.value.lower()]:
+            if exchange_meta["type"] == "mooniswap":
+                tokens: List[BaseToken] = []
+
+                for token in exchange_meta["tokens"]:
+                    tokens.append(self.token.get_token_by_name(token))
+
+                instance = MooniswapRoute(
+                    web3=self.web3,
+                    async_web3=self.async_web3,
+                    name=exchange_meta["name"],
+                    tokens=tokens,
+                    pool=MooniSwap(web3=self.web3, address=exchange_meta["addresses"]["pool"]),
+                )
+
+                result.append(instance)
+
             if exchange_meta["type"] == "stableswap_3pool":
                 tokens: List[BaseToken] = []
 
                 for token in exchange_meta["tokens"]:
-                    tokens.append(self.token.get_token_by_name(token.upper()))
+                    tokens.append(self.token.get_token_by_name(token))
 
                 instance = StableSwap3poolRoute(
                     web3=self.web3,
@@ -95,8 +113,8 @@ class Router:
 
             elif exchange_meta["type"] == "uniswap_v2":
                 for pair in exchange_meta["pairs"]:
-                    token0 = self.token.get_token_by_name(pair["token0"].upper())
-                    token1 = self.token.get_token_by_name(pair["token1"].upper())
+                    token0 = self.token.get_token_by_name(pair["token0"])
+                    token1 = self.token.get_token_by_name(pair["token1"])
 
                     factory = UniswapV2Factory(web3=self.web3, address=exchange_meta["addresses"]["factory"])
                     params = GetPairParams(token0=token0.address, token1=token1.address)
@@ -116,8 +134,8 @@ class Router:
 
             elif exchange_meta["type"] == "uniswap_v3":
                 for pair in exchange_meta["pairs"]:
-                    token0 = self.token.get_token_by_name(pair["token0"].upper())
-                    token1 = self.token.get_token_by_name(pair["token1"].upper())
+                    token0 = self.token.get_token_by_name(pair["token0"])
+                    token1 = self.token.get_token_by_name(pair["token1"])
                     instance = UniswapV3Route(
                         web3=self.web3,
                         async_web3=self.async_web3,

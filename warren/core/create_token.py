@@ -6,6 +6,7 @@ from tokens.usdc import USDC
 from tokens.usdt import USDT
 from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
+from tokens.st_eth import stETH
 
 
 def create_token(web3: Web3, name: str, address: str) -> BaseToken:
@@ -23,6 +24,9 @@ def create_token(web3: Web3, name: str, address: str) -> BaseToken:
 
     elif name == "USDT":
         return USDT(web3=web3, address=address)
+
+    elif name == "stETH":
+        return stETH(web3=web3, address=address)
 
     else:
         return None

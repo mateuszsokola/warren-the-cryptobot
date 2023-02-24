@@ -31,7 +31,7 @@ class OrderBookService:
 
         self.latest_checked_block = 0
 
-    async def find_opportunities(self, gas_limit: int = 200000):
+    async def find_opportunities(self, gas_limit: int = 500000):
         order_list: List[OrderDao] = self.database.list_orders(
             func=functools.partial(create_order_dao, self.token), status=OrderStatus.active
         )

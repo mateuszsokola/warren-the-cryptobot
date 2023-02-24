@@ -1,4 +1,4 @@
-ethereum: 
+ethereum:
   - name: Uniswap v3
     type: uniswap_v3
     addresses:
@@ -11,35 +11,37 @@ ethereum:
       - token0: WETH9
         token1: WBTC
       - token0: WETH9
-        token1: USDC      
+        token1: USDC
   - name: Uniswap v2
     type: uniswap_v2
     addresses:
       factory: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
       router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
     meta:
-      fee: 
+      fee:
         numerator: 3
-        denumerator: 100     
+        denumerator: 100
     pairs:
       - token0: WETH9
         token1: DAI
       - token0: WETH9
         token1: WBTC
       - token0: WETH9
-        token1: USDC            
+        token1: USDC
+      - token0: WETH9
+        token1: stETH
   - name: PancakeSwap
     type: uniswap_v2
     addresses:
       factory: "0x1097053Fd2ea711dad45caCcc45EfF7548fCB362"
       router: "0xEfF92A263d31888d860bD50809A8D171709b7b1c"
     meta:
-      fee: 
+      fee:
         numerator: 25
         denumerator: 1000
     pairs:
       - token0: WETH9
-        token1: USDC       
+        token1: USDC
   - name: SushiSwap
     type: uniswap_v2
     addresses:
@@ -48,19 +50,26 @@ ethereum:
     meta:
       fee:
         numerator: 3
-        denumerator: 100 
+        denumerator: 100
     pairs:
       - token0: WETH9
         token1: DAI
       - token0: WETH9
         token1: WBTC
       - token0: WETH9
-        token1: USDC               
+        token1: USDC
   - name: "Curve.fi: DAI/USDC/USDT Pool"
     type: stableswap_3pool
-    addresses: 
+    addresses:
       pool: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
-    tokens: 
+    tokens:
       - DAI
       - USDC
       - USDT
+  - name: "Lido: 1inch stETH-DAI Pool"
+    type: mooniswap
+    addresses:
+      pool: "0xC1A900Ae76dB21dC5aa8E418Ac0F4E888A4C7431"
+    tokens:
+      - stETH
+      - DAI
