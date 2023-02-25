@@ -22,6 +22,6 @@ def get_token_class_by_name(name: str) -> BaseToken:
     elif name == "stETH":
         return stETH
     elif name == "LDO":
-        return LDO        
+        return LDO
     else:
         return None

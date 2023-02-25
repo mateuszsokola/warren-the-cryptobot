@@ -30,7 +30,7 @@ def create_token(web3: Web3, name: str, address: str) -> BaseToken:
         return stETH(web3=web3, address=address)
 
     elif name == "LDO":
-        return LDO(web3=web3, address=address)        
+        return LDO(web3=web3, address=address)
 
     else:
         return None
