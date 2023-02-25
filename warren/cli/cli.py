@@ -200,7 +200,6 @@ def wrap_ether(config_dir: str = typer.Option(SetupWizard.default_config_path(),
     asyncio.run(main())
 
 
-# TODO(mateu.sh): use loop
 # TODO(mateu.sh): use table to print results - it will look better
 @main_app.command()
 def balances(
@@ -218,17 +217,6 @@ def balances(
     console.print("")
     console.print("Token balances:\n")
     console.print(f"  ETH: {to_human(services.web3.eth.get_balance(services.web3.eth.default_account), decimals=WETH9.decimals())}")
-    weth9 = WETH9(web3=services.web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
-    console.print(f"WETH9: {to_human(weth9.balance_of(services.web3.eth.default_account), decimals=WETH9.decimals())}")
-    st_eth = stETH(web3=services.web3, address="0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84")
-    console.print(f"stETH: {to_human(st_eth.balance_of(services.web3.eth.default_account), decimals=WETH9.decimals())}")
-    dai = DAI(web3=services.web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")
-    console.print(f"  DAI: {to_human(dai.balance_of(services.web3.eth.default_account), decimals=DAI.decimals())}")
-    usdc = USDC(web3=services.web3, address="0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")
-    console.print(f" USDC: {to_human(usdc.balance_of(services.web3.eth.default_account), decimals=USDC.decimals())}")
-    usdt = USDT(web3=services.web3, address="0xdAC17F958D2ee523a2206206994597C13D831ec7")
-    console.print(f" USDT: {to_human(usdt.balance_of(services.web3.eth.default_account), decimals=USDT.decimals())}")
-    wbtc = WBTC(web3=services.web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")
-    console.print(f" WBTC: {to_human(wbtc.balance_of(services.web3.eth.default_account), decimals=WBTC.decimals())}")
-    ldo = LDO(web3=services.web3, address="0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32")
-    console.print(f" LDO: {to_human(wbtc.balance_of(services.web3.eth.default_account), decimals=LDO.decimals())}")
+
+    for token in services.order_book.token.get_all_tokens():
+        console.print(f"{token.name}: {to_human(token.balance_of(services.web3.eth.default_account), decimals=token.decimals())}")
