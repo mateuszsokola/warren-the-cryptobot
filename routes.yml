@@ -73,3 +73,10 @@ ethereum:
     tokens:
       - stETH
       - DAI
+  - name: "Lido: 1inch LDO-stETH Pool"
+    type: mooniswap
+    addresses:
+      pool: "0x1f629794B34FFb3B29FF206Be5478A52678b47ae"
+    tokens:
+      - LDO
+      - stETH

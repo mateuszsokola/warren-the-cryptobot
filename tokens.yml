@@ -12,3 +12,5 @@ networks:
       address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
     - name: stETH
       address: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
+    - name: LDO
+      address: "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32"

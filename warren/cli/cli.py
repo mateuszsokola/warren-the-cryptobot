@@ -5,6 +5,7 @@ import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 from tokens.dai import DAI
+from tokens.ldo import LDO
 from tokens.usdc import USDC
 from tokens.usdt import USDT
 from tokens.wbtc import WBTC
@@ -229,3 +230,5 @@ def balances(
     console.print(f" USDT: {to_human(usdt.balance_of(services.web3.eth.default_account), decimals=USDT.decimals())}")
     wbtc = WBTC(web3=services.web3, address="0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599")
     console.print(f" WBTC: {to_human(wbtc.balance_of(services.web3.eth.default_account), decimals=WBTC.decimals())}")
+    ldo = LDO(web3=services.web3, address="0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32")
+    console.print(f" LDO: {to_human(wbtc.balance_of(services.web3.eth.default_account), decimals=LDO.decimals())}")
