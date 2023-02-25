@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 from web3 import Web3
 
 from tokens.base_token import BaseToken
@@ -15,6 +15,9 @@ class Token:
         self.web3 = web3
 
         self._token_map = self._load_tokens(filename=filename)
+
+    def get_all_tokens(self) -> List[BaseToken]:
+        return self._token_map.values()
 
     def get_token_by_name(self, name: str) -> BaseToken:
         if self._token_map[name] is None:
