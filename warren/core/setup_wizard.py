@@ -52,7 +52,7 @@ class SetupWizard:
         database = Database(database_file=database_file)
 
         for option in option_list:
-            database.create_option(option=option)
+            database.insert_or_replace_option(option=option)
 
     @staticmethod
     def create_config_dir_if_needed(config_path: str):

@@ -9,7 +9,8 @@ from order_book.models.order_dto import OrderDto
 from order_book.models.order_dao import BaseOrderDao
 from order_book.models.order_status import OrderStatus
 from order_book.utils.create_order_dao import create_base_order_dao
-from warren.models.option import OptionDto
+from warren.models.option import OptionDao, OptionDto
+from warren.models.option_name import OptionName
 
 
 class Database:
@@ -26,8 +27,7 @@ class Database:
         self.cur.execute(
             """
                 CREATE TABLE IF NOT EXISTS warren_options (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    option_name VARCHAR NOT NULL,
+                    option_name VARCHAR PRIMARY KEY,
                     option_value VARCHAR NOT NULL
                 )
             """
@@ -62,11 +62,11 @@ class Database:
             """
         )
 
-    def create_option(self, option: OptionDto):
+    def insert_or_replace_option(self, option: OptionDto):
         self.cur.execute(
-            "INSERT INTO warren_options (option_name, option_value) VALUES(?, ?);",
+            "INSERT OR REPLACE INTO warren_options (option_name, option_value) VALUES(?, ?);",
             (
-                option.option_name,
+                option.option_name.value,
                 option.option_value,
             ),
         )
@@ -98,11 +98,11 @@ class Database:
         )
         self.con.commit()
 
-    def list_options(self) -> List[OptionDto]:
-        select_query = "SELECT id, option_name, option_value FROM warren_options"
+    def list_options(self) -> List[OptionDao]:
+        select_query = "SELECT option_name, option_value FROM warren_options"
         res = self.cur.execute(f"{select_query}").fetchall()
 
-        return [OptionDto(id=id, option_name=option_name, option_value=option_value) for (id, option_name, option_value) in res]
+        return [OptionDao(option_name=OptionName[option_name], option_value=option_value) for (option_name, option_value) in res]
 
     def list_orders(self, func: Callable = create_base_order_dao, status: OrderStatus | None = None) -> List[BaseOrderDao]:
         select_query = """
