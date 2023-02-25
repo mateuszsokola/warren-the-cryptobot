@@ -1,0 +1,4 @@
+- [ ] - support ETH on all exchanges
+- [ ] - extend create strategy that checks LDO price and swaps to ETH
+- [ ] - create strategy that checks stETH price to ETH
+- [ ] - create strategy that checks wstETH price to ETH (or stETH) - HARD ONE

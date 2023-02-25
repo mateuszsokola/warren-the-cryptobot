@@ -6,6 +6,7 @@ from typing import List
 from tokens.base_token import BaseToken
 from warren.managers.transaction_manager import TransactionManager
 from warren.routes.base_route import BaseRoute
+from warren.routes.mooniswap_route import MooniswapRoute
 from warren.routes.stableswap_3pool_route import StableSwap3poolRoute
 from warren.routes.uniswap_v2 import UniswapV2Route
 from warren.routes.uniswap_v3 import UniswapV3Route
@@ -36,7 +37,23 @@ class ApprovalManager:
 
         for token in token_list:
             for route in route_list:
-                if isinstance(route, StableSwap3poolRoute):
+                if isinstance(route, MooniswapRoute):
+                    txs.append(
+                        asyncio.create_task(
+                            self.transaction_manager.send_transaction(
+                                token.approve(
+                                    route.pool.address,
+                                    max_amount_in=amount_in,
+                                    gas_limit=fees.gas_limit,
+                                    max_priority_fee_per_gas=fees.max_priority_fee_per_gas,
+                                    max_fee_per_gas=fees.max_fee_per_gas,
+                                ),
+                                success_cb=functools.partial(success_callback, route.name, token.name),
+                                failure_cb=functools.partial(failure_callback, route.name, token.name),
+                            )
+                        )
+                    )
+                elif isinstance(route, StableSwap3poolRoute):
                     txs.append(
                         asyncio.create_task(
                             self.transaction_manager.send_transaction(
