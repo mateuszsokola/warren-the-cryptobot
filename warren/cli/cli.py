@@ -1,22 +1,20 @@
 import asyncio
+import functools
 import os
 import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
-from tokens.dai import DAI
-from tokens.ldo import LDO
-from tokens.usdc import USDC
-from tokens.usdt import USDT
-from tokens.wbtc import WBTC
 from tokens.weth9 import WETH9
-from tokens.st_eth import stETH
 from grid_trading.core.cli import grid_trading_app
 from order_book.core.cli import order_book_app
+from warren.core.create_database import create_database
 from warren.core.create_service import create_service
 from warren.core.setup_wizard import SetupWizard
+from warren.managers.config_manager import ConfigManager
 from warren.models.option import OptionDto
 from warren.managers.transaction_manager import TransactionManager
+from warren.models.option_name import OptionName
 from warren.utils.format_exception import format_exception
 from warren.utils.logger import logger
 from warren.utils.runner import Runner
@@ -101,7 +99,10 @@ def setup():
             passphrase = None
 
     # Create database and save configs
-    option_list = [OptionDto(option_name="eth_api_url", option_value=eth_api_url)]
+    option_list = [
+        OptionDto(option_name=OptionName.eth_api_url, option_value=eth_api_url),
+        OptionDto(option_name=OptionName.gas_limit, option_value="500000"),
+    ]
     SetupWizard.create_database_in_config_dir(option_list=option_list, config_path=config_path)
 
     # Generate wallet and save configs
@@ -129,17 +130,18 @@ def start(
         passphrase = Prompt.ask("Enter passphrase")
 
         services = create_service(config_path=config_dir, passphrase=passphrase)
+        gas_limit = int(services.config.options[OptionName.gas_limit])
         runner = Runner.getInstance()
 
         try:
             await asyncio.gather(
                 runner.with_loop(
-                    services.order_book.find_opportunities,
+                    functools.partial(services.order_book.find_opportunities, gas_limit),
                     interval=seek_interval,
                     stop_on_exception=False,
                 ),
                 runner.with_loop(
-                    services.grid_trading.find_opportunities,
+                    functools.partial(services.grid_trading.find_opportunities, gas_limit),
                     interval=seek_interval,
                     stop_on_exception=False,
                 ),
@@ -220,3 +222,24 @@ def balances(
 
     for token in services.order_book.token.get_all_tokens():
         console.print(f"{token.name}: {to_human(token.balance_of(services.web3.eth.default_account), decimals=token.decimals())}")
+
+
+@main_app.command()
+def config(
+    name: str = typer.Option(..., help="Option name"),
+    value: str = typer.Option(..., help="Option value"),
+    config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
+):
+    console: Console = Console()
+
+    incorrect_config_dir = SetupWizard.verify_config_path(config_path=config_dir) == False
+    if incorrect_config_dir:
+        console.print("It seems like the config path does not exist. Did you run the setup script?")
+        sys.exit(1)
+
+    database = create_database(config_dir)
+    config = ConfigManager(database)
+
+    option = OptionDto(option_name=OptionName[name], option_value=value)
+    config.set_option(option)
+    console.print(f"The [green]{name}[/green] has been changed to [red]{value}[/red]")

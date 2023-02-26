@@ -11,6 +11,8 @@ from web3.net import AsyncNet
 from grid_trading.core.grid_trading_service import GridTradingService
 from warren.core.database import Database
 from warren.core.setup_wizard import SetupWizard
+from warren.managers.config_manager import ConfigManager
+from warren.models.option_name import OptionName
 from warren.models.service import Service
 from order_book.core.order_book_service import OrderBookService
 from warren.utils.retryable_eth_module import retryable_eth_module
@@ -20,11 +22,11 @@ def create_service(config_path: str, passphrase: str = "") -> Service:
     database_file = SetupWizard.database_file_path(config_path)
     database = Database(database_file=database_file)
 
-    # TODO(mateu.sh): load all options
-    eth1_api_url = database.list_options()[0].option_value
+    config = ConfigManager(database=database)
+    eth_api_url = config.options.get(OptionName.eth_api_url)
 
     async_web3 = Web3(
-        AsyncHTTPProvider(eth1_api_url),
+        AsyncHTTPProvider(eth_api_url),
         modules={
             "eth": (retryable_eth_module(AsyncEth),),
             "net": (AsyncNet,),
@@ -33,7 +35,7 @@ def create_service(config_path: str, passphrase: str = "") -> Service:
     )
     web3_modules = get_default_modules()
     web3_modules["eth"] = retryable_eth_module(Eth)
-    web3 = Web3(HTTPProvider(eth1_api_url), modules=web3_modules)
+    web3 = Web3(HTTPProvider(eth_api_url), modules=web3_modules)
 
     geth_file = SetupWizard.geth_file_path(config_path)
     with open(geth_file) as keyfile:
@@ -70,6 +72,7 @@ def create_service(config_path: str, passphrase: str = "") -> Service:
     return Service(
         async_web3=async_web3,
         web3=web3,
+        config=config,
         database=database,
         grid_trading=grid_trading,
         order_book=order_book,
