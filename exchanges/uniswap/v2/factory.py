@@ -22,3 +22,9 @@ class UniswapV2Factory:
         ).call()
 
         return UniswapV2Pair(web3=self.web3, address=address, token0=params.token0, token1=params.token1, fee=fee)
+
+    def get_pairs_length(self) -> int:
+        return self.contract.functions.allPairsLength().call()
+
+    def get_pair_address_by_index(self, index: int) -> str:
+        return self.contract.functions.allPairs(index).call()

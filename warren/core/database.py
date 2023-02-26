@@ -1,6 +1,7 @@
 import sqlite3
 from decimal import Decimal
 from typing import Callable, List
+from explorer.models.pair import PairDto
 from grid_trading.models.strategy_dao import BaseStrategyDao
 from grid_trading.models.strategy_dto import StrategyDto
 from grid_trading.models.strategy_status import StrategyStatus
@@ -61,6 +62,30 @@ class Database:
                 )
             """
         )
+
+        self.cur.execute(
+            """
+                CREATE TABLE IF NOT EXISTS uniswap_v2_pairs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    type VARCHAR NOT NULL,
+                    address VARCHAR NOT NULL,
+                    token0 VARCHAR NOT NULL,
+                    token1 VARCHAR NOT NULL
+                )
+            """
+        )
+
+    def insert_or_replace_pair(self, pair: PairDto):
+        self.cur.execute(
+            "INSERT OR REPLACE INTO uniswap_v2_pairs (type, address, token0, token1) VALUES(?, ?, ?, ?);",
+            (
+                pair.type,
+                pair.address,
+                pair.token0,
+                pair.token1,
+            ),
+        )
+        self.con.commit()
 
     def insert_or_replace_option(self, option: OptionDto):
         self.cur.execute(
