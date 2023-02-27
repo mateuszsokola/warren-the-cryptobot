@@ -33,4 +33,4 @@ class UniswapV2Pair:
         numerator = amount_in_with_fee * reserve1
         denominator = reserve0 * self.fee.denominator + amount_in_with_fee
 
-        return numerator / denominator
+        return numerator // denominator
