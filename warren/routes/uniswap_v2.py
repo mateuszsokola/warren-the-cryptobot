@@ -32,9 +32,9 @@ class UniswapV2Route(BaseRoute):
         self.router = router
 
     def calculate_amount_out(self, token0: BaseToken, token1: BaseToken, amount_in: int) -> int:
-        super().assert_tokens(token0, token1)
+        token_names = super().assert_tokens(token0, token1)
 
-        if self.tokens.index(token0) == 0:
+        if token_names[0] == token0.name:
             return self.pair.calculate_token0_to_token1_amount_out(amount_in=amount_in)
         else:
             return self.pair.calculate_token1_to_token0_amount_out(amount_in=amount_in)

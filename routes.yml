@@ -20,7 +20,7 @@ ethereum:
     meta:
       fee:
         numerator: 3
-        denumerator: 100
+        denumerator: 1000
     pairs:
       - token0: WETH9
         token1: DAI
@@ -50,7 +50,7 @@ ethereum:
     meta:
       fee:
         numerator: 3
-        denumerator: 100
+        denumerator: 1000
     pairs:
       - token0: WETH9
         token1: DAI
