@@ -23,21 +23,16 @@ class CurveRegistryExchange:
             abi=load_contract_abi("ICurvefiRegistryExchange.json", "artifacts/exchanges/curvefi"),
         )
 
-    """
-    @link https://github.com/curvefi/curve-pool-registry/blob/0bdb116024ccacda39295bb3949c3e6dd0a8e2d9/contracts/Swaps.vy#L872
-    """
-
     def get_exchange_multiple_amount(
         self,
         params: GetExchangeMultipleAmountParams,
     ) -> int:
+        """
+        @link https://github.com/curvefi/curve-pool-registry/blob/0bdb116024ccacda39295bb3949c3e6dd0a8e2d9/contracts/Swaps.vy#L872
+        """
         amount_out = self.contract.functions.get_exchange_multiple_amount(params.route, params.swap_params, params.amount_in).call()
 
         return amount_out
-
-    """
-    @link https://github.com/curvefi/curve-pool-registry/blob/0bdb116024ccacda39295bb3949c3e6dd0a8e2d9/contracts/Swaps.vy#L872
-    """
 
     def exchange_multiple(
         self,
@@ -46,6 +41,9 @@ class CurveRegistryExchange:
         max_priority_fee_per_gas: int,
         max_fee_per_gas: int,
     ):
+        """
+        @link https://github.com/curvefi/curve-pool-registry/blob/0bdb116024ccacda39295bb3949c3e6dd0a8e2d9/contracts/Swaps.vy#L872
+        """
         tx = self.contract.functions.exchange_multiple(
             params.route,
             params.swap_params,
