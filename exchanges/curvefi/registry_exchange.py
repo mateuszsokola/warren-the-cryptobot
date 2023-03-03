@@ -1,10 +1,16 @@
-from typing import List
 from web3 import Web3
 from exchanges.curvefi.models.exchange_multiple import ExchangeMultiple
 from exchanges.curvefi.models.get_exchange_multiple_amount_params import GetExchangeMultipleAmountParams
-from exchanges.curvefi.models.swap import Swap
 
 from warren.utils.load_contract_abi import load_contract_abi
+
+
+DEFAULT_POOL_ADDRESSES = [
+    "0x0000000000000000000000000000000000000000",
+    "0x0000000000000000000000000000000000000000",
+    "0x0000000000000000000000000000000000000000",
+    "0x0000000000000000000000000000000000000000",
+]
 
 
 class CurveRegistryExchange:
@@ -25,10 +31,13 @@ class CurveRegistryExchange:
         self,
         params: GetExchangeMultipleAmountParams,
     ) -> int:
-        # (route, swap_params) = self._get_swap_params(params.route)
         amount_out = self.contract.functions.get_exchange_multiple_amount(params.route, params.swap_params, params.amount_in).call()
 
         return amount_out
+
+    """
+    @link https://github.com/curvefi/curve-pool-registry/blob/0bdb116024ccacda39295bb3949c3e6dd0a8e2d9/contracts/Swaps.vy#L872
+    """
 
     def exchange_multiple(
         self,
@@ -42,12 +51,7 @@ class CurveRegistryExchange:
             params.swap_params,
             params.amount_in,
             params.min_amount_out,
-            [
-                "0x0000000000000000000000000000000000000000",
-                "0x0000000000000000000000000000000000000000",
-                "0x0000000000000000000000000000000000000000",
-                "0x0000000000000000000000000000000000000000",
-            ],
+            DEFAULT_POOL_ADDRESSES,
         ).build_transaction(
             {
                 "type": 2,
@@ -59,14 +63,3 @@ class CurveRegistryExchange:
         )
 
         return tx
-
-    def _get_swap_params(self, route: List[Swap]):
-        _route: List[int] = []
-        swap_params: List[int] = []
-
-        for r in route:
-            route_len = len(_route)
-            _route.append(*[r.token, r.pool])
-            swap_params.append(*[route_len, route_len + 1, r.swap_type])
-
-        return (_route, swap_params)

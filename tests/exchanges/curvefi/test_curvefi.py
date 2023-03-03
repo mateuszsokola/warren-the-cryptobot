@@ -112,8 +112,11 @@ async def test_curvefi(web3: Web3, transaction_service: TransactionManager):
         amount_in=amount_in,
     )
 
-    min_amount_out = curvefi.get_exchange_multiple_amount(params)
-    assert min_amount_out == 993918543675242099
+    amount_out = curvefi.get_exchange_multiple_amount(params)
+    assert amount_out == 993918543675242099
+
+    slippage = 1 - 0.005
+    min_amount_out = int(amount_out * slippage)
 
     params = ExchangeMultiple(
         route=[
@@ -134,7 +137,7 @@ async def test_curvefi(web3: Web3, transaction_service: TransactionManager):
             [0, 0, 0],
         ],
         amount_in=amount_in,
-        min_amount_out=0,
+        min_amount_out=min_amount_out,
     )
 
     await transaction_service.send_transaction(
@@ -147,5 +150,4 @@ async def test_curvefi(web3: Web3, transaction_service: TransactionManager):
     )
 
     assert dai.balance_of(web3.eth.default_account) == int(0)
-    # assert web3.eth.get_balance(web3.eth.default_account) == int(1)
-    assert weth9.balance_of(web3.eth.default_account) == min_amount_out
+    assert weth9.balance_of(web3.eth.default_account) > min_amount_out
