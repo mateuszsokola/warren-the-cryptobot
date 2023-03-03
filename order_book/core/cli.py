@@ -14,6 +14,7 @@ from warren.core.setup_wizard import SetupWizard
 from warren.managers.approval_manager import ApprovalManager
 from order_book.utils.print_order_table import print_order_table
 from warren.utils.choose_token_prompt import choose_token_prompt
+from warren.utils.invert_tokens import invert_tokens
 from warren.utils.to_human import to_human
 from warren.utils.to_wei import to_wei
 
@@ -63,11 +64,8 @@ def create(
             prompt_message="Choose token1",
         )
 
-        invert_tokens = order_type.value == OrderType["buy"].value
-        if invert_tokens:
-            token9 = token1
-            token1 = token0
-            token0 = token9
+        if order_type.value == OrderType["buy"].value:
+            (token0, token1) = invert_tokens(token0, token1)
 
         routes = order_book.router.get_routes_by_token0_and_token1(
             token0=token0,
