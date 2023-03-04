@@ -16,6 +16,8 @@ explorer_app = typer.Typer()
 
 @explorer_app.command()
 def scan(
+    factory_address: str = typer.Option(..., help="Uniswap V2 Factory Address"),
+    factory_name: str = typer.Option(..., help="Uniswap V2 Name"),
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
 ):
     console: Console = Console()
@@ -27,15 +29,23 @@ def scan(
 
     services = create_service(config_dir)
 
-    factory = UniswapV2Factory(web3=services.web3, address="0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f")
+    factory = UniswapV2Factory(web3=services.web3, address=factory_address)
     length = factory.get_pairs_length()
 
-    for index in range(688, length, 1):
+    for index in range(0, length, 1):
         address = factory.get_pair_address_by_index(index)
-        (token0, token1) = create_pair_from_address(web3=services.web3, address=address)
+        contract = create_pair_from_address(web3=services.web3, address=address)
+
+        (reserve0, reserve1, timestamp) = contract.functions.getReserves().call()
+        token0 = contract.functions.token0().call()
+        token1 = contract.functions.token1().call()
+
         pair = PairDto(
-            type="uniswap_v2",
+            type=factory_name,
             address=address,
+            timestamp=timestamp,
+            reserve0=reserve0,
+            reserve1=reserve1,
             token0=token0,
             token1=token1,
         )

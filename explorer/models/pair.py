@@ -5,6 +5,9 @@ class PairDao(BaseModel):
     id: int
     type: str
     address: str
+    timestamp: str
+    reserve0: str
+    reserve1: str
     token0: str
     token1: str
 
@@ -12,5 +15,8 @@ class PairDao(BaseModel):
 class PairDto(BaseModel):
     type: str
     address: str
+    timestamp: str
+    reserve0: str
+    reserve1: str
     token0: str
     token1: str

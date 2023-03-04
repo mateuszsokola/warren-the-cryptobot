@@ -69,6 +69,9 @@ class Database:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     type VARCHAR NOT NULL,
                     address VARCHAR NOT NULL,
+                    timestamp INTEGER NOT NULL,
+                    reserve0 VARCHAR NOT NULL,
+                    reserve1 VARCHAR NOT NULL,
                     token0 VARCHAR NOT NULL,
                     token1 VARCHAR NOT NULL
                 )
@@ -77,10 +80,13 @@ class Database:
 
     def insert_or_replace_pair(self, pair: PairDto):
         self.cur.execute(
-            "INSERT OR REPLACE INTO uniswap_v2_pairs (type, address, token0, token1) VALUES(?, ?, ?, ?);",
+            "INSERT OR REPLACE INTO uniswap_v2_pairs (type, address, timestamp, reserve0, reserve1, token0, token1) VALUES(?, ?, ?, ?, ?, ?, ?);",
             (
                 pair.type,
                 pair.address,
+                pair.timestamp,
+                pair.reserve0,
+                pair.reserve1,
                 pair.token0,
                 pair.token1,
             ),
