@@ -45,15 +45,10 @@ class OrderBookService:
         for order in order_list:
             # TODO(mateu.sh): auto cancel order when empty balance
             token0_balance = order.token0.balance_of(self.web3.eth.default_account)
-            token1_balance = order.token1.balance_of(self.web3.eth.default_account)
 
-            # TODO(mateu.sh): add sell (at highest price) order
             highest_price_route = None
             highest_price: int = 0
-
-            # TODO(mateu.sh): add buy (at lowest price) order
-            lowest_price_route = None
-            lowest_price: int = 0
+            lowest_price: int = 9999999 * 10 ** order.token1.decimals()
 
             routes = self.router.get_routes_by_token0_and_token1(order.token0, order.token1)
             for route in routes:
@@ -66,13 +61,17 @@ class OrderBookService:
                     highest_price = route_price
 
                 if lowest_price > route_price:
-                    lowest_price_route = route
                     lowest_price = route_price
 
             route = None
 
-            # TODO(mateu.sh): refactor those conditional statements
-            if order.type.value == OrderType["stop_loss"].value and lowest_price <= order.trigger_price:
+            if order.type.value == OrderType["buy"].value and highest_price <= order.trigger_price:
+                amount_in = int(token0_balance * order.percent)
+                route = highest_price_route
+            elif order.type.value == OrderType["sell"].value and highest_price >= order.trigger_price:
+                amount_in = int(token0_balance * order.percent)
+                route = highest_price_route
+            elif order.type.value == OrderType["stop_loss"].value and lowest_price <= order.trigger_price:
                 amount_in = int(token0_balance * order.percent)
                 route = highest_price_route
             elif order.type.value == OrderType["take_profit"].value and highest_price >= order.trigger_price:

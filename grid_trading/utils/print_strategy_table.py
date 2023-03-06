@@ -2,7 +2,8 @@ from typing import List
 from rich.console import Console
 from rich.table import Table
 from grid_trading.models.strategy_dao import BaseStrategyDao
-from tokens.utils.get_token_class_by_name import get_token_class_by_name
+
+# from tokens.utils.get_token_class_by_name import get_token_class_by_name
 from warren.utils.to_human import to_human
 
 
@@ -19,7 +20,8 @@ def print_strategy_table(strategy_list: List[BaseStrategyDao]):
     table.add_column("Status", justify="right", style="green")
 
     for strategy in strategy_list:
-        Token1Class = get_token_class_by_name(strategy.token1)
+        # Token1Class = get_token_class_by_name(strategy.token1)
+        Token1Class = strategy.token1
 
         last_tx_price = (
             to_human(strategy.last_tx_price, decimals=Token1Class.decimals()) if strategy.last_tx_price is not None else "-"

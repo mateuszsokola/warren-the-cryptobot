@@ -3,17 +3,30 @@ from warren.utils.load_contract_abi import load_contract_abi
 
 
 class BaseToken:
+    decimals: int = 18
+
     def __init__(
         self,
         web3: Web3,
         address: str,
         name: str,
         abi_name: str = "IERC20.json",
+        decimals: int = 18,
+        native: bool = False,
     ):
         self.web3 = web3
         self.name = name
         self.address = address
-        self.contract = web3.eth.contract(address=address, abi=load_contract_abi(abi_name, "artifacts/tokens"))
+        self.contract = (
+            None
+            if native == True
+            else web3.eth.contract(
+                address=address,
+                abi=load_contract_abi(abi_name, "artifacts/tokens"),
+            )
+        )
+        self.decimals = decimals
+        self.native = native
 
     def approve(
         self,
@@ -36,7 +49,3 @@ class BaseToken:
 
     def balance_of(self, address: str):
         return self.contract.functions.balanceOf(address).call()
-
-    @staticmethod
-    def decimals() -> int:
-        return 18

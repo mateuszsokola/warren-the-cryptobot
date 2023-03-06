@@ -10,6 +10,7 @@ from grid_trading.core.cli import grid_trading_app
 from order_book.core.cli import order_book_app
 from warren.core.create_database import create_database
 from warren.core.create_service import create_service
+from warren.core.router_v2 import RouterV2
 from warren.core.setup_wizard import SetupWizard
 from warren.managers.config_manager import ConfigManager
 from warren.models.option import OptionDto
@@ -21,6 +22,8 @@ from warren.utils.runner import Runner
 from warren.utils.to_human import to_human
 from warren.utils.to_wei import to_wei
 
+import networkx as nx
+import matplotlib.pyplot as plt
 
 main_app = typer.Typer()
 main_app.add_typer(order_book_app, name="order-book")
@@ -243,3 +246,18 @@ def config(
     option = OptionDto(option_name=OptionName[name], option_value=value)
     config.set_option(option)
     console.print(f"The [green]{name}[/green] has been changed to [red]{value}[/red]")
+
+
+@main_app.command()
+def graph():
+    router = RouterV2()
+    G = router._load_routes("./metadata/exchanges/curvefi.yml")
+    nx.draw(G, with_labels=True)
+    H = G.to_directed()
+    # [print(cycle) for cycle in nx.simple_cycles(H) if len(cycle) > 2]
+    # print(f"G ready: {len(G.nodes)} nodes, {len(G.edges)} edges")
+    # print(f"", G.get_edge_data("DAI", "WBTC"))
+    # print(G.edges)
+    # print(G.get_edge_data("WBTC", "DAI"))
+    print(nx.shortest_path(G, "DAI", "WBTC"))
+    # plt.show()

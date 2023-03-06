@@ -1,0 +1,116 @@
+ethereum:
+  - name: "Curve.fi: DAI/USDC/USDT"
+    type: curvefi
+    swap_type: 1
+    addresses:
+      pool: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
+      gauge: "0xbfcf63294ad7105dea65aa58f8ae5be2d9d0952a"
+      lp_token: "0x6c3f90f043a72fa612cbac8115ee7e52bde6e490"
+    tokens:
+      - DAI
+      - USDC
+      - USDT
+  - name: "Curve.fi: hBTC/wBTC"
+    type: curvefi
+    swap_type: 1
+    addresses:
+      pool: "0x4ca9b3063ec5866a4b82e437059d2c43d1be596f"
+      gauge: "0x4c18e409dc8619bfb6a1cb56d114c3f592e0ae79"
+      lp_token: "0xb19059ebb43466c323583928285a49f558e572fd"
+    tokens:
+      - HBTC
+      - WBTC
+  - name: "Curve.fi: LINK/sLINK"
+    type: curvefi
+    swap_type: 1
+    addresses:
+      pool: "0xF178C0b5Bb7e7aBF4e12A4838C7b7c5bA2C623c0"
+      gauge: "0x0000000000000000000000000000000000000000"
+      lp_token: "0x0000000000000000000000000000000000000000"
+    tokens:
+      - LINK
+      - sLINK
+  - name: "Curve.fi: renBTC/wBTC"
+    type: curvefi
+    swap_type: 1
+    addresses:
+      pool: "0x93054188d876f558f4a66B2EF1d97d16eDf0895B"
+      lp_token: "0x49849c98ae39fff122806c06791fa73784fb3675"
+      gauge: "0xb1f2cdec61db658f091671f5f199635aef202cac"
+    tokens:
+      - renBTC
+      - WBTC
+  - name: "Curve.fi: renBTC/wBTC/sBTC"
+    type: curvefi
+    swap_type: 1
+    addresses:
+      pool: "0x7fc77b5c7614e1533320ea6ddc2eb61fa00a9714"
+      lp_token: "0x075b1bb99792c9e1041ba13afef80c91a1e70fb3"
+      gauge: "0x705350c4bcd35c9441419ddd5d2f097d7a55410f"
+    tokens:
+      - renBTC
+      - WBTC
+      - sBTC
+  - name: "Curve.fi: wBTC/sBTC"
+    type: curvefi
+    swap_type: 1
+    addresses:
+      pool: "0xf253f83aca21aabd2a20553ae0bf7f65c755a07f"
+      lp_token: "0x051d7e5609917bd9b73f04bac0ded8dd46a74301"
+      gauge: "0x6d787113f23bed1d5e1530402b3f364d0a6e5af3"
+    tokens:
+      - WBTC
+      - sBTC
+  - name: "Curve.fi: ETH/sETH"
+    type: curvefi
+    swap_type: 1
+    addresses:
+      pool: "0xc5424b857f758e906013f3555dad202e4bdb4567"
+      lp_token: "0xa3d87fffce63b53e0d54faa1cc983b7eb0b74a9c"
+      gauge: "0x3c0ffff15ea30c35d7a85b85c0782d6c94e1d238"
+    tokens:
+      - ETH
+      - sETH
+  - name: "Curve.fi: ETH/stETH"
+    type: curvefi
+    swap_type: 1
+    addresses:
+      pool: "0xdc24316b9ae028f1497c275eb9192a3ea0f67022"
+      lp_token: "0x06325440d014e39736583c165c2963ba99faf14e"
+      gauge: "0x182b723a58739a9c974cfdb385ceadb237453c28"
+    tokens:
+      - ETH
+      - stETH
+  - name: "Curve.fi: sUSD v2 Swap"
+    type: curvefi
+    swap_type: 1
+    addresses:
+      pool: "0xA5407eAE9Ba41422680e2e00537571bcC53efBfD"
+      lp_token: "0xc25a3a3b969415c80451098fa907ec722572917f"
+      gauge: "0xa90996896660decc6e997655e065b23788857849"
+    tokens:
+      - DAI
+      - USDC
+      - USDT
+      - sUSD
+  # - name: "Curve.fi: ETH/rETH2 (StaFI)"
+  #   type: curvefi
+  #   swap_type: 1
+  #   addresses:
+  #     pool: "0xf9440930043eb3997fc70e1339dbb11f341de7a8"
+  #     lp_token: "0x53a901d48795c58f485cbb38df08fa96a24669d5"
+  #     gauge: "0x824f13f1a2f29cfeea81154b46c0fc820677a637"
+  #   tokens:
+  #     - ETH
+  #     - rETH2
+  - name: "Curve.fi: USD-BTC-ETH (tricrypto2)"
+    type: curvefi
+    swap_type: 3
+    addresses:
+      pool: "0xD51a44d3FaE010294C616388b506AcdA1bfAAE46"
+      lp_token: "0xc4ad29ba4b3c580e6d59105fff484999997675ff"
+      gauge: "0xdefd8fdd20e0f34115c7018ccfb655796f6b2168"
+    tokens:
+      - USDT
+      - WBTC
+      - WETH9

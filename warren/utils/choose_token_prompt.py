@@ -1,16 +1,17 @@
 from typing import List
 from rich.console import Console
 from rich.prompt import Prompt
+from tokens.base_token import BaseToken
 from warren.core.token import Token
 
 
-def choose_token_prompt(token_list: List[str], token_service: Token, console: Console, prompt_message: str = "Choose token0"):
+def choose_token_prompt(token_list: List[BaseToken], console: Console, prompt_message: str = "Choose token0"):
     choices = []
     for idx, token in enumerate(token_list):
-        console.print(f"{idx}) {token}")
+        console.print(f"{idx}) {token.name}")
         choices.append(str(idx))
 
     idx = int(Prompt.ask(prompt_message, choices=choices))
-    token_name = list(token_list)[idx]
+    token = list(token_list)[idx]
 
-    return token_service.get_token_by_name(token_name)
+    return token

@@ -8,13 +8,18 @@ from web3 import Web3, AsyncHTTPProvider, HTTPProvider
 from web3.eth import AsyncEth, Eth
 from web3.main import get_default_modules
 from web3.net import AsyncNet
-from grid_trading.core.grid_trading_service import GridTradingService
+
+# from grid_trading.core.grid_trading_service import GridTradingService
 from warren.core.database import Database
+from warren.core.pool_loader import PoolLoader
+from warren.core.router_v2 import RouterV2
 from warren.core.setup_wizard import SetupWizard
+from warren.core.token_service import TokenService
 from warren.managers.config_manager import ConfigManager
 from warren.models.option_name import OptionName
 from warren.models.service import Service
-from order_book.core.order_book_service import OrderBookService
+
+# from order_book.core.order_book_service import OrderBookService
 from warren.utils.retryable_eth_module import retryable_eth_module
 
 
@@ -57,23 +62,35 @@ def create_service(config_path: str, passphrase: str = "") -> Service:
     """
     web3.middleware_onion.add(simple_cache_middleware)
 
-    order_book = OrderBookService(
+    # order_book = OrderBookService(
+    #     async_web3=async_web3,
+    #     web3=web3,
+    #     database=database,
+    # )
+
+    # grid_trading = GridTradingService(
+    #     async_web3=async_web3,
+    #     web3=web3,
+    #     database=database,
+    # )
+
+    token_service = TokenService(
         async_web3=async_web3,
         web3=web3,
-        database=database,
     )
 
-    grid_trading = GridTradingService(
-        async_web3=async_web3,
-        web3=web3,
-        database=database,
-    )
+    pool_loader = PoolLoader()
+
+    router = RouterV2()
 
     return Service(
         async_web3=async_web3,
         web3=web3,
         config=config,
         database=database,
-        grid_trading=grid_trading,
-        order_book=order_book,
+        token_service=token_service,
+        pool_loader=pool_loader,
+        router=router,
+        # grid_trading=grid_trading,
+        # order_book=order_book,
     )
