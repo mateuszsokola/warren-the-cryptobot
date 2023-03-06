@@ -28,8 +28,8 @@ ethereum:
         token1: WBTC
       - token0: WETH9
         token1: USDC
-      - token0: WETH9
-        token1: stETH
+      - token0: LINK
+        token1: WETH9
   - name: PancakeSwap
     type: uniswap_v2
     addresses:
@@ -54,29 +54,9 @@ ethereum:
     pairs:
       - token0: WETH9
         token1: DAI
-      - token0: WETH9
-        token1: WBTC
+      - token0: LINK
+        token1: WETH9
       - token0: WETH9
         token1: USDC
-  - name: "Curve.fi: DAI/USDC/USDT Pool"
-    type: stableswap_3pool
-    addresses:
-      pool: "0xbEbc44782C7dB0a1A60Cb6fe97d0b483032FF1C7"
-    tokens:
-      - DAI
-      - USDC
-      - USDT
-  - name: "Lido: 1inch stETH-DAI Pool"
-    type: mooniswap
-    addresses:
-      pool: "0xC1A900Ae76dB21dC5aa8E418Ac0F4E888A4C7431"
-    tokens:
-      - stETH
-      - DAI
-  - name: "Lido: 1inch LDO-stETH Pool"
-    type: mooniswap
-    addresses:
-      pool: "0x1f629794B34FFb3B29FF206Be5478A52678b47ae"
-    tokens:
-      - LDO
-      - stETH
+      - token0: LINK
+        token1: USDT

@@ -10,7 +10,5 @@ networks:
       address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599" 
     - name: WETH9
       address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
-    - name: stETH
-      address: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
-    - name: LDO
-      address: "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32"
+    - name: LINK
+      address: "0x514910771AF9Ca656af840dff83E8264EcF986CA"
