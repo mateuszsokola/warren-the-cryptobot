@@ -38,7 +38,6 @@ def create(
 
         passphrase = Prompt.ask("Enter passphrase")
         services = create_service(config_path=config_dir, passphrase=passphrase)
-        order_book = services.order_book
 
         order_types: List[OrderType] = []
         choices = []
@@ -50,16 +49,15 @@ def create(
         order_type_idx = int(Prompt.ask("Choose order type", choices=choices))
         order_type = order_types[order_type_idx]
 
+        token_list = services.token_service.get_all_tokens()
         token0 = choose_token_prompt(
-            token_list=order_book.router.get_all_tokens(),
-            token_service=services.order_book.token,
+            token_list=token_list,
             console=console,
             prompt_message="Choose token0",
         )
 
         token1 = choose_token_prompt(
-            token_list=order_book.router.get_all_tokens_by_token0(token0),
-            token_service=services.grid_trading.token,
+            token_list=token_list,
             console=console,
             prompt_message="Choose token1",
         )
@@ -67,15 +65,21 @@ def create(
         if order_type.value == OrderType["buy"].value:
             (token0, token1) = invert_tokens(token0, token1)
 
-        routes = order_book.router.get_routes_by_token0_and_token1(
-            token0=token0,
-            token1=token1,
-        )
+        routes = services.router.get_routes_by_token0_and_token1(token0=token0.name, token1=token1.name,)
 
-        token0_balance = token0.balance_of(order_book.web3.eth.default_account)
-        token1_balance = token1.balance_of(order_book.web3.eth.default_account)
-        console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals())} {token0.name}[green]")
-        console.print(f"Balance: [green]{to_human(token1_balance, decimals=token1.decimals())} {token1.name}[green]")
+        for a in routes:
+
+
+
+        # routes = order_book.router.get_routes_by_token0_and_token1(
+        #     token0=token0,
+        #     token1=token1,
+        # )
+
+        # token0_balance = token0.balance_of(services.web3.eth.default_account)
+        # token1_balance = token1.balance_of(services.web3.eth.default_account)
+        # console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals)} {token0.name}[green]")
+        # console.print(f"Balance: [green]{to_human(token1_balance, decimals=token1.decimals)} {token1.name}[green]")
 
         for route in routes:
             price = route.calculate_amount_out(token0=token0, token1=token1, amount_in=int(1 * 10 ** token0.decimals()))
@@ -117,7 +121,7 @@ def create(
             percent=Decimal(percent_of_tokens / Decimal(100)),
             status=OrderStatus.active,
         )
-        order_book.database.create_order(order=new_order)
+        services.database.create_order(order=new_order)
 
         console.print(f"The new order has been created.")
 

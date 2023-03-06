@@ -3,3 +3,5 @@ typer[all]==0.7.0
 rich==12.6.0
 pydantic==1.10.2
 tenacity==8.1.0
+networkx[default]==3.0.0
+matplotlib==3.7.1

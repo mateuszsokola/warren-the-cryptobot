@@ -2,15 +2,21 @@ networks:
   ethereum: 
     - name: DAI
       address: "0x6B175474E89094C44Da98b954EedeAC495271d0F"
+    - name: ETH
+      address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
     - name: USDC
       address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
     - name: USDT
       address: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    - name: sUSD
+      address: "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51"
     - name: WBTC
       address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599" 
     - name: WETH9
       address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
     - name: stETH
       address: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84"
+    # - name: rETH2
+    #   address: "0x9559aaa82d9649c7a7b220e7c461d2e74c9a3593"
     - name: LDO
       address: "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32"

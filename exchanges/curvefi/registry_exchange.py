@@ -13,7 +13,7 @@ DEFAULT_POOL_ADDRESSES = [
 ]
 
 
-class CurveRegistryExchange:
+class CurveFiRegistryExchange:
     def __init__(self, web3: Web3, address: str):
         self.web3 = web3
 

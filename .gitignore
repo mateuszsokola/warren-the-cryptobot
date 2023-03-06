@@ -23,3 +23,7 @@ develop-eggs
 lib
 lib64
 venv*
+
+
+# TODO(mateu.sh): Remove me
+.direnv

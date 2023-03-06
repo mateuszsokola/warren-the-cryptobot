@@ -2,7 +2,7 @@ import pytest
 from web3 import Web3
 from exchanges.curvefi.models.exchange_multiple import ExchangeMultiple
 from exchanges.curvefi.models.get_exchange_multiple_amount_params import GetExchangeMultipleAmountParams
-from exchanges.curvefi.registry_exchange import CurveRegistryExchange
+from exchanges.curvefi.registry_exchange import CurveFiRegistryExchange
 from tokens.dai import DAI
 from tokens.weth9 import WETH9
 from exchanges.uniswap.v2.factory import UniswapV2Factory
@@ -71,7 +71,7 @@ async def test_curvefi(web3: Web3, transaction_service: TransactionManager):
     await convert_eth_to_dai(web3, transaction_service)
 
     curvefi_address = "0x99a58482BD75cbab83b27EC03CA68fF489b5788f"
-    curvefi = CurveRegistryExchange(web3=web3, address=curvefi_address)
+    curvefi = CurveFiRegistryExchange(web3=web3, address=curvefi_address)
 
     dai = DAI(web3=web3, address="0x6B175474E89094C44Da98b954EedeAC495271d0F")
     weth9 = WETH9(web3=web3, address="0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")
