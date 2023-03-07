@@ -1,7 +1,6 @@
 import pytest
 from web3 import Web3
 from exchanges.uniswap.v3.models.exact_input_params import ExactInputParams
-from exchanges.uniswap.v3.models.quote_exact_input_params import QuoteExactInputParams
 from tokens.base_token import BaseToken
 from tokens.dai import DAI
 from tokens.weth9 import WETH9
