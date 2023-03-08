@@ -6,6 +6,7 @@ import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
 from tokens.weth9 import WETH9
+from fluffykitten.core.cli import fluffykitten_app
 from grid_trading.core.cli import grid_trading_app
 from order_book.core.cli import order_book_app
 from warren.core.create_database import create_database
@@ -25,6 +26,7 @@ from warren.utils.to_wei import to_wei
 main_app = typer.Typer()
 main_app.add_typer(order_book_app, name="order-book")
 main_app.add_typer(grid_trading_app, name="grid-trading")
+main_app.add_typer(fluffykitten_app, name="fluffykitten")
 
 
 @main_app.command()

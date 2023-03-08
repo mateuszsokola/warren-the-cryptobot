@@ -24,7 +24,6 @@ class UniswapV3QuoterV2(UniswapV3BaseQuoter):
     def quote_exact_input(self, params: QuoteExactInputParams) -> QuoteExactInput:
         path = list(reversed(params.path))
         fees = list(reversed(params.fees))
-
         (
             amount_out,
             sqrt_price_limit_x96_after_list,

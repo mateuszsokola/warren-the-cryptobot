@@ -11,5 +11,5 @@ class Service(BaseModel):
     web3: Web3
     config: ConfigManager
     database: Database
-    order_book: OrderBookService
-    grid_trading: GridTradingService
+    order_book: OrderBookService | None
+    grid_trading: GridTradingService | None
