@@ -1,5 +1,5 @@
 ethereum:
-  - name: "Uniswap v3: LINK/WETH9/DAI 3%"
+  - name: "Uniswap v3: LINK/WETH9/DAI 0.3%"
     type: uniswap_v3
     addresses:
       router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
@@ -22,7 +22,7 @@ ethereum:
       - "0x514910771AF9Ca656af840dff83E8264EcF986CA" # LINK
     fees:
       - 3000
-      - 10000  
+      - 10000
   - name: "Uniswap v3: LINK/UNI/WETH9/DAI"
     type: uniswap_v3
     addresses:
@@ -37,52 +37,31 @@ ethereum:
       - 3000
       - 3000
       - 3000
-  # - name: "Uniswap v3: DAI/WETH9/UNI/LINK"
-  #   type: uniswap_v3
-  #   addresses:
-  #     router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-  #     quoter_v2: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e"
-  #   path:
-  #     - "0x514910771AF9Ca656af840dff83E8264EcF986CA" # LINK
-  #     - "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984" # UNI
-  #     - "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" # WETH9
-  #     - "0x6B175474E89094C44Da98b954EedeAC495271d0F" # DAI
-  #   fees:
-  #     - 3000
-  #     - 3000
-  #     - 3000
-
-  # - name: "Uniswap v3: LINK/DAI"
-  #   type: uniswap_v3
-  #   addresses:
-  #     router: "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-  #     quoter_v2: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e"
-  #   path:
-  #     - "0x6B175474E89094C44Da98b954EedeAC495271d0F" # DAI
-  #     - "0x514910771AF9Ca656af840dff83E8264EcF986CA" # LINK
-  #   fees:
-  #     - 3000
-
-  # - name: Uniswap v2
-  #   type: uniswap_v2
-  #   addresses:
-  #     factory: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
-  #     router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
-
-  #   path:
-  #     address:
-  #     token0: WETH9
-  #     token1: DAI
-  #     fee:
-  #       numerator: 3
-  #       denumerator: 100
-
-  #   pairs:
-  #     - token0: WETH9
-  #       token1: DAI
-  #     - token0: WETH9
-  #       token1: WBTC
-  #     - token0: WETH9
-  #       token1: USDC
-  #     - token0: LINK
-  #       token1: WETH9
+  - name: "Uniswap v2: DAI/WETH9/LINK"
+    type: uniswap_v2
+    addresses:
+      router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+      factory: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+    path:
+      - "0x6B175474E89094C44Da98b954EedeAC495271d0F" # DAI
+      - "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" # WETH9
+      - "0x514910771AF9Ca656af840dff83E8264EcF986CA" # LINK
+    fees:
+      - numerator: 3
+        denumerator: 1000
+      - numerator: 3
+        denumerator: 1000
+  - name: "Uniswap v2: LINK/WETH9/DAI"
+    type: uniswap_v2
+    addresses:
+      router: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"
+      factory: "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f"
+    path:
+      - "0x514910771AF9Ca656af840dff83E8264EcF986CA" # LINK
+      - "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" # WETH9
+      - "0x6B175474E89094C44Da98b954EedeAC495271d0F" # DAI
+    fees:
+      - numerator: 3
+        denumerator: 1000
+      - numerator: 3
+        denumerator: 1000

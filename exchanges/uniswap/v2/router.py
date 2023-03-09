@@ -24,7 +24,7 @@ class UniswapV2Router:
             params.amount_in,
             params.amount_out_minimum,
             params.path,
-            self.web3.eth.default_account,
+            params.recipient,
             params.deadline,
         ).build_transaction(
             {

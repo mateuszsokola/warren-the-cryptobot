@@ -16,12 +16,12 @@ class UniswapV2Pair:
         )
 
         self.fee = fee
+        self._set_pair_inverted()
 
     def calculate_token0_to_token1_amount_out(self, amount_in: int) -> int:
         (reserve0, reserve1, timestamp) = self.contract.functions.getReserves().call()
 
         amount_in_with_fee = amount_in * (self.fee.denominator - self.fee.numerator)
-
         numerator = amount_in_with_fee * reserve0
         denominator = reserve1 * self.fee.denominator + amount_in_with_fee
 
@@ -35,3 +35,7 @@ class UniswapV2Pair:
         denominator = reserve0 * self.fee.denominator + amount_in_after_fee
 
         return numerator // denominator
+
+    def _set_pair_inverted(self):
+        token0 = self.contract.functions.token0().call()
+        self.pair_inverted = token0 == self.token0

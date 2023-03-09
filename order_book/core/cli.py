@@ -4,6 +4,7 @@ import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
+from order_book.core.order_book_service import OrderBookService
 from order_book.models.order_dto import OrderDto
 from order_book.models.order_status import OrderStatus
 from order_book.models.order_type import OrderType
@@ -36,7 +37,11 @@ def create(
 
         passphrase = Prompt.ask("Enter passphrase")
         services = create_service(config_path=config_dir, passphrase=passphrase)
-        order_book = services.order_book
+        order_book = OrderBookService(
+            async_web3=services.async_web3,
+            web3=services.web3,
+            database=services.database,
+        )
 
         order_types = []
         choices = []
@@ -49,14 +54,14 @@ def create(
 
         token0 = choose_token_prompt(
             token_list=order_book.router.get_all_tokens(),
-            token_service=services.order_book.token,
+            token_service=order_book.token,
             console=console,
             prompt_message="Choose token0",
         )
 
         token1 = choose_token_prompt(
             token_list=order_book.router.get_all_tokens_by_token0(token0),
-            token_service=services.grid_trading.token,
+            token_service=order_book.token,
             console=console,
             prompt_message="Choose token1",
         )

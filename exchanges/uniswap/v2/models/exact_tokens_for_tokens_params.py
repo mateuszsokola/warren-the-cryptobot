@@ -8,3 +8,5 @@ class ExactTokensForTokensParams(BaseModel):
     amount_in: int
     amount_out_minimum: int
     deadline: int
+    # recipient
+    recipient: str

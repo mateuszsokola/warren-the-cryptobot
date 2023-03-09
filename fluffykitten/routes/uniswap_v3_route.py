@@ -5,7 +5,6 @@ from exchanges.uniswap.v3.models.quote_exact_input_params import QuoteExactInput
 from exchanges.uniswap.v3.quoter_v2 import UniswapV3QuoterV2
 from exchanges.uniswap.v3.router import UniswapV3Router
 from fluffykitten.routes.base_route import BaseRoute
-from tokens.base_token import BaseToken
 
 
 class UniswapV3Route(BaseRoute):
@@ -62,7 +61,8 @@ class UniswapV3Route(BaseRoute):
             recipient=self.web3.eth.default_account,
             deadline=deadline,
         )
-        tx_params = self.router.exact_input_single(
+
+        tx_params = self.router.exact_input(
             exact_input_params,
             gas_limit=gas_limit,
             max_fee_per_gas=tx_fees.max_fee_per_gas,
