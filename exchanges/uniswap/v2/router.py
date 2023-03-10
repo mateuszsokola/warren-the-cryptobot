@@ -23,11 +23,8 @@ class UniswapV2Router:
         tx = self.contract.functions.swapExactTokensForTokens(
             params.amount_in,
             params.amount_out_minimum,
-            [
-                params.token_in,
-                params.token_out,
-            ],
-            self.web3.eth.default_account,
+            params.path,
+            params.recipient,
             params.deadline,
         ).build_transaction(
             {

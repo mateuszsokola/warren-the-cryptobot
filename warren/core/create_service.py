@@ -57,23 +57,9 @@ def create_service(config_path: str, passphrase: str = "") -> Service:
     """
     web3.middleware_onion.add(simple_cache_middleware)
 
-    order_book = OrderBookService(
-        async_web3=async_web3,
-        web3=web3,
-        database=database,
-    )
-
-    grid_trading = GridTradingService(
-        async_web3=async_web3,
-        web3=web3,
-        database=database,
-    )
-
     return Service(
         async_web3=async_web3,
         web3=web3,
         config=config,
         database=database,
-        grid_trading=grid_trading,
-        order_book=order_book,
     )

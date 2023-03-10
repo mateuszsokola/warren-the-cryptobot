@@ -5,7 +5,10 @@ import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
+from grid_trading.core.grid_trading_service import GridTradingService
+from order_book.core.order_book_service import OrderBookService
 from tokens.weth9 import WETH9
+from fluffykitten.core.cli import fluffykitten_app
 from grid_trading.core.cli import grid_trading_app
 from order_book.core.cli import order_book_app
 from warren.core.create_database import create_database
@@ -25,6 +28,7 @@ from warren.utils.to_wei import to_wei
 main_app = typer.Typer()
 main_app.add_typer(order_book_app, name="order-book")
 main_app.add_typer(grid_trading_app, name="grid-trading")
+main_app.add_typer(fluffykitten_app, name="fluffykitten")
 
 
 @main_app.command()
@@ -133,15 +137,27 @@ def start(
         gas_limit = int(services.config.options[OptionName.gas_limit])
         runner = Runner.getInstance()
 
+        grid_trading = GridTradingService(
+            async_web3=services.async_web3,
+            web3=services.web3,
+            database=services.database,
+        )
+
+        order_book = OrderBookService(
+            async_web3=services.async_web3,
+            web3=services.web3,
+            database=services.database,
+        )
+
         try:
             await asyncio.gather(
                 runner.with_loop(
-                    functools.partial(services.order_book.find_opportunities, gas_limit),
+                    functools.partial(order_book.find_opportunities, gas_limit),
                     interval=seek_interval,
                     stop_on_exception=False,
                 ),
                 runner.with_loop(
-                    functools.partial(services.grid_trading.find_opportunities, gas_limit),
+                    functools.partial(grid_trading.find_opportunities, gas_limit),
                     interval=seek_interval,
                     stop_on_exception=False,
                 ),
@@ -216,11 +232,17 @@ def balances(
 
     services = create_service(config_dir)
 
+    order_book = OrderBookService(
+        async_web3=services.async_web3,
+        web3=services.web3,
+        database=services.database,
+    )
+
     console.print("")
     console.print("Token balances:\n")
     console.print(f"  ETH: {to_human(services.web3.eth.get_balance(services.web3.eth.default_account), decimals=WETH9.decimals())}")
 
-    for token in services.order_book.token.get_all_tokens():
+    for token in order_book.token.get_all_tokens():
         console.print(f"{token.name}: {to_human(token.balance_of(services.web3.eth.default_account), decimals=token.decimals())}")
 
 

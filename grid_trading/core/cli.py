@@ -4,6 +4,7 @@ import sys
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
+from grid_trading.core.grid_trading_service import GridTradingService
 from grid_trading.models.strategy_dto import StrategyDto
 from grid_trading.models.strategy_status import StrategyStatus
 from grid_trading.utils.print_strategy_table import print_strategy_table
@@ -34,7 +35,13 @@ def create(
         passphrase = Prompt.ask("Enter passphrase")
         services = create_service(config_path=config_dir, passphrase=passphrase)
 
-        token_routes = services.grid_trading.router.get_token_routes()
+        grid_trading = GridTradingService(
+            async_web3=services.async_web3,
+            web3=services.web3,
+            database=services.database,
+        )
+
+        token_routes = grid_trading.router.get_token_routes()
         token0 = choose_token_prompt(
             token_list=token_routes.keys(),
             token_service=services.grid_trading.token,
@@ -43,17 +50,17 @@ def create(
         )
         token1 = choose_token_prompt(
             token_list=token_routes[token0.name],
-            token_service=services.grid_trading.token,
+            token_service=grid_trading.token,
             console=console,
             prompt_message="Choose token1",
         )
 
-        token0_balance = token0.balance_of(services.grid_trading.web3.eth.default_account)
-        token1_balance = token1.balance_of(services.grid_trading.web3.eth.default_account)
+        token0_balance = token0.balance_of(grid_trading.web3.eth.default_account)
+        token1_balance = token1.balance_of(grid_trading.web3.eth.default_account)
         console.print(f"Balance: [green]{to_human(token0_balance, decimals=token0.decimals())} {token0.name}[green]")
         console.print(f"Balance: [green]{to_human(token1_balance, decimals=token1.decimals())} {token1.name}[green]")
 
-        exchange_list = services.grid_trading.router.get_routes_by_token0_and_token1(
+        exchange_list = grid_trading.router.get_routes_by_token0_and_token1(
             token0=token0,
             token1=token1,
         )
