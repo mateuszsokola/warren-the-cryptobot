@@ -1,5 +1,4 @@
 import asyncio
-from web3.types import TxReceipt
 import sys
 import typer
 from rich.console import Console
