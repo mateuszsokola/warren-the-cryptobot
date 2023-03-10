@@ -50,12 +50,16 @@ async def test_pancake_swap(web3: Web3, transaction_service: TransactionManager)
     )
 
     params = ExactTokensForTokensParams(
-        token_in=weth9.address,
-        token_out=usdc.address,
+        path=[
+            weth9.address,
+            usdc.address,
+        ],
         amount_in=amount_in,
         amount_out_minimum=0,
         deadline=9999999999999999,
+        recipient=web3.eth.default_account,
     )
+
     await transaction_service.send_transaction(
         pancake_router.swap_exact_tokens_for_tokens(params, fees.gas_limit, fees.max_fee_per_gas, fees.max_fee_per_gas)
     )

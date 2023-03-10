@@ -54,6 +54,7 @@ async def test_uniswap_v2_router01(web3: Web3, transaction_service: TransactionM
         amount_in=amount_in,
         amount_out_minimum=0,
         deadline=9999999999999999,
+        recipient=web3.eth.default_account,
     )
     await transaction_service.send_transaction(
         uniswap_v2_router.swap_exact_tokens_for_tokens(params, fees.gas_limit, fees.max_fee_per_gas, fees.max_fee_per_gas)
@@ -108,6 +109,7 @@ async def test_uniswap_v2_router02(web3: Web3, transaction_service: TransactionM
         amount_in=amount_in,
         amount_out_minimum=0,
         deadline=9999999999999999,
+        recipient=web3.eth.default_account,
     )
     await transaction_service.send_transaction(
         uniswap_v2_router.swap_exact_tokens_for_tokens(params, fees.gas_limit, fees.max_fee_per_gas, fees.max_fee_per_gas)
@@ -135,6 +137,7 @@ async def test_uniswap_v2_router02(web3: Web3, transaction_service: TransactionM
         amount_in=1514276931280896357898,
         amount_out_minimum=0,
         deadline=9999999999999999,
+        recipient=web3.eth.default_account,
     )
     await transaction_service.send_transaction(
         uniswap_v2_router.swap_exact_tokens_for_tokens(params, fees.gas_limit, fees.max_fee_per_gas, fees.max_fee_per_gas)

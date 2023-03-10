@@ -28,7 +28,6 @@ class GridTradingService:
 
         self.latest_checked_block = 0
 
-    # TODO(mateu.sh): move gas limit to config
     async def find_opportunities(self, gas_limit: int = 200000):
         strategy_list: List[StrategyDao] = self.database.list_grid_trading_orders(
             func=functools.partial(create_strategy_dao, self.token), status=StrategyStatus.active
