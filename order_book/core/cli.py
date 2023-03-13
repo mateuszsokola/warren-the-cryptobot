@@ -1,6 +1,7 @@
 import asyncio
 from decimal import Decimal
 import sys
+from typing import List
 import typer
 from rich.console import Console
 from rich.prompt import Prompt, Confirm
@@ -14,6 +15,7 @@ from warren.core.setup_wizard import SetupWizard
 from warren.managers.approval_manager import ApprovalManager
 from order_book.utils.print_order_table import print_order_table
 from warren.utils.choose_token_prompt import choose_token_prompt
+from warren.utils.invert_tokens import invert_tokens
 from warren.utils.to_human import to_human
 from warren.utils.to_wei import to_wei
 
@@ -21,8 +23,6 @@ from warren.utils.to_wei import to_wei
 order_book_app = typer.Typer()
 
 
-# TODO(mateu.sh): support ETH wrapping
-# TODO(mateu.sh): get rid of repeated code
 @order_book_app.command()
 def create(
     config_dir: str = typer.Option(SetupWizard.default_config_path(), help="Path to the config directory."),
@@ -43,14 +43,15 @@ def create(
             database=services.database,
         )
 
-        order_types = []
+        order_types: List[OrderType] = []
         choices = []
-        for idx, order_type_idx in enumerate(OrderType):
-            console.print(f"{idx}) {order_type_idx.value}")
-            order_types.append(order_type_idx)
+        for idx, order_type in enumerate(OrderType):
+            console.print(f"{idx}) {order_type.value}")
+            order_types.append(order_type)
             choices.append(str(idx))
 
         order_type_idx = int(Prompt.ask("Choose order type", choices=choices))
+        order_type = order_types[order_type_idx]
 
         token0 = choose_token_prompt(
             token_list=order_book.router.get_all_tokens(),
@@ -66,6 +67,9 @@ def create(
             prompt_message="Choose token1",
         )
 
+        if order_type.value == OrderType["buy"].value:
+            (token0, token1) = invert_tokens(token0, token1)
+
         routes = order_book.router.get_routes_by_token0_and_token1(
             token0=token0,
             token1=token1,
@@ -76,12 +80,22 @@ def create(
 
         for route in routes:
             price = route.calculate_amount_out(token0=token0, token1=token1, amount_in=int(1 * 10 ** token0.decimals()))
-            console.print(f"{route.name}: {to_human(price, decimals=token1.decimals())} {token1.name}")
+            console.print(
+                f"{route.name}: {token0.name}/{token1.name} - {to_human(price, decimals=token1.decimals())} {token1.name}"
+            )
 
-        # TODO(mateu.sh): bring back `min_balance_to_transact`
-        # if token_in_balance < token_pair.min_balance_to_transact:
-        #     console.print(f"You don't have enough tokens")
-        #     sys.exit(1)
+            # TODO(mateu.sh): refactor
+            # extrapolate price other way
+            partial_price = route.calculate_amount_out(token0=token1, token1=token0, amount_in=int(1 * 10 ** token1.decimals()))
+            price = (Decimal(1 * 10 ** token0.decimals()) / Decimal(partial_price)) * 10 ** token1.decimals()
+            console.print(
+                f"{route.name}: {token1.name}/{token0.name} - {to_human(price, decimals=token0.decimals())} {token0.name}"
+            )
+
+        print(10 ** int(token0.decimals() * Decimal(0.75)))
+        if token0_balance < (10 ** int(token0.decimals() * Decimal(0.75))):
+            console.print(f"You don't have enough tokens")
+            sys.exit(1)
 
         trigger_price = Decimal(Prompt.ask("Trigger price"))
         percent_of_tokens = Decimal(Prompt.ask("Percent of tokens to flip (excluding gas fees)", default=str(100)))
@@ -93,10 +107,11 @@ def create(
             sys.exit(0)
 
         approval_manager = ApprovalManager(web3=services.web3, async_web3=services.async_web3)
-        await approval_manager.approve_swaps(token_list=[token0], route_list=routes, amount_in=token0_balance)
+        amount_in = token0_balance
+        await approval_manager.approve_swaps(token_list=[token0], route_list=routes, amount_in=amount_in)
 
         new_order = OrderDto(
-            type=order_types[order_type_idx],
+            type=order_type,
             token0=token0,
             token1=token1,
             trigger_price=to_wei(trigger_price, decimals=token1.decimals()),
