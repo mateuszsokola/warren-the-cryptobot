@@ -23,3 +23,5 @@ develop-eggs
 lib
 lib64
 venv*
+
+*.dat
