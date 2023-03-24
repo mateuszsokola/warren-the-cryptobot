@@ -1,4 +1,3 @@
-- [ ] - support ETH on all exchanges
-- [ ] - extend create strategy that checks LDO price and swaps to ETH
-- [ ] - create strategy that checks stETH price to ETH
-- [ ] - create strategy that checks wstETH price to ETH (or stETH) - HARD ONE
+- [ ] - refactor uniswap_v2_explorer
+- [ ] - prepare inital run script
+- [ ] - run block explorer during inital catch ups

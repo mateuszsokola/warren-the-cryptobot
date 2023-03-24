@@ -7,6 +7,7 @@ from oracle.models.flash_query.uniswap_v2_pair_reserves import UniswapV2PairRese
 
 from oracle.models.swapcat.sync_state import ProcessState
 from oracle.models.swapcat.offer import SwapcatOffer
+from oracle.models.token import Token
 from oracle.models.uniswap.pair import UniswapV2PairDao, UniswapV2PairDto
 
 
@@ -50,6 +51,17 @@ class Store:
             )
             """
         )
+
+        self.cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS tokens (
+                address VARCHAR PRIMARY,
+                name VARCHAR NOT NULL,
+                symbol VARCHAR NOT NULL,
+                decimals INTEGER NOT NULL
+            )
+            """
+        )        
         self.con.commit()
 
     def create_sync_state_table(self, name: str):
@@ -76,10 +88,30 @@ class Store:
         insert_query = f"INSERT OR REPLACE INTO {contract_name}_sync_state(id, block_number, last_idx) VALUES(?,?,?)"
         self.cur.execute(insert_query, [1, block_number, last_idx])
 
-    def insert_or_replace_offer(self, offer: SwapcatOffer, should_commit: bool = False):
+    def insert_or_replace_token(self, token: Token, should_commit: bool = False):
         self.cur.execute(
             """
             INSERT OR REPLACE INTO swapcat_offers (
+                address,
+                name,
+                symbol,
+                decimals
+            ) VALUES (?, ?, ?, ?)
+            """,
+            (
+                token.address,
+                token.name,
+                token.symbol,
+                int(token.decimals),
+            ),
+        )
+        if should_commit:
+            self.con.commit()
+
+    def insert_or_replace_token(self, offer: SwapcatOffer, should_commit: bool = False):
+        self.cur.execute(
+            """
+            INSERT OR REPLACE INTO tokens (
                 id,
                 block_number,
                 token0,
@@ -100,7 +132,7 @@ class Store:
             ),
         )
         if should_commit:
-            self.con.commit()
+            self.con.commit()            
 
     def remove_offer(self, id: int, should_commit: bool = False):
         self.cur.execute(
@@ -212,6 +244,47 @@ class Store:
             ) in res
         ]
 
+    def list_uniswap_v2_pairs_by_token(self, token: str) -> List[UniswapV2PairDao]:
+        select_clause = """
+            SELECT
+                id,
+                type,
+                address,
+                token0,
+                token1,
+                reserve0,
+                reserve1,
+                timestamp
+            FROM uniswap_v2_pairs
+        """
+        where_clause = """
+        WHERE reserve0 > 0 AND reserve1 > 0 AND (token0 = ? OR token1 = ?) 
+        """
+        res = self.cur.execute(f"{select_clause} {where_clause}", [token, token]).fetchall()
+
+        return [
+            UniswapV2PairDao(
+                id=id,
+                type=type,
+                address=address,
+                token0=token0,
+                token1=token1,
+                reserve0=reserve0,
+                reserve1=reserve1,
+                timestamp=timestamp,
+            )
+            for (
+                id,
+                type,
+                address,
+                token0,
+                token1,
+                reserve0,
+                reserve1,
+                timestamp,
+            ) in res
+        ]
+
     def list_uniswap_v2_pairs_by_tokens(self, token_a: str, token_b: str) -> List[UniswapV2PairDao]:
         select_clause = """
             SELECT
@@ -265,15 +338,73 @@ class Store:
         if should_commit:
             self.con.commit()
 
+    def find_last_id(self, table: str):
+        select_query = f"SELECT id from {table} ORDER BY id DESC LIMIT 1"
+        res: Tuple[int] = self.cur.execute(select_query).fetchone()
+        if res is None:
+            return 0
+
+        return int(res[0])
+
+    def list_swapcat_offers_with_uniswap_matches(self):
+        select_query = """
+            SELECT * 
+            FROM swapcat_offers s
+            WHERE 
+                available_balance > 1000000 AND (
+                    s.token0 IN (SELECT token0 FROM uniswap_v2_pairs WHERE reserve0 > 0 AND reserve1 > 0) OR
+                    s.token0 IN (SELECT token1 FROM uniswap_v2_pairs WHERE reserve0 > 0 AND reserve1 > 0)
+                )
+            ORDER BY id DESC
+            LIMIT 9
+        """
+        res = self.cur.execute(f"{select_query}").fetchall()
+
+        return [
+            SwapcatOffer(
+                id=id,
+                block_number=block_number,
+                token0=token0,
+                token1=token1,
+                recipient=recipient,
+                amount=int(amount),
+                available_balance=int(available_balance),
+            )
+            for (
+                id,
+                block_number,
+                token0,
+                token1,
+                recipient,
+                amount,
+                available_balance,
+            ) in res
+        ]
+
 
 # All pairs matching to swapcat tokens
 """
-SELECT * 
-FROM uniswap_v2_pairs
+SELECT u.* 
+FROM uniswap_v2_pairs u
 WHERE
     reserve0 > 0 AND reserve1 > 0 AND
     (
         token0 IN (SELECT token0 FROM swapcat_offers) OR
         token1 IN (SELECT token0 FROM swapcat_offers)
     )
+"""
+
+"""
+SELECT * 
+FROM swapcat_offers s
+WHERE 
+    available_balance > 1000000 AND (
+        s.token0 IN (SELECT token0 FROM uniswap_v2_pairs WHERE reserve0 > 0 AND reserve1 > 0) OR
+        s.token0 IN (SELECT token1 FROM uniswap_v2_pairs WHERE reserve0 > 0 AND reserve1 > 0)
+    )
+ORDER BY id DESC
+"""
+
+"""
+SELECT token0, token1, COUNT(*) as c FROM uniswap_v2_pairs u GROUP BY token0, token1 ORDER BY c ASC
 """

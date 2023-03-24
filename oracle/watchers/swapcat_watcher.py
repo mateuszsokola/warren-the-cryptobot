@@ -1,14 +1,12 @@
 from typing import List
 
 from web3 import Web3
-from web3.types import LogReceipt
 from web3_utils.divide_chunks import divide_chunks
 from oracle.core.flash_query import FlashQuery
 from oracle.core.store import Store
 from oracle.models.swapcat.offer import SwapcatOffer
 
 from oracle.utils.load_contract_abi import load_contract_abi
-from oracle.utils.runner import Runner
 from oracle.utils.logger import logger
 from oracle.utils.to_hashmap import to_hashmap
 

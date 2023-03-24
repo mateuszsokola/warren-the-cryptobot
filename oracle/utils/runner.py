@@ -1,5 +1,5 @@
 import asyncio
-from typing import Callable
+from typing import Callable, Union
 from oracle.utils.format_exception import format_exception
 from oracle.utils.logger import logger
 
@@ -55,6 +55,6 @@ class Runner:
         if signal:
             logger.warning(f"Received exit signal {signal.name}...")
 
-        logger.info("Warren shutting down...")
+        logger.info("GnosisBot shutting down...")
         self.shutdown = True
         self.cancel_pending_tasks()

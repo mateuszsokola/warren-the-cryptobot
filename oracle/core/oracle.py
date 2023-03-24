@@ -19,9 +19,8 @@ class Oracle:
 
         self.flash_query = FlashQuery(
             web3,
-            address="0x29F2E2dC1B8F0Eb842b89DA7be3cbc3Affd29de0",
+            address="0xC1C54429f96D9A475AAF9FE38Bd9cB5aEF3Ba675",
         )
-
         self.swapcat_watcher = SwapcatWatcher(
             web3,
             address="0xB18713Ac02Fc2090c0447e539524a5c76f327a3b",
@@ -45,8 +44,8 @@ class Oracle:
 
         self.block_watcher = BlockWatcher(web3=web3, store=self.store, flash_query=self.flash_query)
 
-    async def initial_sync_swapcat(self):
-        await self.swapcat_watcher.sync()
+    async def initial_sync(self):
+        await self.block_watcher.initial_sync()
 
     async def swapcat_sync_balances(self):
         await self.swapcat_watcher.sync_balances()
