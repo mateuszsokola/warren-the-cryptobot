@@ -73,7 +73,16 @@ class UniswapV2Explorer:
         Web3.keccak(text="swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)")
     )[2:10]
 
-    def __init__(self, web3: Web3, store: Store, flash_query: FlashQuery, token_explorer: TokenExplorer, name: str, router_address: str, factory_address: str):
+    def __init__(
+        self,
+        web3: Web3,
+        store: Store,
+        flash_query: FlashQuery,
+        token_explorer: TokenExplorer,
+        name: str,
+        router_address: str,
+        factory_address: str,
+    ):
         self.web3 = web3
         self.store = store
         self.name = name

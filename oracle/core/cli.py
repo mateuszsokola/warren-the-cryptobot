@@ -96,27 +96,35 @@ def test_pairs(
 
             if pair.token0 == offer.token0:
                 x = calculate_token1_to_token0_amount_out(
-                    reserve0=int(pair.reserve0), reserve1=int(pair.reserve1), amount_in=offer.available_balance,
+                    reserve0=int(pair.reserve0),
+                    reserve1=int(pair.reserve1),
+                    amount_in=offer.available_balance,
                 )
             else:
                 x = calculate_token0_to_token1_amount_out(
-                    reserve0=int(pair.reserve0), reserve1=int(pair.reserve1), amount_in=offer.available_balance,
+                    reserve0=int(pair.reserve0),
+                    reserve1=int(pair.reserve1),
+                    amount_in=offer.available_balance,
                 )
 
             console.print(pair)
 
-     
-
-            p2 = oracle.store.list_uniswap_v2_pairs_by_tokens(token_a=pair.token0, token_b="0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d")
+            p2 = oracle.store.list_uniswap_v2_pairs_by_tokens(
+                token_a=pair.token0, token_b="0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"
+            )
             for pair in p2:
                 result = calculate_token0_to_token1_amount_out(
-                    reserve0=int(pair.reserve0), reserve1=int(pair.reserve1), amount_in=x,
+                    reserve0=int(pair.reserve0),
+                    reserve1=int(pair.reserve1),
+                    amount_in=x,
                 )
                 console.print(pair)
                 console.print("price2", result)
 
                 result = calculate_token1_to_token0_amount_out(
-                    reserve0=int(pair.reserve0), reserve1=int(pair.reserve1), amount_in=x,
+                    reserve0=int(pair.reserve0),
+                    reserve1=int(pair.reserve1),
+                    amount_in=x,
                 )
                 # console.print(pair)
                 console.print("price2", result)

@@ -55,13 +55,13 @@ class Store:
         self.cur.execute(
             """
             CREATE TABLE IF NOT EXISTS tokens (
-                address VARCHAR PRIMARY,
+                address VARCHAR PRIMARY KEY,
                 name VARCHAR NOT NULL,
                 symbol VARCHAR NOT NULL,
                 decimals INTEGER NOT NULL
             )
             """
-        )        
+        )
         self.con.commit()
 
     def create_sync_state_table(self, name: str):
@@ -91,7 +91,7 @@ class Store:
     def insert_or_replace_token(self, token: Token, should_commit: bool = False):
         self.cur.execute(
             """
-            INSERT OR REPLACE INTO swapcat_offers (
+            INSERT OR REPLACE INTO tokens (
                 address,
                 name,
                 symbol,
@@ -108,10 +108,10 @@ class Store:
         if should_commit:
             self.con.commit()
 
-    def insert_or_replace_token(self, offer: SwapcatOffer, should_commit: bool = False):
+    def insert_or_replace_offer(self, offer: SwapcatOffer, should_commit: bool = False):
         self.cur.execute(
             """
-            INSERT OR REPLACE INTO tokens (
+            INSERT OR REPLACE INTO swapcat_offers (
                 id,
                 block_number,
                 token0,
@@ -132,7 +132,7 @@ class Store:
             ),
         )
         if should_commit:
-            self.con.commit()            
+            self.con.commit()
 
     def remove_offer(self, id: int, should_commit: bool = False):
         self.cur.execute(

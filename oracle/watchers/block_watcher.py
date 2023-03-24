@@ -29,7 +29,10 @@ class BlockWatcher:
         self.flash_query = flash_query
         self.last_processed_block = 0
 
-        self.token_explorer = TokenExplorer(web3=web3, store=store,)
+        self.token_explorer = TokenExplorer(
+            web3=web3,
+            store=store,
+        )
 
         self.levinswap = UniswapV2Explorer(
             web3=web3,
@@ -49,7 +52,9 @@ class BlockWatcher:
             router_address=SUSHISWAP_ROUTER,
             factory_address=SUSHISWAP_FACTORY,
         )
-        self.swapcat_explorer = SwapcatExplorer(web3=web3, store=store, token_explorer=self.token_explorer, name="swapcat", address=SWAPCAT)
+        self.swapcat_explorer = SwapcatExplorer(
+            web3=web3, store=store, token_explorer=self.token_explorer, name="swapcat", address=SWAPCAT
+        )
 
     async def initial_sync(self):
         latest_block = self.web3.eth.get_block("latest")

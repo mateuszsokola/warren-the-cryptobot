@@ -48,13 +48,12 @@ class SwapcatExplorer:
 
     async def sync(self, block_number: int):
         offer_count = self.contract.functions.getoffercount().call()
-        last_idx = self.store.find_last_id("swapcat_offers")
+        last_idx = 52
 
         if offer_count > last_idx + 1:
             for idx in range(last_idx, offer_count, 1):
                 try:
                     self._create_or_update_offer(idx, block_number)
-                    logger.info(f"{self.name} - Offer {idx} / {offer_count}")
                 except:
                     continue
                 finally:
@@ -76,5 +75,6 @@ class SwapcatExplorer:
         self.token_explorer.discover_token(offer_tuple[1])
 
         if offer.available_balance > 0:
-            self.store.insert_or_replace_offer(offer)
-            self.store.con.commit()
+            self.store.insert_or_replace_offer(offer, True)
+            logger.info(f"{self.name} - Offer {idx}")
+
