@@ -6,7 +6,7 @@ from web3.types import HexStr, LogReceipt
 from oracle.models.flash_query.uniswap_v2_pair_reserves import UniswapV2PairReserves
 
 from oracle.models.swapcat.sync_state import ProcessState
-from oracle.models.swapcat.offer import SwapcatOffer
+from oracle.models.swapcat.offer import SwapcatOffer, SwapcatV2Offer
 from oracle.models.token import Token
 from oracle.models.uniswap.pair import UniswapV2PairDao, UniswapV2PairDto
 
@@ -36,6 +36,22 @@ class Store:
             )
             """
         )
+
+        self.cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS swapcat_v2_offers (
+                id           INTEGER PRIMARY KEY,
+                block_number INTEGER NOT NULL,
+                token0 VARCHAR NOT NULL,
+                token1 VARCHAR NOT NULL,
+                recipient VARCHAR NOT NULL,
+                unknown_address VARCHAR NOT NULL,
+                amount VARCHAR NOT NULL,
+                available_balance VARCHAR NOT NULL
+            )
+            """
+        )
+
 
         self.cur.execute(
             """
@@ -134,7 +150,37 @@ class Store:
         if should_commit:
             self.con.commit()
 
-    def remove_offer(self, id: int, should_commit: bool = False):
+
+    def insert_or_replace_swapcat_v2_offer(self, offer: SwapcatV2Offer, should_commit: bool = False):
+        self.cur.execute(
+            """
+            INSERT OR REPLACE INTO swapcat_v2_offers (
+                id,
+                block_number,
+                token0,
+                token1,
+                recipient,
+                unknown_address,
+                amount,
+                available_balance
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                offer.id,
+                offer.block_number,
+                offer.token0,
+                offer.token1,
+                offer.recipient,
+                offer.unknown_address,
+                str(offer.amount),
+                str(offer.available_balance),
+            ),
+        )
+        if should_commit:
+            self.con.commit()
+
+
+    def remove_offer(self, id: int, table: str = "swapcat_offers",  should_commit: bool = False):
         self.cur.execute(
             """
             DELETE FROM swapcat_offers WHERE id = ?
@@ -355,8 +401,7 @@ class Store:
                     s.token0 IN (SELECT token0 FROM uniswap_v2_pairs WHERE reserve0 > 0 AND reserve1 > 0) OR
                     s.token0 IN (SELECT token1 FROM uniswap_v2_pairs WHERE reserve0 > 0 AND reserve1 > 0)
                 )
-            ORDER BY id DESC
-            LIMIT 9
+            ORDER BY id ASC
         """
         res = self.cur.execute(f"{select_query}").fetchall()
 
@@ -380,6 +425,58 @@ class Store:
                 available_balance,
             ) in res
         ]
+    
+    def list_swapcat_v2_offers_with_uniswap_matches(self):
+        select_query = """
+            SELECT * 
+            FROM swapcat_v2_offers s
+            WHERE 
+                available_balance > 1000000 AND (
+                    s.token0 IN (SELECT token0 FROM uniswap_v2_pairs WHERE reserve0 > 0 AND reserve1 > 0) OR
+                    s.token0 IN (SELECT token1 FROM uniswap_v2_pairs WHERE reserve0 > 0 AND reserve1 > 0)
+                )
+            ORDER BY id ASC
+        """
+        res = self.cur.execute(f"{select_query}").fetchall()
+
+        return [
+            SwapcatV2Offer(
+                id=id,
+                block_number=block_number,
+                token0=token0,
+                token1=token1,
+                recipient=recipient,
+                unknown_address=unknown_address,
+                amount=int(amount),
+                available_balance=int(available_balance),
+            )
+            for (
+                id,
+                block_number,
+                token0,
+                token1,
+                recipient,
+                unknown_address,
+                amount,
+                available_balance,
+            ) in res
+        ]    
+    
+    def find_token_by_address(self, address: str):
+        select_query = """
+            SELECT address, name, symbol, decimals FROM tokens WHERE address = ?
+        """
+
+        res: Tuple[str, str, str, int] = self.cur.execute(select_query, [address]).fetchone()
+        if res is None:
+            return None
+
+        return Token(
+            address=res[0],
+            name=res[1],
+            symbol=res[2],
+            decimals=int(res[3])
+        )
 
 
 # All pairs matching to swapcat tokens

@@ -4,6 +4,7 @@ from typing import List
 from web3 import Web3
 from web3_utils.divide_chunks import divide_chunks
 from oracle.contract_explorers.swapcat_explorer import SwapcatExplorer
+from oracle.contract_explorers.swapcat_v2_explorer import SwapcatV2Explorer
 from oracle.contract_explorers.token_explorer import TokenExplorer
 from oracle.contract_explorers.uniswap_v2_explorer import UniswapV2Explorer
 from oracle.core.flash_query import FlashQuery
@@ -20,6 +21,7 @@ LEVINSWAP_ROUTER = "0xb18d4f69627F8320619A696202Ad2C430CeF7C53"
 LEVINSWAP_FACTORY = "0x965769C9CeA8A7667246058504dcdcDb1E2975A5"
 
 SWAPCAT = "0xB18713Ac02Fc2090c0447e539524a5c76f327a3b"
+SWAPCAT_V2 = "0xC759AA7f9dd9720A1502c104DaE4F9852bb17C14"
 
 
 class BlockWatcher:
@@ -55,18 +57,22 @@ class BlockWatcher:
         self.swapcat_explorer = SwapcatExplorer(
             web3=web3, store=store, token_explorer=self.token_explorer, name="swapcat", address=SWAPCAT
         )
+        self.swapcat_v2_explorer = SwapcatV2Explorer(
+            web3=web3, store=store, token_explorer=self.token_explorer, name="swapcat_v2", address=SWAPCAT_V2
+        )        
 
     async def initial_sync(self):
         latest_block = self.web3.eth.get_block("latest")
         block_number = latest_block["number"]
 
         await asyncio.gather(
-            self.swapcat_explorer.sync(block_number),
+            # self.swapcat_explorer.sync(block_number),
+            self.swapcat_v2_explorer.sync(block_number),
             self.sushiswap.sync_pairs(block_number),
             self.levinswap.sync_pairs(block_number),
         )
 
-        await self.watch(latest_block)
+        # await self.watch(block_number)
 
     async def watch(self, start_from_block: int = 0):
         # current_block = self.web3.eth.get_block(27040660)

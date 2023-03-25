@@ -48,7 +48,7 @@ class SwapcatExplorer:
 
     async def sync(self, block_number: int):
         offer_count = self.contract.functions.getoffercount().call()
-        last_idx = 52
+        last_idx = 9900
 
         if offer_count > last_idx + 1:
             for idx in range(last_idx, offer_count, 1):
@@ -77,4 +77,3 @@ class SwapcatExplorer:
         if offer.available_balance > 0:
             self.store.insert_or_replace_offer(offer, True)
             logger.info(f"{self.name} - Offer {idx}")
-

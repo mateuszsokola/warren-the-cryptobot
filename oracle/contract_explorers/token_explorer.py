@@ -29,5 +29,5 @@ class TokenExplorer:
             )
             self.store.insert_or_replace_token(token)
             logger.info(f"New token {name} with symbol {symbol}")
-        except: 
-            logger.error(f"Couldn't process token with {address}")           
+        except:
+            logger.error(f"Couldn't process token with {address}")
