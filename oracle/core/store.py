@@ -260,7 +260,7 @@ class Store:
                 reserve1,
                 timestamp
             FROM uniswap_v2_pairs
-            WHERE reserve0 > 0 and reserve1 > 0 and type = "sushiswap"
+            WHERE reserve0 > 0 and reserve1 > 0
         """
         order_clause = "ORDER BY id ASC" if asc == True else "ORDER BY id DESC"
         res = self.cur.execute(f"{select_clause} {order_clause}").fetchall()

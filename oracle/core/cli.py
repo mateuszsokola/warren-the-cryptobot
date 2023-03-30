@@ -233,7 +233,7 @@ def test_pairs(
             }
 
     # console.print(triangle_arb_paths)
-    print(f"Found {len(triangle_arb_paths)} triangle arb paths")
+    # print(f"Found {len(triangle_arb_paths)} triangle arb paths")
 
     path = triangle_arb_paths["0x750850309b60d90aad17e6beb1adab5fef5367f13aa8ee893b21ed9ab3cb7b60"]
     # console.print(path)
