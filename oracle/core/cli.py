@@ -6,6 +6,8 @@ import itertools
 import json
 import os
 import sys
+import numpy
+from scipy import optimize
 import typer
 from eth_account.messages import SignableMessage
 from rich.console import Console
@@ -86,220 +88,85 @@ def start(
     asyncio.run(main())
 
 
-@main_app.command()
-def execute(
-    eth_api_url: str = typer.Option(..., help="Gnosis API"),
-):
-    async def main():
-        passphrase = Prompt.ask("Enter passphrase")
-        oracle = create_service(eth_api_url=eth_api_url, passphrase=passphrase)
-        console: Console = Console()
-
-        console.print(f"Balance: {oracle.web3.eth.get_balance(oracle.web3.eth.default_account)} xDai")
-
-        usdc = oracle.web3.eth.contract(
-            address="0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-            abi=load_contract_abi("IPermittableToken.json"),
-        )
-
-        wxdai = oracle.web3.eth.contract(
-            address="0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-            abi=load_contract_abi("WXDAI.json", "artifacts/tokens"),
-        )
-        console.print(f"Balance: {usdc.functions.balanceOf(oracle.web3.eth.default_account).call()} USDC")
-        console.print(f"Balance: {wxdai.functions.balanceOf(oracle.web3.eth.default_account).call()} wxDai")
-
-        transaction_manager = TransactionManager(web3=oracle.web3, async_web3=oracle.async_web3)
-
-        # # Swap xDAI to USDC
-
-        # tx_fees = await transaction_manager.calculate_tx_fees(500000)
-
-        # sushiswap_router = UniswapV2Router(web3=oracle.web3, address=SUSHISWAP_ROUTER)
-        # params = ExactTokensForTokensParams(
-        #     path=["0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d", "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83"],
-        #     amount_in=int(100 * 10**18),
-        #     amount_out_minimum=int(99 * 10**6),
-        #     deadline=9999999999,
-        #     recipient=oracle.web3.eth.default_account,
-        # )
-
-        # tx_params = sushiswap_router.swap_exact_ETH_for_tokens(
-        #     params, tx_fees.gas_limit, tx_fees.max_priority_fee_per_gas, tx_fees.max_fee_per_gas
-        # )
-        # await transaction_manager.send_transaction(tx_params)
-
-        # console.print(f"Balance: {usdc.functions.balanceOf(oracle.web3.eth.default_account).call()} USDC")
-
-        # encode_structured_data
-
-        # domain = {
-        #     "name": "USD//C on xDai",
-        #     "version": "1",
-        #     "chainId": 100,
-        #     "verifyingContract": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-        # }
-
-        # message = {
-        #     "holder": oracle.web3.eth.default_account,
-        #     "spender": "0xC759AA7f9dd9720A1502c104DaE4F9852bb17C14",
-        #     "nonce": nonce,
-        #     "expiry": "1680187955",
-        #     "allowed": True,
-        # }
-
-        # header = {
-        #     "types": {
-        #         "Permit": [
-        #             {
-        #                 "name": "holder",
-        #                 "type": "address",
-        #             },
-        #             {
-        #                 "name": "spender",
-        #                 "type": "address",
-        #             },
-        #             {
-        #                 "name": "nonce",
-        #                 "type": "uint256",
-        #             },
-        #             {
-        #                 "name": "expiry",
-        #                 "type": "uint256",
-        #             },
-        #             {
-        #                 "name": "allowed",
-        #                 "type": "bool",
-        #             },
-        #         ]
-        #     },
-        #     "domain": {
-        #         "name": "USD//C on xDai",
-        #         "version": "1",
-        #         "chainId": 100,
-        #         "verifyingContract": "0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83",
-        #     },
-        # }
-
-        # message = SignableMessage(
-        #     version=int(1).to_bytes(1, "little"),
-        #     header=bytes(json.dumps(header), "utf-8"),
-        #     body=bytes(json.dumps(message), "utf-8"),
-        # )
-        # signature = oracle.account.sign_message(message)
-        # console.print(f"Data: {signature}")
-
-        # swapcat_v2 = oracle.web3.eth.contract(
-        #     "0xC759AA7f9dd9720A1502c104DaE4F9852bb17C14",
-        #     abi=load_contract_abi("IRealTokenYamUpgradeableV3.json"),
-        # )
-
-        swapcat = oracle.web3.eth.contract(
-            "0xB18713Ac02Fc2090c0447e539524a5c76f327a3b",
-            abi=load_contract_abi("ISWAPCAT.json"),
-        )
-
-        tx_fees = await transaction_manager.calculate_tx_fees(500000)
-
-        # tx_params = wxdai.functions.deposit().build_transaction(
-        #     {
-        #         "type": 2,
-        #         "gas": tx_fees.gas_limit,
-        #         "maxPriorityFeePerGas": tx_fees.max_priority_fee_per_gas,
-        #         "maxFeePerGas": tx_fees.max_fee_per_gas,
-        #         "value": 64675001000000000000
-        #     }
-        # )
-        # await transaction_manager.send_transaction(tx_params)
-
-        tx_params = usdc.functions.approve("0xB18713Ac02Fc2090c0447e539524a5c76f327a3b", 64707100).build_transaction(
-            {
-                "type": 2,
-                "gas": tx_fees.gas_limit,
-                "maxPriorityFeePerGas": tx_fees.max_priority_fee_per_gas,
-                "maxFeePerGas": tx_fees.max_fee_per_gas,
-            }
-        )
-        await transaction_manager.send_transaction(tx_params)
-
-        console.print(f"Balance: {usdc.functions.balanceOf(oracle.web3.eth.default_account).call()} USDC")
-        console.print(f"Balance: {wxdai.functions.balanceOf(oracle.web3.eth.default_account).call()} wxDai")
-
-        tx_params = swapcat.functions.buy(9976, 1000000000000000000, 1).build_transaction(
-            {
-                "type": 2,
-                "gas": tx_fees.gas_limit,
-                "maxPriorityFeePerGas": tx_fees.max_priority_fee_per_gas,
-                "maxFeePerGas": tx_fees.max_fee_per_gas,
-            }
-        )
-        await transaction_manager.send_transaction(tx_params)
-
-        # tx_params = swapcat_v2.functions.buyOfferBatch([7330], [58360000], [1000000000000000000]).build_transaction(
-        #     {
-        #         "type": 2,
-        #         "gas": tx_fees.gas_limit,
-        #         "maxPriorityFeePerGas": tx_fees.max_priority_fee_per_gas,
-        #         "maxFeePerGas": tx_fees.max_fee_per_gas,
-        #     }
-        # )
-        # await transaction_manager.send_transaction(tx_params)
-
-    asyncio.run(main())
-
-
 WXDAI = "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d"
 
 
 def getAmountIn(
-    token0,
-    token1,
     reserves_token0,
     reserves_token1,
     fee,
     token_out_quantity,
-    token_in,
 ):
-    if token_in == token0:
-        return int((reserves_token0 * token_out_quantity) // ((1 - fee) * (reserves_token1 - token_out_quantity)) + 1)
+    if (reserves_token1 <= token_out_quantity): 
+        return 0 
 
-    if token_in == token1:
-        return int((reserves_token1 * token_out_quantity) // ((1 - fee) * (reserves_token0 - token_out_quantity)) + 1)
+    return (reserves_token0 * token_out_quantity) // ((1 - fee) * (reserves_token1 - token_out_quantity)) + 1
 
 
 def getAmountOut(
-    token0,
-    token1,
     reserves_token0,
     reserves_token1,
     fee,
-    token_in_quantity,
-    token_in,
+    token_in_quantity: int,
 ):
-    if token_in == token0:
-        return int(reserves_token1 * token_in_quantity * (1 - fee)) // int(reserves_token0 + token_in_quantity * (1 - fee))
-
-    if token_in == token1:
-        return int(reserves_token0 * token_in_quantity * (1 - fee)) // int(reserves_token1 + token_in_quantity * (1 - fee))
+    return int(reserves_token1 * token_in_quantity * (1 - fee)) // int(reserves_token0 + token_in_quantity * (1 - fee))
 
 
-def calc_profit(token0, token1, reserves_token0, reserves_token1, borrow_amount):
+def calc_profit(path, borrow_amount):
     # get repayment INPUT at borrow_amount OUTPUT
+
+    pools = list(path["pools"].values())
+
+    token0 = pools[0].token0
+    token1 = pools[0].token1
+    reserve0 = int(pools[0].reserve0)
+    reserve1 = int(pools[0].reserve1)
+
+    if token0 != WXDAI:
+        token0 = pools[0].token1
+        token1 = pools[0].token0
+        reserve0 = int(pools[0].reserve1)
+        reserve1 = int(pools[0].reserve0)
+
     flash_repay_amount = getAmountIn(
-        reserves_token0=x0a,
-        reserves_token1=y0a,
+        reserves_token0=reserve0,
+        reserves_token1=reserve1,
         fee=Fraction(3, 1000),
         token_out_quantity=borrow_amount,
-        token_in="token0",
     )
+    token_out = None
 
-    swap_amount_out = getAmountOut(
-        reserves_token0=x0b,
-        reserves_token1=y0b,
-        fee=Fraction(3, 1000),
-        token_in_quantity=borrow_amount,
-        token_in="token1",
-    )
+    if pools[1].token0 == token1:
+        token_out = pools[1].token1
+        interim_amount = getAmountIn(
+            reserves_token0=int(pools[1].reserve0),
+            reserves_token1=int(pools[1].reserve1),
+            fee=Fraction(3, 1000),
+            token_out_quantity=flash_repay_amount,
+        )
+    else:
+        token_out = pools[1].token0
+        interim_amount = getAmountIn(
+            reserves_token0=int(pools[1].reserve1),
+            reserves_token1=int(pools[1].reserve0),
+            fee=Fraction(3, 1000),
+            token_out_quantity=flash_repay_amount,
+        )
+
+    if pools[2].token1 == WXDAI:
+        swap_amount_out = getAmountOut(
+            reserves_token0=int(pools[2].reserve1),
+            reserves_token1=int(pools[2].reserve0),
+            fee=Fraction(3, 1000),
+            token_in_quantity=interim_amount,
+        )
+    else:
+        swap_amount_out = getAmountOut(
+            reserves_token0=int(pools[2].reserve0),
+            reserves_token1=int(pools[2].reserve1),
+            fee=Fraction(3, 1000),
+            token_in_quantity=interim_amount,
+        )
 
     return swap_amount_out - flash_repay_amount
 
@@ -369,4 +236,30 @@ def test_pairs(
     print(f"Found {len(triangle_arb_paths)} triangle arb paths")
 
     path = triangle_arb_paths["0x750850309b60d90aad17e6beb1adab5fef5367f13aa8ee893b21ed9ab3cb7b60"]
-    console.print(path)
+    # console.print(path)
+
+    counter = 0
+    for path in triangle_arb_paths.values():
+        callback = functools.partial(calc_profit, path)
+
+        first = list(path["pools"].values())[0]
+        reserve = int(first.reserve0 if first.token0 == WXDAI else first.reserve1)
+
+        bounds = (
+            1,
+            float(reserve),
+        )
+
+        bracket = (0.001 * reserve, 0.01 * reserve)
+
+        result = optimize.minimize_scalar(
+            lambda x: -float(callback(borrow_amount=x)),
+            method="bounded",
+            bounds=bounds,
+            bracket=bracket,
+        )
+        if int(result.x) > 10000000000000000:
+            counter += 1
+            console.log("Result", result)
+
+    console.log("Counter", counter)            
