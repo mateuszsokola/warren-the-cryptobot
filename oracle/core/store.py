@@ -52,7 +52,6 @@ class Store:
             """
         )
 
-
         self.cur.execute(
             """
             CREATE TABLE IF NOT EXISTS uniswap_v2_pairs (
@@ -150,7 +149,6 @@ class Store:
         if should_commit:
             self.con.commit()
 
-
     def insert_or_replace_swapcat_v2_offer(self, offer: SwapcatV2Offer, should_commit: bool = False):
         self.cur.execute(
             """
@@ -179,8 +177,7 @@ class Store:
         if should_commit:
             self.con.commit()
 
-
-    def remove_offer(self, id: int, table: str = "swapcat_offers",  should_commit: bool = False):
+    def remove_offer(self, id: int, table: str = "swapcat_offers", should_commit: bool = False):
         self.cur.execute(
             """
             DELETE FROM swapcat_offers WHERE id = ?
@@ -263,6 +260,7 @@ class Store:
                 reserve1,
                 timestamp
             FROM uniswap_v2_pairs
+            WHERE reserve0 > 0 and reserve1 > 0 and type = "sushiswap"
         """
         order_clause = "ORDER BY id ASC" if asc == True else "ORDER BY id DESC"
         res = self.cur.execute(f"{select_clause} {order_clause}").fetchall()
@@ -392,6 +390,36 @@ class Store:
 
         return int(res[0])
 
+    def find_uniswap_v2_pool_by_address(self, address: str) -> List[UniswapV2PairDao]:
+        select_clause = """
+            SELECT
+                id,
+                type,
+                address,
+                token0,
+                token1,
+                reserve0,
+                reserve1,
+                timestamp
+            FROM uniswap_v2_pairs
+            WHERE address = ? 
+        """
+        res = self.cur.execute(f"{select_clause}", [address]).fetchone()
+
+        if res is None:
+            return None
+
+        return UniswapV2PairDao(
+            id=res[0],
+            type=res[1],
+            address=res[2],
+            token0=res[3],
+            token1=res[4],
+            reserve0=res[5],
+            reserve1=res[6],
+            timestamp=res[7],
+        )
+
     def list_swapcat_offers_with_uniswap_matches(self):
         select_query = """
             SELECT * 
@@ -425,7 +453,7 @@ class Store:
                 available_balance,
             ) in res
         ]
-    
+
     def list_swapcat_v2_offers_with_uniswap_matches(self):
         select_query = """
             SELECT * 
@@ -460,8 +488,8 @@ class Store:
                 amount,
                 available_balance,
             ) in res
-        ]    
-    
+        ]
+
     def find_token_by_address(self, address: str):
         select_query = """
             SELECT address, name, symbol, decimals FROM tokens WHERE address = ?
@@ -471,12 +499,7 @@ class Store:
         if res is None:
             return None
 
-        return Token(
-            address=res[0],
-            name=res[1],
-            symbol=res[2],
-            decimals=int(res[3])
-        )
+        return Token(address=res[0], name=res[1], symbol=res[2], decimals=int(res[3]))
 
 
 # All pairs matching to swapcat tokens

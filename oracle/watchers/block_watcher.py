@@ -20,6 +20,9 @@ SUSHISWAP_FACTORY = "0xc35DADB65012eC5796536bD9864eD8773aBc74C4"
 LEVINSWAP_ROUTER = "0xb18d4f69627F8320619A696202Ad2C430CeF7C53"
 LEVINSWAP_FACTORY = "0x965769C9CeA8A7667246058504dcdcDb1E2975A5"
 
+HONEYSWAP_ROUTER = "0x1C232F01118CB8B424793ae03F870aa7D0ac7f77"
+HONEYSWAP_FACTORY = "0xA818b4F111Ccac7AA31D0BCc0806d64F2E0737D7"
+
 SWAPCAT = "0xB18713Ac02Fc2090c0447e539524a5c76f327a3b"
 SWAPCAT_V2 = "0xC759AA7f9dd9720A1502c104DaE4F9852bb17C14"
 
@@ -54,12 +57,21 @@ class BlockWatcher:
             router_address=SUSHISWAP_ROUTER,
             factory_address=SUSHISWAP_FACTORY,
         )
-        self.swapcat_explorer = SwapcatExplorer(
-            web3=web3, store=store, token_explorer=self.token_explorer, name="swapcat", address=SWAPCAT
+        self.honeyswap = UniswapV2Explorer(
+            web3=web3,
+            store=store,
+            flash_query=flash_query,
+            token_explorer=self.token_explorer,
+            name="honeyswap",
+            router_address=HONEYSWAP_ROUTER,
+            factory_address=HONEYSWAP_FACTORY,
         )
-        self.swapcat_v2_explorer = SwapcatV2Explorer(
-            web3=web3, store=store, token_explorer=self.token_explorer, name="swapcat_v2", address=SWAPCAT_V2
-        )        
+        # self.swapcat_explorer = SwapcatExplorer(
+        #     web3=web3, store=store, token_explorer=self.token_explorer, name="swapcat", address=SWAPCAT
+        # )
+        # self.swapcat_v2_explorer = SwapcatV2Explorer(
+        #     web3=web3, store=store, token_explorer=self.token_explorer, name="swapcat_v2", address=SWAPCAT_V2
+        # )
 
     async def initial_sync(self):
         latest_block = self.web3.eth.get_block("latest")
@@ -67,9 +79,10 @@ class BlockWatcher:
 
         await asyncio.gather(
             # self.swapcat_explorer.sync(block_number),
-            self.swapcat_v2_explorer.sync(block_number),
+            # self.swapcat_v2_explorer.sync(block_number),
             self.sushiswap.sync_pairs(block_number),
             self.levinswap.sync_pairs(block_number),
+            self.honeyswap.sync_pairs(block_number),
         )
 
         # await self.watch(block_number)
@@ -94,9 +107,9 @@ class BlockWatcher:
                 if tx["from"] == SUSHISWAP_ROUTER or tx["to"] == SUSHISWAP_ROUTER:
                     self.sushiswap.process_tx(tx["input"], block_number)
                     continue
-                if tx["from"] == SWAPCAT or tx["to"] == SWAPCAT:
-                    self.swapcat_explorer.process_tx(tx["input"], block_number)
-                    continue
+                # if tx["from"] == SWAPCAT or tx["to"] == SWAPCAT:
+                #     self.swapcat_explorer.process_tx(tx["input"], block_number)
+                #     continue
 
             self.last_processed_block = block_number
 

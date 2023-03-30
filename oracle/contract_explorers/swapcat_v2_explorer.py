@@ -12,10 +12,16 @@ from oracle.utils.logger import logger
 class SwapcatV2Explorer:
     buy_fn_signature = Web3.toHex(Web3.keccak(text="buy(uint256,uint256,uint256)"))[2:10]
     buyOfferBatch_fn_signature = Web3.toHex(Web3.keccak(text="buyOfferBatch(uint256[],uint256[],uint256[])"))[2:10]
-    buyWithPermit_fn_signature = Web3.toHex(Web3.keccak(text="buyWithPermit(uint256,uint256,uint256,uint256,uint8,bytes32,bytes32)"))[2:10]
+    buyWithPermit_fn_signature = Web3.toHex(
+        Web3.keccak(text="buyWithPermit(uint256,uint256,uint256,uint256,uint8,bytes32,bytes32)")
+    )[2:10]
     createOffer_fn_signature = Web3.toHex(Web3.keccak(text="createOffer(address,address,address,uint256,uint256)"))[2:10]
-    createOfferBatch_fn_signature = Web3.toHex(Web3.keccak(text="createOfferBatch(address[],address[],address[],uint256[],uint256[])"))[2:10]
-    createOfferWithPermit_fn_signature = Web3.toHex(Web3.keccak(text="createOfferWithPermit(address,address,address,uint256,uint256,uint256,uint256,uint8,bytes32,bytes32)"))[2:10]
+    createOfferBatch_fn_signature = Web3.toHex(
+        Web3.keccak(text="createOfferBatch(address[],address[],address[],uint256[],uint256[])")
+    )[2:10]
+    createOfferWithPermit_fn_signature = Web3.toHex(
+        Web3.keccak(text="createOfferWithPermit(address,address,address,uint256,uint256,uint256,uint256,uint8,bytes32,bytes32)")
+    )[2:10]
     deleteOffer_fn_signature = Web3.toHex(Web3.keccak(text="deleteOffer(uint256)"))[2:10]
     deleteOfferBatch_fn_signature = Web3.toHex(Web3.keccak(text="deleteOfferBatch(uint256[])"))[2:10]
     deleteOfferByAdmin_fn_signature = Web3.toHex(Web3.keccak(text="deleteOfferByAdmin(uint256[])"))[2:10]
@@ -30,7 +36,9 @@ class SwapcatV2Explorer:
     # unpause
     updateOffer_fn_signature = Web3.toHex(Web3.keccak(text="updateOffer(uint256,uint256,uint256)"))[2:10]
     updateOfferBatch_fn_signature = Web3.toHex(Web3.keccak(text="updateOfferBatch(uint256[],uint256[],uint256[])"))[2:10]
-    updateOfferWithPermit_fn_signature = Web3.toHex(Web3.keccak(text="updateOfferWithPermit(uint256,uint256,uint256,uint256,uint256,uint8,bytes32,bytes32)"))[2:10]
+    updateOfferWithPermit_fn_signature = Web3.toHex(
+        Web3.keccak(text="updateOfferWithPermit(uint256,uint256,uint256,uint256,uint256,uint8,bytes32,bytes32)")
+    )[2:10]
     # upgradeTo
     # upgradeToAndCall
 
@@ -41,26 +49,22 @@ class SwapcatV2Explorer:
         self.token_explorer = token_explorer
         self.contract = web3.eth.contract(
             Web3.toChecksumAddress(address),
-            abi=load_contract_abi("ISWAPCATV2.json"),
+            abi=load_contract_abi("IRealTokenYamUpgradeableV3.json"),
         )
 
         self.create_fns = [
             self.createOffer_fn_signature,
             self.createOfferBatch_fn_signature,
-            self.createOfferWithPermit_fn_signature
+            self.createOfferWithPermit_fn_signature,
         ]
-        self.delete_fns = [
-            self.deleteOffer_fn_signature,
-            self.deleteOfferBatch_fn_signature,
-            self.deleteOfferByAdmin_fn_signature
-        ]
+        self.delete_fns = [self.deleteOffer_fn_signature, self.deleteOfferBatch_fn_signature, self.deleteOfferByAdmin_fn_signature]
         self.buy_or_update_fns = [
             self.buy_fn_signature,
             # self.buyOfferBatch_fn_signature,
             self.buyWithPermit_fn_signature,
             self.updateOffer_fn_signature,
             self.updateOfferBatch_fn_signature,
-            self.updateOfferWithPermit_fn_signature
+            self.updateOfferWithPermit_fn_signature,
         ]
 
     def process_tx(self, input: str, block_number: int) -> List:

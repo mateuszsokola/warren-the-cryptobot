@@ -32,15 +32,16 @@ def create_service(eth_api_url: str, passphrase: str = "") -> Oracle:
     web3 = Web3(HTTPProvider(eth_api_url), modules=web3_modules)
 
     # geth_file = SetupWizard.geth_file_path(config_path)
-    # with open(geth_file) as keyfile:
-    #     encrypted_key = keyfile.read()
-    #     private_key = web3.eth.account.decrypt(encrypted_key, passphrase)
+    geth_file = "./geth_account"
+    with open(geth_file) as keyfile:
+        encrypted_key = keyfile.read()
+        private_key = web3.eth.account.decrypt(encrypted_key, passphrase)
 
-    # account: LocalAccount = web3.eth.account.from_key(private_key)
-    # print(f"Loaded address = {account.address}")
+    account: LocalAccount = web3.eth.account.from_key(private_key)
+    print(f"Loaded address = {account.address}")
 
-    # web3.eth.default_account = account.address
-    # web3.middleware_onion.add(construct_sign_and_send_raw_middleware(account))
+    web3.eth.default_account = account.address
+    web3.middleware_onion.add(construct_sign_and_send_raw_middleware(account))
     """
     Caches responses based on the whitelisted rpc requests in
     TIME_BASED_CACHE_RPC_WHITELIST for 15 seconds.
@@ -51,4 +52,4 @@ def create_service(eth_api_url: str, passphrase: str = "") -> Oracle:
     """
     web3.middleware_onion.add(simple_cache_middleware)
 
-    return Oracle(web3, async_web3)
+    return Oracle(web3, async_web3, account)

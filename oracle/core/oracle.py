@@ -1,6 +1,6 @@
+from eth_account.signers.local import LocalAccount
 from web3 import Web3
 from oracle.core.flash_query import FlashQuery
-
 from oracle.core.store import Store
 from oracle.watchers.block_watcher import BlockWatcher
 from oracle.watchers.swapcat_watcher import SwapcatWatcher
@@ -12,10 +12,11 @@ class Oracle:
     Oracle is a facade class aggregating all the ETH1 & ETH2 stakefish related functionalities
     """
 
-    def __init__(self, web3: Web3, async_web3: Web3):
+    def __init__(self, web3: Web3, async_web3: Web3, account: LocalAccount):
         self.web3 = web3
         self.async_web3 = async_web3
         self.store = Store("./database.dat")
+        self.account = account
 
         self.flash_query = FlashQuery(
             web3,

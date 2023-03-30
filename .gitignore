@@ -25,3 +25,4 @@ lib64
 venv*
 
 *.dat
+geth_account
