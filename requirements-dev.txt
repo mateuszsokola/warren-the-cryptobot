@@ -1,4 +1,4 @@
-black==22.10.0
+black==24.3.0
 eth-brownie==1.19.2
 isort==5.10.1
 pytest-asyncio==0.20.2
